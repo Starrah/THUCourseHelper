@@ -1,0 +1,2 @@
+rootProject.name='清华课程小助手'
+include ':app'
