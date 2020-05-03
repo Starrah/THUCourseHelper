@@ -1,19 +1,13 @@
 package cn.starrah.thu_course_helper.data.declares
 
+import androidx.room.TypeConverter
+import com.alibaba.fastjson.JSON
 import java.time.Duration
 
-enum class CalendarRemindType (val chineseName: String) {
-    NONE("无"),
-    SINGAL("仅这一次"),
-    REPEAT("每次")
-}
-
-enum class CalendarRemindMethodType (val chineseName: String) {
-    NOTICE("通知栏"),
-    ALARM("闹钟")
-}
-
-data class CalendarRemindData (
+/**
+ * 描述一个提醒安排的数据类。
+ */
+data class CalendarRemindData(
     /** 提醒类型 */
     var type: CalendarRemindType = CalendarRemindType.NONE,
 
@@ -25,4 +19,16 @@ data class CalendarRemindData (
 
     /** 闹钟铃声 */
     var alarmSound: String = ""
-)
+) {
+    class TC {
+        @TypeConverter
+        fun toDBDataType(value: Duration): Long {
+            return value.seconds
+        }
+
+        @TypeConverter
+        fun fromDBDataType(value: Long): Duration {
+            return Duration.ofSeconds(value)
+        }
+    }
+}

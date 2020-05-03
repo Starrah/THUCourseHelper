@@ -1,43 +1,19 @@
 package cn.starrah.thu_course_helper.data.declares
 
-/**
- * 日程的类型
- * @param [chineseName] 中文名，可直接用于前端显示
- */
-enum class CalendarItemType(val chineseName: String) {
-    COURSE("课程"),
-    RESEARCH("科研"),
-    SOCIALWORK("社工"),
-    ASSOCIATION("社团"),
-    OTHER("其他"),
-    ;
-
-    /** 获取该种活动类型允许的所有Key的列表。可能在编辑日程的时候会用到。 */
-    val AllowedDetailKeys: List<CalendarItemLegalDetailKey>
-        get() = CalendarItemLegalDetailKey.values().filter { it.allowedTypes.contains(this) }
-}
-
-/**
- * 日程的详情列表允许的Key。
- * @param [chineseName] 中文名，可直接用于前端显示
- * @param [allowedTypes] 该Key允许在哪些种类的日程中出现。
- */
-enum class CalendarItemLegalDetailKey(
-    val chineseName: String,
-    val allowedTypes: List<CalendarItemType>
-) {
-    COMMENT("说明", CalendarItemType.values().asList()),
-    COURSEID("课程号", listOf(CalendarItemType.COURSE)),
-    TEACHER("教师", listOf(CalendarItemType.COURSE)),
-    ORGANIZATION("组织", listOf(CalendarItemType.SOCIALWORK, CalendarItemType.ASSOCIATION)),
-}
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson.TypeReference
 
 /**
  * 描述一个日程的数据类。
  */
+@Entity
 data class CalendarItemData(
-    /** 日程的数据库id，各个日程唯一 */
-    val id: Int = 0,
+    /** 日程的数据库id，各个日程唯一。当试图插入新日程到数据库中时，请保证id为默认值0。*/
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
 
     /** 日程类型 */
     var type: CalendarItemType = CalendarItemType.COURSE,
@@ -55,5 +31,20 @@ data class CalendarItemData(
     var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf(),
 
     /** 该日程的所有时间段的信息 */
-    var times: MutableList<CalendarTimeData> = mutableListOf()
-)
+    @Ignore var times: List<CalendarTimeData> = mutableListOf()
+) {
+    class TC {
+        @TypeConverter
+        fun toDBDataType(value: MutableMap<CalendarItemLegalDetailKey, String>): String {
+            return JSON.toJSONString(value)
+        }
+
+        @TypeConverter
+        fun fromDBDataType(value: String): MutableMap<CalendarItemLegalDetailKey, String> {
+            return JSON.parseObject(
+                value,
+                object : TypeReference<MutableMap<CalendarItemLegalDetailKey, String>>() {})
+        }
+    }
+
+}
