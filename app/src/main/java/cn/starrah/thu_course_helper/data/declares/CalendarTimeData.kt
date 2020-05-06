@@ -1,9 +1,6 @@
 package cn.starrah.thu_course_helper.data.declares
 
-import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
+import androidx.room.*
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.TypeReference
 import java.time.LocalDateTime
@@ -11,10 +8,16 @@ import java.time.LocalDateTime
 /**
  * 描述一个时间段的数据类。
  */
-@Entity
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = CalendarItemData::class, parentColumns = arrayOf("id"),
+        childColumns = arrayOf("item_id"), onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index("item_id")]
+)
 data class CalendarTimeData(
     /** 时间段的数据库id，各个时间段唯一。当试图插入新时间段到数据库中时，请保证id为默认值0。 */
-    @PrimaryKey(autoGenerate = true)val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)var id: Int = 0,
 
     /** 时间段的名称 */
     var name: String = "",
@@ -36,9 +39,16 @@ data class CalendarTimeData(
     var place: String = "",
 
     /** 提醒设置 */
-    @Embedded var remindData: CalendarRemindData = CalendarRemindData()
+    @Embedded(prefix = "RMD") var remindData: CalendarRemindData = CalendarRemindData(),
 
+    /** 该时间段所对应关联的日程项数据对象的引用。 */
+    @Ignore var calendarItem: CalendarItemData? = null,
+
+    /** 该时间段所对应关联的日程项的数据表外键。默认等于calendarItem的id（如果传了calendarItem就不必传这个了）*/
+    var item_id: Int = calendarItem?.id?:0
 ) {
+
+
     class TC {
         @TypeConverter
         fun toDBDataType(value: MutableList<Int>): String {

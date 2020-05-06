@@ -1,5 +1,6 @@
 package cn.starrah.thu_course_helper.data.declares
 
+import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
@@ -28,11 +29,18 @@ data class CalendarItemData(
      *
      * 如果想获得该字段允许的所有Key的列表，请使用[CalendarItemType.AllowedDetailKeys]。
      */
-    var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf(),
+    var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf()
 
-    /** 该日程的所有时间段的信息 */
-    @Ignore var times: List<CalendarTimeData> = mutableListOf()
+//    /** 该日程的所有时间段的信息 */
+//    @Ignore var times: List<CalendarTimeData> = mutableListOf()
 ) {
+    /**
+     * 可以在主线程调用。
+     */
+    suspend fun getTimes(): LiveData<List<CalendarTimeData>> {
+        TODO()
+    }
+
     class TC {
         @TypeConverter
         fun toDBDataType(value: MutableMap<CalendarItemLegalDetailKey, String>): String {

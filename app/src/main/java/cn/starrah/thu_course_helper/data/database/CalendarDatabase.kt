@@ -17,13 +17,11 @@ import cn.starrah.thu_course_helper.data.declares.*
     CalendarTimeData.TC::class,
     CalendarRemindData.TC::class,
     TimeInCourseSchedule.TC::class,
-    TimeInHour.TC::class
+    TimeInHour.TC::class,
+    DayEntityInFastSearchHelpTable.TC::class
 )
 @Database(
-    entities = arrayOf(
-        CalendarItemData::class,
-        CalendarTimeData::class
-    ),
+    entities = [CalendarItemData::class, CalendarTimeData::class],
     version = 1
 )
 abstract class CalendarDatabase : RoomDatabase() {
