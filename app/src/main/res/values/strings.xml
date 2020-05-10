@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">清华课程小助手</string>
+    <string name="course_table">课程表</string>
+    <string name="time_table">日程表</string>
+    <string name="information">信息</string>
+    <string name="settings">设置</string>
+
 </resources>

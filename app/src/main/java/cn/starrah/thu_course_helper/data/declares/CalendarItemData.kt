@@ -15,7 +15,8 @@ import com.alibaba.fastjson.TypeReference
 data class CalendarItemData(
     /** 日程的数据库id，各个日程唯一。当试图插入新日程到数据库中时，请保证id为默认值0。*/
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
-
+    /** 日程的名称 */
+    var name: String = "",
     /** 日程类型 */
     var type: CalendarItemType = CalendarItemType.COURSE,
 

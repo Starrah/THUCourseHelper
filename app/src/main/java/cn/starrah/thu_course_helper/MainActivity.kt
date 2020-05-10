@@ -1,43 +1,71 @@
 package cn.starrah.thu_course_helper
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import androidx.lifecycle.lifecycleScope
-import androidx.room.Room
-import cn.starrah.thu_course_helper.data.declares.*
-import com.alibaba.fastjson.JSON
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import android.view.MenuItem
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : FragmentActivity() {
+
+    //显示布局变量
+    var courseTableType:String = "course"
+    var showDays = 5
+
+
+    inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> Unit) {
+        val fragmentTransaction = beginTransaction()
+        fragmentTransaction.func()
+        fragmentTransaction.commit()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "database-name"
-        ).build()
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                db.userDao().insertAll(CalendarItemData(detail = mutableMapOf(CalendarItemLegalDetailKey.COMMENT to "aaa")))
-                db.userDao().insertAll(CalendarItemData(detail = mutableMapOf(CalendarItemLegalDetailKey.COMMENT to "yyy")))
-                db.userDao().insertAll(CalendarItemData(detail = mutableMapOf(CalendarItemLegalDetailKey.COMMENT to "qwq")))
-                delay(1000)
-                val res = db.userDao().getAll()
-                for (qwq in res) {
-                    Log.d("qwq", JSON.toJSONString(qwq))
-                }
-            }
+        val bottomNavigationView = findViewById(R.id.navigation) as BottomNavigationView
+        supportFragmentManager.inTransaction {
+            replace(R.id.frame_page, CourseTable())
         }
+        //bottomNavigationView Item 选择监听
+        bottomNavigationView.setOnNavigationItemSelectedListener(object :
+            BottomNavigationView.OnNavigationItemSelectedListener {
+            override fun onNavigationItemSelected(item: MenuItem): Boolean {
+                when (item.getItemId()) {
+                   R.id.navigation_course_table -> {
+                       supportFragmentManager.inTransaction {
+                           replace(R.id.frame_page, CourseTable())
+                       }
+                       return true
+                   }
 
+                    R.id.navigation_time_table -> {
+                    supportFragmentManager.inTransaction {
+                            replace(R.id.frame_page, TimeTable())
+                        }
+                        return true
+                    }
 
+                    R.id.navigation_information -> {
+                        supportFragmentManager.inTransaction {
+                            replace(R.id.frame_page, Information())
+                        }
+                        return true
+                    }
+                    R.id.navigation_settings -> {
+                        supportFragmentManager.inTransaction {
+                            replace(R.id.frame_page, Settings())
+                        }
+                        return true
+                    }
+                }
+                return false
+            }
+        })
     }
+
+
+
 }
+
