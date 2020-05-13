@@ -33,7 +33,12 @@ data class SchoolTerm(
     /**
      * 该学期调课的安排。每个受影响的日子是List中的一个元素。
      */
-    val holidayDayLevelRearrange: List<HolidayDayLevelRearrange> = mutableListOf()
+    val holidayDayLevelRearrange: List<HolidayDayLevelRearrange> = mutableListOf(),
+
+    /**
+     * 每天的课程大小节时间安排表
+     */
+    val timeRule: SchoolTimeRule = SchoolTimeRule(listOf())
 ) {
     /**
      * 形如"2019-2020学年度秋季学期"格式的中文名称
