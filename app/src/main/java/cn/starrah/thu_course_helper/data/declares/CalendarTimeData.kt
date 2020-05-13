@@ -2,6 +2,7 @@ package cn.starrah.thu_course_helper.data.declares
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import cn.starrah.thu_course_helper.data.database.CalendarRepository
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.TypeReference
 import java.time.DayOfWeek
@@ -52,7 +53,7 @@ open class CalendarTimeData(
      * 获得该时间段所对应的日程项的、[CalendarItemDataWithTimes]格式数据的[LiveData]；
      */
     open suspend fun queryItem(): LiveData<CalendarItemDataWithTimes> {
-        TODO()
+        return CalendarRepository.findItemByTime(this)
     }
 
     /**

@@ -2,6 +2,7 @@ package cn.starrah.thu_course_helper.data.declares
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import cn.starrah.thu_course_helper.data.database.CalendarRepository
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.TypeReference
@@ -37,8 +38,8 @@ open class CalendarItemData(
      *
      * 获得该Item的时间段列表的[LiveData]；
      */
-    open suspend fun queryTimes(): LiveData<MutableList<CalendarTimeData>> {
-        TODO()
+    open suspend fun queryTimes(): LiveData<List<CalendarTimeData>> {
+        return CalendarRepository.findTimesByItem(this)
     }
 
     class TC {
@@ -59,7 +60,7 @@ open class CalendarItemData(
 class CalendarItemDataWithTimes(
     /** 该日程的所有时间段的信息。*/
     @Relation(parentColumn = "id", entityColumn = "item_id")
-    var times: List<CalendarTimeData> = mutableListOf()
+    var times: MutableList<CalendarTimeData> = mutableListOf()
 ): CalendarItemData() {
     /**
      * 可以在主线程调用。
@@ -67,9 +68,9 @@ class CalendarItemDataWithTimes(
      * 获得该Item的时间段列表的[LiveData]；
      * 同时[times]属性的值也会被设置为本函数返回的[LiveData]的*value*。
      */
-    override suspend fun queryTimes(): LiveData<MutableList<CalendarTimeData>> {
+    override suspend fun queryTimes(): LiveData<List<CalendarTimeData>> {
         val superRes = super.queryTimes()
-        times = superRes.value?:times
+        times = superRes.value?.toMutableList()?:times
         return superRes
     }
 }
