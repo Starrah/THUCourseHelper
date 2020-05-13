@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
+import cn.starrah.thu_course_helper.data.database.CalendarDao
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.TypeReference
 
@@ -15,6 +16,9 @@ import com.alibaba.fastjson.TypeReference
 data class CalendarItemData(
     /** 日程的数据库id，各个日程唯一。当试图插入新日程到数据库中时，请保证id为默认值0。*/
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
+
+    /** 日程的名称 */
+    var name: String = "",
 
     /** 日程类型 */
     var type: CalendarItemType = CalendarItemType.COURSE,
@@ -29,15 +33,27 @@ data class CalendarItemData(
      *
      * 如果想获得该字段允许的所有Key的列表，请使用[CalendarItemType.AllowedDetailKeys]。
      */
-    var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf()
+    var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf(),
 
-//    /** 该日程的所有时间段的信息 */
-//    @Ignore var times: List<CalendarTimeData> = mutableListOf()
+    /** 该日程的所有时间段的信息。
+     * 请注意这是一个可空字段，使用之前需要判空。如果为空，则需要调用[queryTimes]函数，
+     * 待其返回后这个字段就会被自动赋好值。
+     *
+     *
+     * Note：
+     * [CalendarDao.findItemByTime]、[CalendarDao.findItemByItemId]返回的对象是自带非空times的，
+     * 而[CalendarDao.findTimesByDate]方法返回的[List]里面的、每个Time的内嵌的[CalendarItemData]的对象，
+     * 是不自带times的，使用前需要自行调用[queryTimes]加载。
+     * */
+    @Ignore var times: MutableList<CalendarTimeData>? = null
 ) {
     /**
      * 可以在主线程调用。
+     *
+     * 获得该Item的时间段列表的[LiveData]；
+     * 同时[times]属性的值也会被设置为本函数返回的[LiveData]的*value*。
      */
-    suspend fun getTimes(): LiveData<List<CalendarTimeData>> {
+    suspend fun queryTimes(): LiveData<MutableList<CalendarTimeData>> {
         TODO()
     }
 

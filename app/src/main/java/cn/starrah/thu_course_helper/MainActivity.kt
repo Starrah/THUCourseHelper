@@ -17,26 +17,27 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        lifecycleScope
     }
 
     override fun onResume() {
         super.onResume()
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "database-name"
-        ).build()
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                db.userDao().insertAll(CalendarItemData(detail = mutableMapOf(CalendarItemLegalDetailKey.COMMENT to "aaa")))
-                db.userDao().insertAll(CalendarItemData(detail = mutableMapOf(CalendarItemLegalDetailKey.COMMENT to "yyy")))
-                db.userDao().insertAll(CalendarItemData(detail = mutableMapOf(CalendarItemLegalDetailKey.COMMENT to "qwq")))
-                delay(1000)
-                val res = db.userDao().getAll()
-                for (qwq in res) {
-                    Log.d("qwq", JSON.toJSONString(qwq))
-                }
-            }
-        }
+//        val db = Room.databaseBuilder(
+//            applicationContext,
+//            AppDatabase::class.java, "database-name"
+//        ).build()
+//        lifecycleScope.launch {
+//            withContext(Dispatchers.IO) {
+//                db.userDao().insertAll(CalendarItemData(detail = mutableMapOf(CalendarItemLegalDetailKey.COMMENT to "aaa")))
+//                db.userDao().insertAll(CalendarItemData(detail = mutableMapOf(CalendarItemLegalDetailKey.COMMENT to "yyy")))
+//                db.userDao().insertAll(CalendarItemData(detail = mutableMapOf(CalendarItemLegalDetailKey.COMMENT to "qwq")))
+//                delay(1000)
+//                val res = db.userDao().getAll()
+//                for (qwq in res) {
+//                    Log.d("qwq", JSON.toJSONString(qwq))
+//                }
+//            }
+//        }
 
 
     }
