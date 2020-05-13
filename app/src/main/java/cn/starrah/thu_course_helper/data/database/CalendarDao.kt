@@ -16,9 +16,9 @@ abstract class CalendarDao {
     @Query(
         """
         SELECT * FROM CalendarTimeData
-        INNER JOIN CalendarFastSearchHelpTable
-        ON CalendarTimeData.id=CalendarFastSearchHelpTable.timeId
-        WHERE CalendarFastSearchHelpTable.dayId=:dayIds
+        INNER JOIN FastSearchTable
+        ON CalendarTimeData.id=FastSearchTable.timeId
+        WHERE FastSearchTable.dayId=:dayIds
     """
     )
     abstract fun findTimesByDays(dayIds: List<Int>): LiveData<List<CalendarTimeDataWithItem>>
@@ -54,7 +54,7 @@ abstract class CalendarDao {
     protected abstract fun _updateTimes(times: List<CalendarTimeData>): Int
 
     @Insert
-    protected abstract fun _insertFastSearch(l: List<CalendarFastSearchHelpTable>)
+    protected abstract fun _insertFastSearch(l: List<FastSearchTable>)
 
     @Delete
     protected abstract fun _deleteTimes(times: List<CalendarTimeData>): Int
@@ -66,12 +66,12 @@ abstract class CalendarDao {
     protected abstract fun _updateItems(items: List<CalendarItemData>): Int
 
     /**
-     * 插入或更新时间段的数据，并维护快速查找表[CalendarFastSearchHelpTable]。
+     * 插入或更新时间段的数据，并维护快速查找表[FastSearchTable]。
      *
-     * 具体行为是：对每个时间段，首先判断时间段数据改变是否包括日期的改变、需要调整[CalendarFastSearchHelpTable]快速查找表中的内容：
+     * 具体行为是：对每个时间段，首先判断时间段数据改变是否包括日期的改变、需要调整[FastSearchTable]快速查找表中的内容：
      * 如果不需要，那么直接使用UPDATE语句更新[CalendarTimeData]中的数据；
      * 如果需要，则使用INSERT OR REPLACE语句。对于此前不存在的时间段，该语句会插入数据；
-     * 对于已存在的时间段，该语句等价于首先DELETE掉原来的记录（同时[CalendarFastSearchHelpTable]快速查找表中的内容由于CASCADE而自然删除），
+     * 对于已存在的时间段，该语句等价于首先DELETE掉原来的记录（同时[FastSearchTable]快速查找表中的内容由于CASCADE而自然删除），
      * 然后INSERT进新的记录。最后，计算每个被INSERT的项的日期数据，插入快速查找表中。
      *
      * 注意：对于调整某个[CalendarItemData]的时间段的情况，不应使用本函数，而是应使用[updateItemAndTimes]函数，
@@ -79,7 +79,7 @@ abstract class CalendarDao {
      * @param [times] 要更新或插入的所有时间段的列表
      */
     @Transaction
-    fun updateTimes(times: List<CalendarTimeData>) {
+    open fun updateTimes(times: List<CalendarTimeData>) {
         _updateOrInsertTimes(times, _findTimesByIds(times.filter { it.id != 0 }.map { it.id }))
     }
 
@@ -94,7 +94,7 @@ abstract class CalendarDao {
      * @return 插入或更新的[CalendarItemData]的id
      */
     @Transaction
-    fun updateItem(item: CalendarItemData): Int {
+    open fun updateItem(item: CalendarItemData): Int {
         if (item.id == 0 || _findItemsByIds(listOf(item.id)).size <= 0) {
             return _insertItems(listOf(item)).single().toInt()
         }
@@ -110,7 +110,7 @@ abstract class CalendarDao {
      *
      * 具体的，对于传入的[times]的每一项，如果它在原来的[CalendarItemData]中不存在，则插入，否则则更新；
      * 对于原来的[CalendarItemData]中的每一个时间段，如果不存在于[times]中，则删除该记录。
-     * 无论何种情况，都会自动维护[CalendarFastSearchHelpTable]快速查找表中的记录。
+     * 无论何种情况，都会自动维护[FastSearchTable]快速查找表中的记录。
      *
      * 注意：对于日程项数据和时间段数据同时改变的情况，不应使用本函数，而是应使用[updateItemAndTimes]函数，
      * 因为本函数不会改变时间段数据。
@@ -118,7 +118,7 @@ abstract class CalendarDao {
      * @param [itemId] 日程项的Id
      */
     @Transaction
-    fun updateTimesInItem(times: List<CalendarTimeData>, itemId: Int) {
+    open fun updateTimesInItem(times: List<CalendarTimeData>, itemId: Int) {
         val oldTimes = _findTimesByItem(itemId)
         val newTimesMap = times.associateBy { it.id }
         val oldToUpdateOnes = oldTimes.filter { newTimesMap.containsKey(it.id) }
@@ -133,13 +133,13 @@ abstract class CalendarDao {
      *
      * 具体的，首先尝试更新或插入[item]；
      * 然后，对于这个[item]，根据传入的[times]，尝试更新、插入、删除[item]下面的所有时间段信息，
-     * 同时自动维护[CalendarFastSearchHelpTable]快速查找表中的记录。
+     * 同时自动维护[FastSearchTable]快速查找表中的记录。
      *
      * @param [item] 日程项
      * @param [times] 该日程下属的所有时间段
      */
     @Transaction
-    fun updateItemAndTimes(item: CalendarItemData, times: List<CalendarTimeData>) {
+    open fun updateItemAndTimes(item: CalendarItemData, times: List<CalendarTimeData>) {
         val itemId: Int
         val oldTimes: List<CalendarTimeData>
         if (item.id == 0 || _findItemsByIds(listOf(item.id)).size <= 0) {
@@ -176,10 +176,10 @@ abstract class CalendarDao {
         val updatedCount = _updateTimes(toUpdateOnes)
         assert(updatedCount == toUpdateOnes.size)
 
-        val fastDatas = mutableListOf<CalendarFastSearchHelpTable>()
+        val fastDatas = mutableListOf<FastSearchTable>()
         toInsertOnes.forEach { t ->
             fastDatas += t.calculateDayIdsInTerm().map {
-                CalendarFastSearchHelpTable(
+                FastSearchTable(
                     it,
                     t.id
                 )

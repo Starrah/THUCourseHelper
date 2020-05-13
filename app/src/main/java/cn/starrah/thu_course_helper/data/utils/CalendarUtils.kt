@@ -1,10 +1,10 @@
 package cn.starrah.thu_course_helper.data.utils
 
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarFastSearchHelpTable
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.FastSearchTable
 import java.time.LocalDate
 
 private val LocalDateTCInstance =
-    CalendarFastSearchHelpTable.TC()
+    FastSearchTable.TC()
 
 fun LocalDate.toTermDayId(): Int = LocalDateTCInstance.toDBDataType(this)
 

@@ -15,7 +15,7 @@ open class AttachedLiveData<T, P>(
      * 函数接受两个参数，第一个为P类型的、[mainLiveData]提供的新数据；第二个为T?类型的、表示之前的[value]的值。
      * 函数应当返回一个T类型的数据，将被本[AttachedLiveData]作为新的value，分发给监听者。
      */
-    private val transformFunc: (P, T?) -> T = {a, b -> a as T}
+    private val transformFunc: (P, T?) -> T = { a, _ -> a as T}
 ): LiveData<T>() {
     private var mainData: T? = mainLiveData.value?.let{ transformFunc(it, null) }
 
@@ -51,7 +51,7 @@ class AttachedListedLiveData<T, P>(
      * 函数接受两个参数，第一个为P类型的、[mainLiveData]提供的新数据；第二个为T?类型的、表示之前的[value]的值。
      * 函数应当返回一个T类型的数据，将被本[AttachedLiveData]作为新的value，分发给监听者。
      */
-    transformFunc: (P, T?) -> T = {a, b -> a as T},
+    transformFunc: (P, T?) -> T = { a, _ -> a as T},
 
     /**
      * 可以提供函数用于判断两个元素的相等性，以便于转换时重用[transformFunc]的old参数。若不提供此参数，

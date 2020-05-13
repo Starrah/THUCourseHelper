@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarFastSearchHelpTable
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.FastSearchTable
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarRemindData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
@@ -24,10 +24,10 @@ import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
     CalendarRemindData.TC::class,
     TimeInCourseSchedule.TC::class,
     TimeInHour.TC::class,
-    CalendarFastSearchHelpTable.TC::class
+    FastSearchTable.TC::class
 )
 @Database(
-    entities = [CalendarItemData::class, CalendarTimeData::class, CalendarFastSearchHelpTable::class],
+    entities = [CalendarItemData::class, CalendarTimeData::class, FastSearchTable::class],
     version = 1
 )
 abstract class CalendarDatabase : RoomDatabase() {
