@@ -1,4 +1,4 @@
-package cn.starrah.thu_course_helper.data.database
+package cn.starrah.thu_course_helper.data.utils
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer

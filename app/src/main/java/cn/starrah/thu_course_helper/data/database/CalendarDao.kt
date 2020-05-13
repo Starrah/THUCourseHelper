@@ -2,7 +2,7 @@ package cn.starrah.thu_course_helper.data.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import cn.starrah.thu_course_helper.data.declares.*
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.*
 
 @Dao
 abstract class CalendarDao {
@@ -178,7 +178,12 @@ abstract class CalendarDao {
 
         val fastDatas = mutableListOf<CalendarFastSearchHelpTable>()
         toInsertOnes.forEach { t ->
-            fastDatas += t.calculateDayIdsInTerm().map { CalendarFastSearchHelpTable(it, t.id) }
+            fastDatas += t.calculateDayIdsInTerm().map {
+                CalendarFastSearchHelpTable(
+                    it,
+                    t.id
+                )
+            }
         }
         _insertTimes(toInsertOnes)
         _insertFastSearch(fastDatas)

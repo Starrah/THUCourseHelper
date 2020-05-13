@@ -1,14 +1,11 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.calendarEntity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import cn.starrah.thu_course_helper.data.database.CalendarRepository
-import com.alibaba.fastjson.JSON
 import java.time.LocalDate
 import java.time.Period
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 /**

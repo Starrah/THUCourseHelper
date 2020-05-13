@@ -1,4 +1,4 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.calendarEnum
 
 import androidx.room.TypeConverter
 

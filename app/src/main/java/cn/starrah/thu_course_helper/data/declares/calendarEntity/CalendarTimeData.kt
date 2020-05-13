@@ -1,12 +1,13 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.calendarEntity
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import cn.starrah.thu_course_helper.data.database.CalendarRepository
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
+import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
+import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.TypeReference
-import java.time.DayOfWeek
-import java.time.LocalDateTime
 
 /**
  * 描述一个时间段的数据类。
@@ -87,26 +88,3 @@ open class CalendarTimeData(
     }
 }
 
-class CalendarTimeDataWithItem : CalendarTimeData() {
-    @Relation(parentColumn = "item_id", entityColumn = "id")
-    var _im: List<CalendarItemData> = listOf()
-
-    /** 该时间段所对应关联的日程项数据对象的引用。*/
-    var calendarItem: CalendarItemData
-        get() = _im[0]
-        set(value) {
-            _im = listOf(value)
-        }
-
-    /**
-     * 可以在主线程调用。
-     *
-     * 获得该时间段所对应的日程项的、[CalendarItemDataWithTimes]格式数据的[LiveData]；
-     * 同时[calendarItem]属性的值也会被设置为本函数返回的[LiveData]的*value*。
-     */
-    override suspend fun queryItem(): LiveData<CalendarItemDataWithTimes> {
-        val superRes = super.queryItem()
-        calendarItem = superRes.value ?: calendarItem
-        return superRes
-    }
-}

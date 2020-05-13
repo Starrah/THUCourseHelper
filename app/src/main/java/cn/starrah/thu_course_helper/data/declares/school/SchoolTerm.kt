@@ -1,6 +1,5 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.school
 
-import java.time.Duration
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter

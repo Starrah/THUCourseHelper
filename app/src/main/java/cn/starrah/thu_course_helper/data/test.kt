@@ -1,19 +1,10 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data
 
 import androidx.room.*
-import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.parser.Feature
-import com.alibaba.fastjson.parser.ParserConfig
-import com.alibaba.fastjson.parser.deserializer.ParseProcess
-import com.alibaba.fastjson.serializer.ValueFilter
-import java.text.DateFormat
-import java.text.SimpleDateFormat
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.*
 import java.time.*
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalAccessor
-import java.time.temporal.TemporalUnit
-import java.util.*
 
 @Entity
 data class User(

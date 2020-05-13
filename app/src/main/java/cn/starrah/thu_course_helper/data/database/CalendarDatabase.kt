@@ -5,7 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import cn.starrah.thu_course_helper.data.declares.*
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarFastSearchHelpTable
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarRemindData
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.*
+import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
+import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 
 @TypeConverters(
     CalendarItemType.TC::class,
