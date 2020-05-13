@@ -11,27 +11,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.LocalDate
 
-fun <E, N> MutableList<E>.updateWithNewData(
-    oldIdGen: (E?) -> Int?,
-    newIdGen: (N?) -> Int?,
-    newData: List<N>,
-    converter: (N, E?) -> E
-): MutableList<E> {
-    val map = mutableMapOf<Int, E>()
-    this.forEach {
-        val id = oldIdGen(it)
-        if (id != null) map[id] = it
-    }
-    val res = newData.map {
-        val id = newIdGen(it)
-        val old = id?.let { map[id] }
-        converter(it, old)
-    }
-    this.clear()
-    this += res
-    return this
-}
-
 abstract class calendarPOJO {
     data class DB_ItemWithTimesPOJO(
         var id: Int = 0,
@@ -44,27 +23,13 @@ abstract class calendarPOJO {
         class TC {
             fun toEntity(value: DB_ItemWithTimesPOJO, old: CalendarItemData?): CalendarItemData {
                 val res: CalendarItemData
-                if (old == null) {
-                    res = CalendarItemData(value.id, value.name, value.type, value.detail)
-                } else {
-                    res = old
-                    res.id = value.id; res.name = value.name; res.type = value.type; res.detail =
-                        value.detail;
-                }
-                res.times = (res.times?: mutableListOf()).updateWithNewData(
-                    { it?.id }, {it?.first?.id}, value.times.map { Pair(it, res) },
-                    DB_TimeQueryedInItemPOJO.TC()::toEntity
-                )
+                res = CalendarItemData(value.id, value.name, value.type, value.detail)
+                val timesTC = DB_TimeQueryedInItemPOJO.TC()
+                res.times = value.times.map { timesTC.toEntity(Pair(it, res), null) }.toMutableList()
+                return res
             }
         }
     }
-
-    data class DB_ItemWithoutTimesPOJO(
-        var id: Int = 0,
-        var name: String = "",
-        var type: CalendarItemType = CalendarItemType.COURSE,
-        var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf()
-    )
 
     data class DB_TimeQueryedInItemPOJO(
         var id: Int = 0,
@@ -85,22 +50,56 @@ abstract class calendarPOJO {
                 val value = valuePair.first
                 val item = valuePair.second
                 val res: CalendarTimeData
-                if (old == null) {
-                    assert(value.item_id == item.id)
-                    res = CalendarTimeData(
-                        value.id, value.name, value.type, value.timeInCourseSchedule,
-                        value.timeInHour, value.repeatWeeks, value.place, value.remindData, item
-                    )
-                } else {
-                    res = old
-                    if (res.calendarItem == null) res.calendarItem = item
-                    assert(value.item_id == res.calendarItem!!.id)
-                    res.id = value.id; res.name = value.name; res.type =
-                        value.type; res.timeInCourseSchedule =
-                        value.timeInCourseSchedule; res.timeInHour =
-                        value.timeInHour; res.repeatWeeks = value.repeatWeeks; res.place =
-                        value.place; res.remindData = value.remindData;
-                }
+                res = CalendarTimeData(
+                    value.id, value.name, value.type, value.timeInCourseSchedule,
+                    value.timeInHour, value.repeatWeeks, value.place, value.remindData, item
+                )
+                return res
+            }
+        }
+    }
+
+    data class DB_TimeWithSimpleItemPOJO(
+        var id: Int = 0,
+        var name: String = "",
+        var type: CalendarTimeType = CalendarTimeType.SINGLE_COURSE,
+        var timeInCourseSchedule: TimeInCourseSchedule? = null,
+        var timeInHour: TimeInHour? = null,
+        var repeatWeeks: MutableList<Int> = mutableListOf(),
+        var place: String = "",
+        @Embedded(prefix = "RMD") var remindData: CalendarRemindData = CalendarRemindData(),
+        @Relation(parentColumn = "item_id", entityColumn = "id")
+        var calendarItem: DB_ItemWithoutTimesPOJO = DB_ItemWithoutTimesPOJO(),
+        var item_id: Int = 0
+    ) {
+        class TC {
+            fun toEntity(
+                value: DB_TimeWithSimpleItemPOJO,
+                old: CalendarTimeData?
+            ): CalendarTimeData {
+                val res: CalendarTimeData
+                val itemTC = DB_ItemWithoutTimesPOJO.TC()
+                res = CalendarTimeData(
+                    value.id, value.name, value.type, value.timeInCourseSchedule,
+                    value.timeInHour, value.repeatWeeks, value.place, value.remindData,
+                    itemTC.toEntity(value.calendarItem, old?.calendarItem)
+                )
+                return res
+            }
+        }
+    }
+
+    data class DB_ItemWithoutTimesPOJO(
+        var id: Int = 0,
+        var name: String = "",
+        var type: CalendarItemType = CalendarItemType.COURSE,
+        var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf()
+    ) {
+        class TC {
+            fun toEntity(value: DB_ItemWithoutTimesPOJO, old: CalendarItemData?): CalendarItemData {
+                val res: CalendarItemData
+                res = CalendarItemData(value.id, value.name, value.type, value.detail)
+                res.times = old?.times
                 return res
             }
         }
