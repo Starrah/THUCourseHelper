@@ -2,6 +2,7 @@ package cn.starrah.thu_course_helper.data.declares
 
 import java.time.Duration
 import java.time.LocalDate
+import java.time.Period
 import java.time.format.DateTimeFormatter
 
 data class SchoolTerm(
@@ -63,17 +64,17 @@ data class SchoolTerm(
      * 开始日期的[LocalDate]类型对象。
      */
     val startDate: LocalDate
-    get() = LocalDate.parse(startDateStr, DateTimeFormatter.ISO_DATE)
+        get() = LocalDate.parse(startDateStr, DateTimeFormatter.ISO_DATE)
 
     /**
      * 结束日期的[LocalDate]类型对象。指学期的最后一天（即最后一周的周日）
      */
     val endInclusiveDate: LocalDate
-    get() = startDate + Duration.ofDays((totalWeekCount * 7 - 1).toLong())
+        get() = startDate + Period.ofDays((totalWeekCount * 7 - 1))
 
     /**
      * 考试周开始日期的[LocalDate]类型对象。
      */
     val examWeekStartDate: LocalDate
-        get() = startDate + Duration.ofDays((normalWeekCount * 7).toLong())
+        get() = startDate + Period.ofDays((normalWeekCount * 7))
 }

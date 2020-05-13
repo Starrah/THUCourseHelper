@@ -8,10 +8,7 @@ import com.alibaba.fastjson.parser.deserializer.ParseProcess
 import com.alibaba.fastjson.serializer.ValueFilter
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.time.DayOfWeek
-import java.time.Duration
-import java.time.LocalDate
-import java.time.LocalTime
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAccessor
@@ -71,9 +68,12 @@ fun main(){
 //    val a = 0
     val a = LocalDate.of(2020,6,10)
     val b = LocalDate.of(2020,5,1)
-    val c = b.until(a).days
+    val c = ChronoUnit.DAYS.between(b, a).toInt()
 //    val d = b.until(a).get(ChronoUnit.)
     println(c)
+    val d = b + Period.ofDays(c)
+    println(d)
+    println(d == a)
 
 
 }

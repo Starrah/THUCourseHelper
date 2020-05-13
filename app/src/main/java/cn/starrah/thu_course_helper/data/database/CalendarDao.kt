@@ -1,261 +1,178 @@
 package cn.starrah.thu_course_helper.data.database
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.room.*
 import cn.starrah.thu_course_helper.data.declares.*
-import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.TypeReference
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.time.LocalDate
-
-abstract class calendarPOJO {
-    data class DB_ItemWithTimesPOJO(
-        var id: Int = 0,
-        var name: String = "",
-        var type: CalendarItemType = CalendarItemType.COURSE,
-        var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf(),
-        @Relation(parentColumn = "id", entityColumn = "item_id")
-        var times: List<DB_TimeQueryedInItemPOJO> = mutableListOf()
-    ) {
-        class TC {
-            fun toEntity(value: DB_ItemWithTimesPOJO, old: CalendarItemData?): CalendarItemData {
-                val res: CalendarItemData
-                res = CalendarItemData(value.id, value.name, value.type, value.detail)
-                val timesTC = DB_TimeQueryedInItemPOJO.TC()
-                res.times = value.times.map { timesTC.toEntity(Pair(it, res), null) }.toMutableList()
-                return res
-            }
-        }
-    }
-
-    data class DB_TimeQueryedInItemPOJO(
-        var id: Int = 0,
-        var name: String = "",
-        var type: CalendarTimeType = CalendarTimeType.SINGLE_COURSE,
-        var timeInCourseSchedule: TimeInCourseSchedule? = null,
-        var timeInHour: TimeInHour? = null,
-        var repeatWeeks: MutableList<Int> = mutableListOf(),
-        var place: String = "",
-        @Embedded(prefix = "RMD") var remindData: CalendarRemindData = CalendarRemindData(),
-        var item_id: Int = 0
-    ) {
-        class TC {
-            fun toEntity(
-                valuePair: Pair<DB_TimeQueryedInItemPOJO, CalendarItemData>,
-                old: CalendarTimeData?
-            ): CalendarTimeData {
-                val value = valuePair.first
-                val item = valuePair.second
-                val res: CalendarTimeData
-                res = CalendarTimeData(
-                    value.id, value.name, value.type, value.timeInCourseSchedule,
-                    value.timeInHour, value.repeatWeeks, value.place, value.remindData, item
-                )
-                return res
-            }
-        }
-    }
-
-    data class DB_TimeWithSimpleItemPOJO(
-        var id: Int = 0,
-        var name: String = "",
-        var type: CalendarTimeType = CalendarTimeType.SINGLE_COURSE,
-        var timeInCourseSchedule: TimeInCourseSchedule? = null,
-        var timeInHour: TimeInHour? = null,
-        var repeatWeeks: MutableList<Int> = mutableListOf(),
-        var place: String = "",
-        @Embedded(prefix = "RMD") var remindData: CalendarRemindData = CalendarRemindData(),
-        @Relation(parentColumn = "item_id", entityColumn = "id")
-        var calendarItem: DB_ItemWithoutTimesPOJO = DB_ItemWithoutTimesPOJO(),
-        var item_id: Int = 0
-    ) {
-        class TC {
-            fun toEntity(
-                value: DB_TimeWithSimpleItemPOJO,
-                old: CalendarTimeData?
-            ): CalendarTimeData {
-                val res: CalendarTimeData
-                val itemTC = DB_ItemWithoutTimesPOJO.TC()
-                res = CalendarTimeData(
-                    value.id, value.name, value.type, value.timeInCourseSchedule,
-                    value.timeInHour, value.repeatWeeks, value.place, value.remindData,
-                    itemTC.toEntity(value.calendarItem, old?.calendarItem)
-                )
-                return res
-            }
-        }
-    }
-
-    data class DB_ItemWithoutTimesPOJO(
-        var id: Int = 0,
-        var name: String = "",
-        var type: CalendarItemType = CalendarItemType.COURSE,
-        var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf()
-    ) {
-        class TC {
-            fun toEntity(value: DB_ItemWithoutTimesPOJO, old: CalendarItemData?): CalendarItemData {
-                val res: CalendarItemData
-                res = CalendarItemData(value.id, value.name, value.type, value.detail)
-                res.times = old?.times
-                return res
-            }
-        }
-    }
-}
 
 @Dao
 abstract class CalendarDao {
-    class SingleItemTimeListLiveDataWrapper(
-        val originLiveData: LiveData<List<CalendarTimeData>>,
-        val item: CalendarItemData
-    ) : LiveData<List<CalendarTimeData>>(originLiveData.value) {
-        val observer = Observer<List<CalendarTimeData>> { t ->
-            postValue(t?.onEach { it.calendarItem = item })
-        }
-
-        override fun onActive() {
-            super.onActive()
-            originLiveData.observeForever(observer)
-        }
-
-        override fun onInactive() {
-            super.onInactive()
-            originLiveData.removeObserver(observer)
-        }
-    }
 
     /**
-     * 根据日程项找到它下面所有的时间段
-     * @param [item] 日程项数据
-     * @return 所有时间段构成的列表的LiveData
+     * 根据日期查找该日的所有日程
+     * @param [days] 所有要查找的日期的[LocalDate]对象构成的列表
+     * @return [days]中所有日期对应的所有日程构成的列表；返回[CalendarTimeDataWithItem]的列表，可以同时获得时间段数据和对应的日程数据。
      */
-    suspend fun findTimesByItem(item: CalendarItemData): LiveData<List<CalendarTimeData>> {
-        val dbLiveData = _findTimesByItemId(item.id)
-        return SingleItemTimeListLiveDataWrapper(dbLiveData, item)
-    }
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM CalendarTimeData
+        INNER JOIN CalendarFastSearchHelpTable
+        ON CalendarTimeData.id=CalendarFastSearchHelpTable.timeId
+        WHERE CalendarFastSearchHelpTable.dayId=:dayIds
+    """
+    )
+    abstract fun findTimesByDays(dayIds: List<Int>): LiveData<List<CalendarTimeDataWithItem>>
 
-    @Query("")
-    protected abstract suspend fun _findTimesByItemId(itemId: Int): LiveData<List<CalendarTimeData>>
+    @Query(
+        """
+        SELECT * FROM CalendarTimeData
+        WHERE CalendarTimeData.id=:timeIds
+    """
+    )
+    protected abstract fun _findTimesByIds(timeIds: List<Int>): List<CalendarTimeData>
+
+    @Query(
+        """
+        SELECT * FROM CalendarTimeData
+        WHERE CalendarTimeData.item_id=:itemId
+    """
+    )
+    protected abstract fun _findTimesByItem(itemId: Int): List<CalendarTimeData>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    protected abstract fun _insertTimes(times: List<CalendarTimeData>)
+
+    @Update
+    protected abstract fun _updateTimes(times: List<CalendarTimeData>): Int
+
+    @Insert
+    protected abstract fun _insertFastSearch(l: List<CalendarFastSearchHelpTable>)
+
+    @Delete
+    protected abstract fun _deleteTimes(times: List<CalendarTimeData>): Int
 
     /**
-     * 根据时间段找到它对应的日程。
+     * 插入或更新时间段的数据，并维护快速查找表[CalendarFastSearchHelpTable]。
      *
-     * 这个接口通常可能不会用到，（因为返回给前端的[CalendarTimeData]数据通常是带有对应的[CalendarItemData]的）
+     * 具体行为是：对每个时间段，首先判断时间段数据改变是否包括日期的改变、需要调整[CalendarFastSearchHelpTable]快速查找表中的内容：
+     * 如果不需要，那么直接使用UPDATE语句更新[CalendarTimeData]中的数据；
+     * 如果需要，则使用INSERT OR REPLACE语句。对于此前不存在的时间段，该语句会插入数据；
+     * 对于已存在的时间段，该语句等价于首先DELETE掉原来的记录（同时[CalendarFastSearchHelpTable]快速查找表中的内容由于CASCADE而自然删除），
+     * 然后INSERT进新的记录。最后，计算每个被INSERT的项的日期数据，插入快速查找表中。
+     *
+     * 注意：对于调整某个[CalendarItemData]的时间段的情况，不应使用本函数，而是应使用[updateTimesInItem]函数，
+     * 因为本函数不会删除[CalendarItemData]中原来有、但是[times]中没有传入的时间段。
+     * @param [times] 要更新或插入的所有时间段的列表
      */
-    suspend fun findItemByTime(time: CalendarTimeData): LiveData<CalendarItemData> {
-        return _findItemByItemId(time.item_id)
+    @Transaction
+    fun updateOrInsertTimes(times: List<CalendarTimeData>) {
+        _updateOrInsertTimes(times, _findTimesByIds(times.filter { it.id != 0 }.map { it.id }))
     }
-
-    @Query("")
-    protected abstract suspend fun _findItemByItemId(itemId: Int): LiveData<CalendarItemData>
 
     /**
-     * 根据日期，找到它下面所有的时间段。
+     * 对于指定的[CalendarItemData]，更新其的所有子时间段。
      *
-     * 本函数返回的[LiveData]已经经过特殊处理，保证其中的List<CalendarTimeData>的每个元素，
-     * 除了第一次[Observer.onChanged]它们的[CalendarTimeData.calendarItem]项均不为空，可以直接访问到这个时间段对应的日程项；
-     * 并且如果List<CalendarTimeData>中有某个[CalendarTimeData]，它里面的[CalendarTimeData.calendarItem]
-     * 发生改变，则本函数返回的这个[LiveData]照样会向观察者推送事件。
-     * @param [date] 日期数据
-     * @return 所有时间段构成的列表的LiveData
+     * 具体的，对于传入的[times]的每一项，如果它在原来的[CalendarItemData]中不存在，则插入，否则则更新；
+     * 对于原来的[CalendarItemData]中的每一个时间段，如果不存在于[times]中，则删除该记录。
+     * 无论何种情况，都会自动维护[CalendarFastSearchHelpTable]快速查找表中的记录。
+     * @param [times] 修改后，[item]的所有日程构成的列表。
+     * @param [item] 日程项
      */
-    suspend fun findTimesByDate(date: LocalDate): LiveData<List<CalendarTimeData>> {
-        class MultipleItemTimeListLiveDataWrapper(
-            val originLiveData: LiveData<List<CalendarTimeData>>
-        ) : LiveData<List<CalendarTimeData>>(originLiveData.value) {
+    @Transaction
+    fun updateTimesInItem(times: List<CalendarTimeData>, item: CalendarItemData) {
+        val oldTimes = _findTimesByItem(item.id)
+        val newTimesMap = times.associateBy { it.id }
+        val oldToUpdateOnes = oldTimes.filter { newTimesMap.containsKey(it.id) }
+        val oldToDeleteOnes = oldTimes - oldToUpdateOnes
 
-            inner class ItemLiveDataObserver : Observer<CalendarItemData> {
-                var inited = false
-                override fun onChanged(t: CalendarItemData?) {
-                    if (inited) _updateAllValueAsync(value!!)
-                    else inited = true
-                }
-            }
-
-            private val itemLiveDataMap: MutableMap<Int, LiveData<CalendarItemData>> =
-                mutableMapOf()
-
-            private val itemObserverMap: MutableMap<Int, ItemLiveDataObserver> =
-                mutableMapOf()
-
-            private val mutex = Mutex()
-
-            private fun _updateAllValueAsync(t: List<CalendarTimeData>) {
-                GlobalScope.launch {
-                    val newList = t.map {
-                        async {
-                            it.apply {
-                                calendarItem = findItemFromMap(it.item_id)
-                            }
-                        }
-                    }.awaitAll()
-                    postValue(newList)
-                }
-            }
-
-            suspend fun findItemFromMap(itemId: Int): CalendarItemData {
-                var item = itemLiveDataMap[itemId]
-                if (item != null) return item.value!!
-                withContext(Dispatchers.IO) {
-                    item = _findItemByItemId(itemId)
-                }
-                mutex.withLock {
-                    itemLiveDataMap[itemId] = item!!
-                    if (hasActiveObservers()) {
-                        val observer = ItemLiveDataObserver()
-                        itemObserverMap[itemId] = observer
-                        item!!.observeForever(observer)
-                    }
-                }
-                return item!!.value!!
-            }
-
-
-            val observer = Observer<List<CalendarTimeData>> { _updateAllValueAsync(it) }
-
-
-            override fun onActive() {
-                super.onActive()
-                originLiveData.observeForever(observer)
-                itemLiveDataMap.forEach { (_, value) ->
-                    if (!value.hasActiveObservers()) {
-                        val observer = ItemLiveDataObserver()
-                        itemObserverMap[value.value!!.id] = observer
-                        value.observeForever(observer)
-                    }
-                }
-            }
-
-            override fun onInactive() {
-                super.onInactive()
-                originLiveData.removeObserver(observer)
-                itemLiveDataMap.forEach { _, value ->
-                    itemObserverMap[value.value!!.id]?.let { value.removeObserver(it) }
-                }
-            }
-        }
-
-        val dbLiveData = _findTimesByDate(date)
-        return MultipleItemTimeListLiveDataWrapper(dbLiveData)
+        _deleteTimes(oldToDeleteOnes)
+        _updateOrInsertTimes(times, oldToUpdateOnes)
     }
 
-    @Query("")
-    protected abstract suspend fun _findTimesByDate(date: LocalDate): LiveData<List<CalendarTimeData>>
+    protected fun _updateOrInsertTimes(
+        times: List<CalendarTimeData>,
+        oldToUpdateOnes: List<CalendarTimeData>
+    ) {
+        var toUpdateOnes = times.filter { it.id != 0 }
+        assert(oldToUpdateOnes.size == toUpdateOnes.size)
+        val oldToUpdateOnesMap = oldToUpdateOnes.associateBy { it.id }
+        toUpdateOnes = toUpdateOnes.filter {
+            oldToUpdateOnesMap[it.id]?.calculateDayIdsInTerm() == it.calculateDayIdsInTerm()
+        }
+        val toInsertOnes = times - toUpdateOnes
 
-//    fun insertOrUpdateItem()
+        val updatedCount = _updateTimes(toUpdateOnes)
+        assert(updatedCount == toUpdateOnes.size)
 
-    @Query("")
-    protected abstract suspend fun _insert(item: CalendarItemData): LiveData<List<CalendarTimeData>>
+        val fastDatas = mutableListOf<CalendarFastSearchHelpTable>()
+        toInsertOnes.forEach { t ->
+            fastDatas += t.calculateDayIdsInTerm().map { CalendarFastSearchHelpTable(it, t.id) }
+        }
+        _insertTimes(toInsertOnes)
+        _insertFastSearch(fastDatas)
+    }
 
-    @Query("")
-    protected abstract suspend fun _insert(time: CalendarTimeData): LiveData<List<CalendarTimeData>>
 
-    @Query("")
-    protected abstract suspend fun _update(item: CalendarItemData): LiveData<List<CalendarTimeData>>
+    /**
+     * 根据id查询时间段。
+     * @param [timeIds] id的列表
+     * @return 对应的含Item时间段（[CalendarTimeDataWithItem]）的列表
+     */
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM CalendarTimeData
+        WHERE CalendarTimeData.id=:timeIds
+    """
+    )
+    abstract fun findTimesByIds(timeIds: List<Int>): LiveData<List<CalendarTimeDataWithItem>>
 
-    @Query("")
-    protected abstract suspend fun _update(time: CalendarTimeData): LiveData<List<CalendarTimeData>>
+    /**
+     * 根据id查询日程。
+     * @param [itemIds] id的列表
+     * @return 对应的含Times日程项（[CalendarItemDataWithTimes]）的列表
+     */
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM CalendarItemData
+        WHERE CalendarItemData.id=:itemIds
+    """
+    )
+    abstract fun findItemsByIds(itemIds: List<Int>): LiveData<List<CalendarItemDataWithTimes>>
+
+    /**
+     * 根据日程项查询时间段。
+     *
+     * Notes: 建议直接通过调用[CalendarItemData.queryTimes]得到某个日程下的所有时间段；这与调用本函数是等价的。
+     * @param [itemId] 日程项的id
+     * @return 该日程下所有含时间段（[CalendarTimeData]）的列表
+     */
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM CalendarTimeData
+        WHERE CalendarTimeData.item_id=:itemId
+    """
+    )
+    abstract fun findTimesByItem(itemId: Int): LiveData<List<CalendarTimeData>>
+
+    /**
+     * 根据日程项查询时间段。
+     *
+     * Notes: 建议直接通过调用[CalendarTimeData.queryItem]得到时间段对应的日程；这与调用本函数是等价的。
+     * @param [timeId] 时间段的id
+     * @return 该日程下所有含时间段（[CalendarTimeData]）的列表
+     */
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM CalendarItemData
+        INNER JOIN CalendarTimeData
+        ON CalendarItemData.id=CalendarTimeData.item_id
+        WHERE CalendarTimeData.id=:timeId
+    """
+    )
+    abstract fun findItemByTime(timeId: Int): LiveData<CalendarItemData>
 }
