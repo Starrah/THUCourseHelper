@@ -1,5 +1,6 @@
 package cn.starrah.thu_course_helper.data.declares.school
 
+import android.util.Range
 import com.alibaba.fastjson.annotation.JSONField
 import java.lang.RuntimeException
 import java.time.LocalDate
@@ -128,4 +129,19 @@ data class SchoolTerm(
     fun isInExamWeek(date: LocalDate): Boolean {
         return isInExamWeek(dateToWeekNumber(date))
     }
+
+    /** 帮助节假日计算使用 */
+    private val _holidayCalHelpMap: MutableMap<Int, Int> = mutableMapOf()
+
+    init {
+        fun toId(date: LocalDate): Int = ChronoUnit.DAYS.between(startDate, date).toInt() + 1
+        holidays.forEach { _holidayCalHelpMap[toId(it.date)] = it.to?.let { toId(it) }?:0 }
+        for (i in 0 until (totalWeekCount * 7)) {
+            val v = _holidayCalHelpMap[i]
+            if (v == null) _holidayCalHelpMap[i] = i
+            else if (v == 0) _holidayCalHelpMap.remove(i)
+        }
+    }
+
+    fun applyHolidayRearrange(dayIds: List<Int>): List<Int> = dayIds.mapNotNull { _holidayCalHelpMap[it] }
 }

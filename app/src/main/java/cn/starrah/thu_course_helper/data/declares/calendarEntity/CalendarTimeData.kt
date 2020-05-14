@@ -2,6 +2,7 @@ package cn.starrah.thu_course_helper.data.declares.calendarEntity
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.database.CalendarRepository
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
@@ -62,10 +63,12 @@ open class CalendarTimeData(
      */
     fun calculateDayIdsInTerm(): List<Int> {
         return when (type) {
-            CalendarTimeType.SINGLE_COURSE -> listOf(timeInCourseSchedule!!.date!!.toTermDayId())
+            CalendarTimeType.SINGLE_COURSE -> CREP.term.applyHolidayRearrange(
+                listOf(timeInCourseSchedule!!.date!!.toTermDayId())
+            )
             CalendarTimeType.REPEAT_COURSE -> {
                 val zeroWeekId = timeInCourseSchedule!!.dayOfWeek.value - 7
-                repeatWeeks.map { zeroWeekId + (it * 7) }
+                CREP.term.applyHolidayRearrange(repeatWeeks.map { zeroWeekId + (it * 7) })
             }
             CalendarTimeType.SINGLE_HOUR, CalendarTimeType.POINT -> listOf(timeInHour!!.date!!.toTermDayId())
             CalendarTimeType.REPEAT_HOUR -> {
