@@ -31,7 +31,6 @@ data class TimeInHour(
         get() = Duration.between(startTime, endTime)
 
     private fun _hourToCourseNum(time: LocalTime, isForEndTime: Boolean): Pair<Int, Float> {
-        val SECOND_IN_DAY = 86400
         val bigs = CREP.timeRule.bigs
         if (time < bigs[0].startTime) {
             return Pair(0, invLerp(time, null, bigs[0].startTime))

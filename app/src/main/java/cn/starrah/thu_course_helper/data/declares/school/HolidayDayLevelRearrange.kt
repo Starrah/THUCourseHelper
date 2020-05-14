@@ -7,12 +7,12 @@ import java.time.LocalDate
  */
 data class HolidayDayLevelRearrange(
     /**
-     * 一个具体的日期
+     * 一个受到节假日安排影响的日期
      */
     val date: LocalDate,
 
     /**
-     * [date]日子，按照学校安排，实际上应该上哪一个日子的课程。如果为null，表示该日原排课程停上。
+     * [date]日子的原排课程被改到了哪一日进行。如果为null，表示该日原排课程停上。
      */
-    val actualCourseDate: LocalDate?
+    val to: LocalDate? = null
 )

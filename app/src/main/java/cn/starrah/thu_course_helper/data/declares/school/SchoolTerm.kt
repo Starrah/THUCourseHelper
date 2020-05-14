@@ -8,6 +8,11 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 data class SchoolTerm(
+    /**
+     * 学校名称
+     */
+    val schoolName: String = "",
+
     /** 学年度的开始年份。
      *
      * 例如2019-2020学年度秋季学期，则此字段为2019。 */
@@ -36,7 +41,7 @@ data class SchoolTerm(
     /**
      * 该学期调课的安排。每个受影响的日子是List中的一个元素。
      */
-    val holidayDayLevelRearrange: List<HolidayDayLevelRearrange> = mutableListOf(),
+    val holidays: List<HolidayDayLevelRearrange> = mutableListOf(),
 
     /**
      * 每天的课程大小节时间安排表

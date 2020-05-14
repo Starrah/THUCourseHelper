@@ -66,7 +66,7 @@ data class SchoolTimeRule(
 
         val excludeRestLengthInMinutes: Int
             @JSONField(serialize = false)
-            get() = smalls.fold(0) {v, obj -> v + obj.lengthInMinutes}
+            get() = smalls.fold(0) { v, obj -> v + obj.lengthInMinutes }
 
         val excludeRestClassLength: Duration
             @JSONField(serialize = false)
@@ -88,13 +88,14 @@ data class SchoolTimeRule(
             @JSONField(serialize = false)
             get() = smalls[0].length
     }
+
     data class SmallClass(
         /** 开始时间 */
-        @JSONField(format = "HH:mm")
+        @JSONField(format = "HH:mm", name = "startTime")
         val startTime: LocalTime,
 
         /** 结束时间 */
-        @JSONField(format = "HH:mm")
+        @JSONField(format = "HH:mm", name = "endTime")
         val endTime: LocalTime
     ) {
         @JSONField(serialize = false)
