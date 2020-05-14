@@ -1,4 +1,4 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.constants
 
 class LayoutConstants {
     companion object LayoutStatics {

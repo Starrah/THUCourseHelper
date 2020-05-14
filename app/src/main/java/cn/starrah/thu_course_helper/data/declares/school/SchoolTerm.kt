@@ -1,8 +1,11 @@
 package cn.starrah.thu_course_helper.data.declares.school
 
+import com.alibaba.fastjson.annotation.JSONField
+import java.lang.RuntimeException
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 data class SchoolTerm(
     /** 学年度的开始年份。
@@ -16,9 +19,9 @@ data class SchoolTerm(
     val type: SchoolTermType = SchoolTermType.AUTUMN,
 
     /**
-     * 学期开始日期、格式为yyyy-MM-dd。
+     * 学期开始日期。
      */
-    val startDateStr: String = "1970-01-01",
+    val startDate: LocalDate = LocalDate.now(),
 
     /**
      * 学期正常周数（不含考试周）
@@ -44,41 +47,80 @@ data class SchoolTerm(
      * 形如"2019-2020学年度秋季学期"格式的中文名称
      */
     val chineseName: String
+        @JSONField(serialize = false)
         get() = "${beginYear}-${beginYear + 1}学年度${type.chineseName}"
 
     /**
      * 形如"19-20秋"格式的中文名称
      */
     val chineseShortName: String
+        @JSONField(serialize = false)
         get() = "${beginYear % 100}-${(beginYear % 100) + 1}${type.oneCharChineseName}"
 
     /**
      * 数据库中使用的名称，形如"CAL19AUT"
      */
     val dbName: String
+        @JSONField(serialize = false)
         get() = "CAL${beginYear % 100}${type.name.substring(0 until 3)}"
 
     /**
      * 学期总周数（正常周+考试周）
      */
     val totalWeekCount: Int
+        @JSONField(serialize = false)
         get() = normalWeekCount + examWeekCount
-
-    /**
-     * 开始日期的[LocalDate]类型对象。
-     */
-    val startDate: LocalDate
-        get() = LocalDate.parse(startDateStr, DateTimeFormatter.ISO_DATE)
 
     /**
      * 结束日期的[LocalDate]类型对象。指学期的最后一天（即最后一周的周日）
      */
     val endInclusiveDate: LocalDate
+        @JSONField(serialize = false)
         get() = startDate + Period.ofDays((totalWeekCount * 7 - 1))
 
     /**
      * 考试周开始日期的[LocalDate]类型对象。
      */
     val examWeekStartDate: LocalDate
+        @JSONField(serialize = false)
         get() = startDate + Period.ofDays((normalWeekCount * 7))
+
+    /**
+     * 把日期转换为学期的周数。
+     * @return 周数 从1开始
+     */
+    fun dateToWeekNumber(date: LocalDate): Int {
+        val weekNumber = (ChronoUnit.DAYS.between(startDate, date).toInt() / 7) + 1
+        return if (weekNumber in 1..totalWeekCount) weekNumber else throw RuntimeException("日期不在本学期内！")
+    }
+
+    /**
+     * 获取某一个周数对应的所有日期构成的列表。
+     * @param [weekNumber] 周数 从1开始
+     * @param [onlyMONToFRI] 如果为true，则只返回周一到周五五天。
+     */
+    fun datesInAWeek(weekNumber: Int, onlyMONToFRI: Boolean = false): List<LocalDate> {
+        if (weekNumber !in 1..totalWeekCount) throw RuntimeException("周数不合法！")
+        val range = if (onlyMONToFRI) 0 until 5 else 0 until 7
+        return range.map { startDate.plusDays((((weekNumber - 1) * 7) + it).toLong()) }
+    }
+
+    /**
+     * 判断某一周是否是考试周。
+     * @param [weekNumber] 周数 从1开始
+     */
+    fun isInExamWeek(weekNumber: Int): Boolean {
+        return when (weekNumber){
+            in 1..normalWeekCount -> false
+            in (normalWeekCount + 1)..totalWeekCount -> true
+            else -> throw RuntimeException("周数不合法！")
+        }
+    }
+
+    /**
+     * 判断某一天是否在考试周内。
+     */
+    fun isInExamWeek(date: LocalDate): Boolean {
+        return isInExamWeek(dateToWeekNumber(date))
+    }
 }

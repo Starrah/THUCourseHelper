@@ -8,6 +8,7 @@ import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDat
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
+import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,6 +21,8 @@ import java.time.LocalDate
  * 本类中的所有函数均为挂起函数、并均可在主线程中直接调用。
  *
  * 建议总是使用本类，不要使用[CalendarDao]，因为本类封装为挂起函数，避免手动切换到副线程的麻烦。
+ *
+ * 出于简便起见，可以通过别名[CREP]直接引用到全局唯一的[CalendarRepository]对象。
  */
 object CalendarRepository {
     lateinit var database: CalendarDatabase
@@ -33,6 +36,9 @@ object CalendarRepository {
     lateinit var term: SchoolTerm
         get
         private set
+
+    val timeRule: SchoolTimeRule
+        get() = term.timeRule
 
     /**
      * 可以在主线程中调用。

@@ -1,14 +1,14 @@
 package cn.starrah.thu_course_helper.data.declares.time
 
 import androidx.room.TypeConverter
+import cn.starrah.thu_course_helper.data.database.CREP
+import cn.starrah.thu_course_helper.data.utils.invLerp
 import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.JSONObject
 import com.alibaba.fastjson.annotation.JSONField
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 
 data class TimeInHour(
@@ -30,8 +30,64 @@ data class TimeInHour(
         @JSONField(serialize = false)
         get() = Duration.between(startTime, endTime)
 
+    private fun _hourToCourseNum(time: LocalTime, isForEndTime: Boolean): Pair<Int, Float> {
+        val SECOND_IN_DAY = 86400
+        val bigs = CREP.timeRule.bigs
+        if (time < bigs[0].startTime) {
+            return Pair(0, invLerp(time, null, bigs[0].startTime))
+        } else if (time > CREP.timeRule.bigs.last().endTime) {
+            return Pair(
+                bigs.size + 1,
+                invLerp(time, bigs.last().endTime, null).toFloat()
+            )
+        } else if (isForEndTime) {
+            var bigIndex: Int = 0
+            for (i in 1..bigs.size - 1) {
+                if (bigs[i].startTime >= time) break
+                bigIndex = i
+            }
+            val bigClass = bigs[bigIndex]
+            var smallIndex: Int = 0
+            for (i in 1..bigClass.smalls.size - 1) {
+                if (bigClass.smalls[i].startTime >= time) break
+                smallIndex = i
+            }
+            val smallClass = bigClass.smalls[smallIndex]
+            val smallOffset = smallIndex + invLerp(time, smallClass.startTime, smallClass.endTime)
+            return Pair(bigIndex + 1, smallOffset)
+        } else {
+            var bigIndex: Int = 0
+            for (i in 0..bigs.size - 2) {
+                if (bigs[i].endTime > time) break
+                bigIndex = i + 1
+            }
+            val bigClass = bigs[bigIndex]
+            var smallIndex: Int = 0
+            for (i in 0..bigClass.smalls.size - 2) {
+                if (bigClass.smalls[i].endTime > time) break
+                smallIndex = i + 1
+            }
+            val smallClass = bigClass.smalls[smallIndex]
+            val smallOffset = smallIndex + invLerp(time, smallClass.startTime, smallClass.endTime)
+            return Pair(bigIndex + 1, smallOffset)
+        }
+    }
+
     fun toTimeInCourseSchedule(): TimeInCourseSchedule {
-        TODO()
+        val (startBig, startOffsetSmall) = _hourToCourseNum(startTime, false)
+        val (endBig, endOffsetSmall) = _hourToCourseNum(endTime, true)
+        var length = -startOffsetSmall
+        for (i in startBig until endBig) {
+            length += CREP.timeRule.getBigByNumber(i).smallsCount
+        }
+        length += endOffsetSmall
+        return TimeInCourseSchedule(
+            dayOfWeek ?: date!!.dayOfWeek,
+            startBig,
+            startOffsetSmall,
+            length,
+            date
+        )
     }
 
     class TC {

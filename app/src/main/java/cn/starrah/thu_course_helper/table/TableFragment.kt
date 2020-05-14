@@ -10,11 +10,9 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import cn.starrah.thu_course_helper.data.declares.CourseConstants
-import cn.starrah.thu_course_helper.data.declares.LayoutConstants
+import cn.starrah.thu_course_helper.data.constants.LayoutConstants
+import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
-import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
-import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
@@ -138,7 +136,7 @@ abstract class TableFragment : Fragment(){
             if (i == 0) {
                 continue
             }
-            val SmallNumber = CourseConstants.SmallNumber[i]
+            val SmallNumber = CREP.timeRule.getBigByNumber(i).smallsCount
             val Height: Int = SmallNumber * LayoutConstants.HeightPerSmall
             setWidthHeight(showCourseIDCourseClass[i], ViewGroup.LayoutParams.MATCH_PARENT, Height)
         }
@@ -274,7 +272,7 @@ abstract class TableFragment : Fragment(){
         var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
         var startBig: Int = theCourse.timeInCourseSchedule!!.startBig
         var startSmall: Float =
-            CourseConstants.StartSmallNumber[startBig] + theCourse.timeInCourseSchedule!!.startOffsetSmall
+            CREP.timeRule.getStartSmallIndex(startBig) + theCourse.timeInCourseSchedule!!.startOffsetSmall
         var intevalSmall: Float = theCourse.timeInCourseSchedule!!.lengthSmall
         var startHeight: Float = LayoutConstants.HeightPerSmall * startSmall
         var theHeight: Int = (LayoutConstants.HeightPerSmall * intevalSmall).toInt()
@@ -308,7 +306,7 @@ abstract class TableFragment : Fragment(){
         var endTime: LocalTime? = null
         //大节转小时
         if (theItem.timeInCourseSchedule != null) {
-            var hourTime = GetHour(theItem.timeInCourseSchedule!!)
+            var hourTime = theItem.timeInCourseSchedule!!.toTimeInHour()
             startTime = hourTime.startTime
             endTime = hourTime.endTime
         }
@@ -334,38 +332,6 @@ abstract class TableFragment : Fragment(){
         theTextView.setText(theItem.name); //显示课程名
         dayView.addView(v);
         return v
-    }
-
-    /*
-    描述：根据课程的大节信息求得小时信息
-    参数：大节信息
-    返回：小时信息
-    */
-    protected fun GetHour(courseSchedule: TimeInCourseSchedule): TimeInHour {
-
-        var startBig: Int = courseSchedule.startBig
-        var startSmall: Float = courseSchedule.startOffsetSmall
-        var intevalSmall: Float = courseSchedule.lengthSmall
-
-        //计算开始时间
-        var startBigTime:LocalTime = CourseConstants.StartTime[startBig]
-        var startSmallTime:Long = (startSmall * (CourseConstants.ClassTime + CourseConstants.RestTime)).toLong()
-        var startTime:LocalTime = startBigTime.plusMinutes(startSmallTime)
-
-        //计算结束时间
-        var totalSmall = startSmall + intevalSmall
-        var endBig:Int = startBig
-        while(totalSmall > CourseConstants.SmallNumber[endBig])
-        {
-            totalSmall -= CourseConstants.SmallNumber[endBig]
-            endBig += 1
-        }
-        var endBigTime = CourseConstants.StartTime[endBig]
-        var endSmallTime:Long = (totalSmall * (CourseConstants.ClassTime + CourseConstants.RestTime)).toLong()
-        var endTime:LocalTime = endBigTime.plusMinutes(endSmallTime)
-
-        var hourTime:TimeInHour = TimeInHour(startTime, endTime)
-        return hourTime
     }
 
     /*
