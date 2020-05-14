@@ -1,8 +1,7 @@
 package cn.starrah.thu_course_helper
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).

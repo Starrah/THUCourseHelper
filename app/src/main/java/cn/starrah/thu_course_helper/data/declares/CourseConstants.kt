@@ -1,11 +1,6 @@
 package cn.starrah.thu_course_helper.data.declares
 
-import androidx.room.*
-import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.TypeReference
-import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
 
 /**
  * 一个常量类，负责存储大节和小时的转换关系

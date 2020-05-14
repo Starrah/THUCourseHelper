@@ -1,11 +1,12 @@
 package cn.starrah.thu_course_helper.data.declares.calendarEntity
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
 import cn.starrah.thu_course_helper.data.database.CalendarRepository
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
-
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.TypeReference
 

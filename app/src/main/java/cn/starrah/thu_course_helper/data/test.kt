@@ -3,7 +3,8 @@ package cn.starrah.thu_course_helper.data
 import androidx.room.*
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.*
-import java.time.*
+import java.time.LocalDate
+import java.time.Period
 import java.time.temporal.ChronoUnit
 
 @Entity

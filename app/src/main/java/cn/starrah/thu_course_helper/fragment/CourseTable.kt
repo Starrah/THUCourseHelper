@@ -1,21 +1,14 @@
 package cn.starrah.thu_course_helper
 
-import android.content.Context
-import cn.starrah.thu_course_helper.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import cn.starrah.thu_course_helper.data.declares.*
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import java.time.DayOfWeek
-import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalTime
 
 
 class CourseTable : TableFragment() {

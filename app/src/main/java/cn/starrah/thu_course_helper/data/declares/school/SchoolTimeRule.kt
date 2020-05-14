@@ -1,8 +1,8 @@
 package cn.starrah.thu_course_helper.data.declares.school
 
+import java.time.Duration
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
-import java.time.Duration
 
 /**
  * 描述每天的课程大小节时间安排表。

@@ -1,7 +1,6 @@
 package cn.starrah.thu_course_helper
 
 
-import android.content.Context
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,11 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import cn.starrah.thu_course_helper.data.declares.*
+import cn.starrah.thu_course_helper.data.declares.CourseConstants
+import cn.starrah.thu_course_helper.data.declares.LayoutConstants
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
+import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
+import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
@@ -338,7 +341,7 @@ abstract class TableFragment : Fragment(){
     参数：大节信息
     返回：小时信息
     */
-    protected fun GetHour(courseSchedule: TimeInCourseSchedule):TimeInHour {
+    protected fun GetHour(courseSchedule: TimeInCourseSchedule): TimeInHour {
 
         var startBig: Int = courseSchedule.startBig
         var startSmall: Float = courseSchedule.startOffsetSmall

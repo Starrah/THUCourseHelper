@@ -2,9 +2,6 @@ package cn.starrah.thu_course_helper.data.declares.calendarEntity
 
 import androidx.lifecycle.LiveData
 import androidx.room.Relation
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 
 class CalendarTimeDataWithItem : CalendarTimeData() {
     @Relation(parentColumn = "item_id", entityColumn = "id")

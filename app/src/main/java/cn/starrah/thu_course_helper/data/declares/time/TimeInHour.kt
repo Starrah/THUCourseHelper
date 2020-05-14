@@ -3,7 +3,10 @@ package cn.starrah.thu_course_helper.data.declares.time
 import androidx.room.TypeConverter
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
-import java.time.*
+import java.time.DayOfWeek
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 

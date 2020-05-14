@@ -3,7 +3,6 @@ package cn.starrah.thu_course_helper
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.HorizontalScrollView
-import android.widget.ScrollView
 
 
 /*

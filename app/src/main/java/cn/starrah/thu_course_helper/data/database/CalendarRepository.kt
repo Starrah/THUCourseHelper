@@ -2,6 +2,7 @@ package cn.starrah.thu_course_helper.data.database
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import cn.starrah.thu_course_helper.data.database.CalendarRepository.initializeTerm
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
