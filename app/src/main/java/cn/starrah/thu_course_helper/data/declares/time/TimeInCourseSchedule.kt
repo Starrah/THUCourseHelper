@@ -3,6 +3,7 @@ package cn.starrah.thu_course_helper.data.declares.time
 import androidx.room.TypeConverter
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
+import com.alibaba.fastjson.annotation.JSONField
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -38,6 +39,7 @@ data class TimeInCourseSchedule(
 ) {
     /** 返回该以大节形式描述的时间定义的汉字格式，前端可使用显示。*/
     val chineseName: String
+        @JSONField(serialize = false)
         get() {
             TODO()
         }
@@ -46,6 +48,7 @@ data class TimeInCourseSchedule(
      *
      * 例如一门课从第二大节一开始（第一小节）就开始上课，持续三小节，则*endBig*=2 */
     val endBig: Int
+        @JSONField(serialize = false)
         get() {
             TODO()
         }
@@ -54,6 +57,7 @@ data class TimeInCourseSchedule(
      *
      * 例如一门课从第二大节一开始（第一小节）就开始上课，持续三小节，则*endOffsetSmall*=3.0f */
     val endOffsetSmall: Float
+        @JSONField(serialize = false)
         get() {
             TODO()
         }
@@ -65,25 +69,12 @@ data class TimeInCourseSchedule(
     class TC {
         @TypeConverter
         fun toDBDataType(value: TimeInCourseSchedule): String {
-            val obj = JSONObject()
-            obj["DW"] = value.dayOfWeek
-            obj["SB"] = value.startBig
-            obj["SS"] = value.startOffsetSmall
-            obj["L"] = value.lengthSmall
-            obj["DT"] = value.date?.format(DateTimeFormatter.ISO_DATE)
-            return JSON.toJSONString(obj)
+            return JSON.toJSONString(value)
         }
 
         @TypeConverter
         fun fromDBDataType(value: String): TimeInCourseSchedule {
-            val obj = JSON.parseObject(value)
-            return TimeInCourseSchedule(
-                DayOfWeek.valueOf(obj.getString("DW")),
-                obj.getIntValue("SB"),
-                obj.getFloatValue("SS"),
-                obj.getFloatValue("L"),
-                obj.getString("DT")?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE) }
-            )
+            return JSON.parseObject(value, TimeInCourseSchedule::class.java)
         }
     }
 }
