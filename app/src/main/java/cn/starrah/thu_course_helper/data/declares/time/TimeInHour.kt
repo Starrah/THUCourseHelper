@@ -1,9 +1,8 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.time
 
 import androidx.room.TypeConverter
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
-import com.alibaba.fastjson.annotation.JSONField
 import java.time.*
 import java.time.format.DateTimeFormatter
 

@@ -1,4 +1,4 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.time
 
 import androidx.room.TypeConverter
 import com.alibaba.fastjson.JSON

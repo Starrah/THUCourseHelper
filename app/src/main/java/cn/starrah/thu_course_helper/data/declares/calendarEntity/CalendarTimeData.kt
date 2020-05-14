@@ -1,9 +1,13 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.calendarEntity
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
+import cn.starrah.thu_course_helper.data.database.CalendarRepository
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
+import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
+import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.TypeReference
-import java.time.LocalDateTime
 
 /**
  * 描述一个时间段的数据类。
@@ -15,9 +19,9 @@ import java.time.LocalDateTime
     )],
     indices = [Index("item_id")]
 )
-data class CalendarTimeData(
+open class CalendarTimeData(
     /** 时间段的数据库id，各个时间段唯一。当试图插入新时间段到数据库中时，请保证id为默认值0。 */
-    @PrimaryKey(autoGenerate = true)var id: Int = 0,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
 
     /** 时间段的名称 */
     var name: String = "",
@@ -41,13 +45,35 @@ data class CalendarTimeData(
     /** 提醒设置 */
     @Embedded(prefix = "RMD") var remindData: CalendarRemindData = CalendarRemindData(),
 
-    /** 该时间段所对应关联的日程项数据对象的引用。 */
-    @Ignore var calendarItem: CalendarItemData? = null,
-
     /** 该时间段所对应关联的日程项的数据表外键。默认等于calendarItem的id（如果传了calendarItem就不必传这个了）*/
-    var item_id: Int = calendarItem?.id?:0
+    var item_id: Int = 0
 ) {
+    /**
+     * 可以在主线程调用。
+     *
+     * 获得该时间段所对应的日程项的、[CalendarItemDataWithTimes]格式数据的[LiveData]；
+     */
+    open suspend fun queryItem(): LiveData<CalendarItemDataWithTimes> {
+        return CalendarRepository.findItemByTime(this)
+    }
 
+    /**
+     * 计算该日程的日期设定在本学期的所有的日期的日期Id，以供数据库快速查询表使用。
+     */
+    fun calculateDayIdsInTerm(): List<Int> {
+        return when (type) {
+            CalendarTimeType.SINGLE_COURSE -> listOf(timeInCourseSchedule!!.date!!.toTermDayId())
+            CalendarTimeType.REPEAT_COURSE -> {
+                val zeroWeekId = timeInCourseSchedule!!.dayOfWeek.value - 7
+                repeatWeeks.map { zeroWeekId + (it * 7) }
+            }
+            CalendarTimeType.SINGLE_HOUR, CalendarTimeType.POINT -> listOf(timeInHour!!.date!!.toTermDayId())
+            CalendarTimeType.REPEAT_HOUR -> {
+                val zeroWeekId = timeInHour!!.dayOfWeek!!.value - 7
+                repeatWeeks.map { zeroWeekId + (it * 7) }
+            }
+        }
+    }
 
     class TC {
         @TypeConverter
@@ -61,3 +87,4 @@ data class CalendarTimeData(
         }
     }
 }
+

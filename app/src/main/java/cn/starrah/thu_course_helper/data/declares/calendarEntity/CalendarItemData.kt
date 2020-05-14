@@ -1,10 +1,11 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.calendarEntity
 
 import androidx.lifecycle.LiveData
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
+import androidx.room.*
+import cn.starrah.thu_course_helper.data.database.CalendarRepository
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
+
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.TypeReference
 
@@ -12,11 +13,13 @@ import com.alibaba.fastjson.TypeReference
  * 描述一个日程的数据类。
  */
 @Entity
-data class CalendarItemData(
+open class CalendarItemData(
     /** 日程的数据库id，各个日程唯一。当试图插入新日程到数据库中时，请保证id为默认值0。*/
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
+
     /** 日程的名称 */
     var name: String = "",
+
     /** 日程类型 */
     var type: CalendarItemType = CalendarItemType.COURSE,
 
@@ -31,15 +34,14 @@ data class CalendarItemData(
      * 如果想获得该字段允许的所有Key的列表，请使用[CalendarItemType.AllowedDetailKeys]。
      */
     var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf()
-
-//    /** 该日程的所有时间段的信息 */
-//    @Ignore var times: List<CalendarTimeData> = mutableListOf()
 ) {
     /**
      * 可以在主线程调用。
+     *
+     * 获得该Item的时间段列表的[LiveData]；
      */
-    suspend fun getTimes(): LiveData<List<CalendarTimeData>> {
-        TODO()
+    open suspend fun queryTimes(): LiveData<List<CalendarTimeData>> {
+        return CalendarRepository.findTimesByItem(this)
     }
 
     class TC {
@@ -55,5 +57,5 @@ data class CalendarItemData(
                 object : TypeReference<MutableMap<CalendarItemLegalDetailKey, String>>() {})
         }
     }
-
 }
+

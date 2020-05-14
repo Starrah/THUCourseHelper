@@ -1,7 +1,7 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.school
 
-import java.time.Duration
 import java.time.LocalDate
+import java.time.Period
 import java.time.format.DateTimeFormatter
 
 data class SchoolTerm(
@@ -33,7 +33,12 @@ data class SchoolTerm(
     /**
      * 该学期调课的安排。每个受影响的日子是List中的一个元素。
      */
-    val holidayDayLevelRearrange: List<HolidayDayLevelRearrange> = mutableListOf()
+    val holidayDayLevelRearrange: List<HolidayDayLevelRearrange> = mutableListOf(),
+
+    /**
+     * 每天的课程大小节时间安排表
+     */
+    val timeRule: SchoolTimeRule = SchoolTimeRule(listOf())
 ) {
     /**
      * 形如"2019-2020学年度秋季学期"格式的中文名称
@@ -63,17 +68,17 @@ data class SchoolTerm(
      * 开始日期的[LocalDate]类型对象。
      */
     val startDate: LocalDate
-    get() = LocalDate.parse(startDateStr, DateTimeFormatter.ISO_DATE)
+        get() = LocalDate.parse(startDateStr, DateTimeFormatter.ISO_DATE)
 
     /**
      * 结束日期的[LocalDate]类型对象。指学期的最后一天（即最后一周的周日）
      */
     val endInclusiveDate: LocalDate
-    get() = startDate + Duration.ofDays((totalWeekCount * 7 - 1).toLong())
+        get() = startDate + Period.ofDays((totalWeekCount * 7 - 1))
 
     /**
      * 考试周开始日期的[LocalDate]类型对象。
      */
     val examWeekStartDate: LocalDate
-        get() = startDate + Duration.ofDays((normalWeekCount * 7).toLong())
+        get() = startDate + Period.ofDays((normalWeekCount * 7))
 }

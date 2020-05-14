@@ -1,7 +1,8 @@
-package cn.starrah.thu_course_helper.data.declares
+package cn.starrah.thu_course_helper.data.declares.calendarEntity
 
 import androidx.room.TypeConverter
-import com.alibaba.fastjson.JSON
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindMethodType
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindType
 import java.time.Duration
 
 /**

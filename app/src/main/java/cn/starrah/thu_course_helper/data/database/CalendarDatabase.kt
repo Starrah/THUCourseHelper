@@ -5,7 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import cn.starrah.thu_course_helper.data.declares.*
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.FastSearchTable
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarRemindData
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.*
+import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
+import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 
 @TypeConverters(
     CalendarItemType.TC::class,
@@ -18,21 +24,21 @@ import cn.starrah.thu_course_helper.data.declares.*
     CalendarRemindData.TC::class,
     TimeInCourseSchedule.TC::class,
     TimeInHour.TC::class,
-    DayEntityInFastSearchHelpTable.TC::class
+    FastSearchTable.TC::class
 )
 @Database(
-    entities = [CalendarItemData::class, CalendarTimeData::class],
+    entities = [CalendarItemData::class, CalendarTimeData::class, FastSearchTable::class],
     version = 1
 )
 abstract class CalendarDatabase : RoomDatabase() {
     abstract fun Dao(): CalendarDao
 
     companion object {
-        fun getDatabaseInstance(context: Context, term: SchoolTerm): CalendarDatabase {
+        fun getDatabaseInstance(context: Context, name: String): CalendarDatabase {
             return Room.databaseBuilder(
                 context,
                 CalendarDatabase::class.java,
-                term.dbName
+                name
             ).build()
         }
     }
