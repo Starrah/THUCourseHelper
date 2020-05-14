@@ -8,9 +8,10 @@ import cn.starrah.thu_course_helper.data.declares.calendarEntity.*
 abstract class CalendarDao {
 
     /**
-     * 根据日期查找该日的所有日程
+     * 根据一组日期，查找这些日期对应的所有日程，返回它们的并集。
      * @param [dayIds] 所有要查找的日期的学期Id构成的列表
-     * @return [dayIds]中所有日期对应的所有日程构成的列表；返回[CalendarTimeDataWithItem]的列表，可以同时获得时间段数据和对应的日程数据。
+     * @return [dayIds]中所有日期对应的所有日程构成的列表；返回的是[CalendarTimeDataWithItem]的列表，
+     * 可以同时获得时间段数据和对应的日程数据。
      */
     @Transaction
     @Query(
@@ -142,7 +143,7 @@ abstract class CalendarDao {
     open fun updateItemAndTimes(item: CalendarItemData, times: List<CalendarTimeData>) {
         val itemId: Int
         val oldTimes: List<CalendarTimeData>
-        if (item.id == 0 || _findItemsByIds(listOf(item.id)).size <= 0) {
+        if (item.id == 0 || _findItemsByIds(listOf(item.id)).isEmpty()) {
             itemId = _insertItems(listOf(item)).single().toInt()
             oldTimes = listOf()
         }

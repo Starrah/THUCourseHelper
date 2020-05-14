@@ -1,11 +1,8 @@
 package cn.starrah.thu_course_helper.data.declares.school
 
-import android.util.Range
 import com.alibaba.fastjson.annotation.JSONField
-import java.lang.RuntimeException
 import java.time.LocalDate
 import java.time.Period
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 data class SchoolTerm(

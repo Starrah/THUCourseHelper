@@ -6,7 +6,6 @@ import cn.starrah.thu_course_helper.data.utils.OneBitNumToChineseTable
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.annotation.JSONField
-import java.lang.RuntimeException
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate

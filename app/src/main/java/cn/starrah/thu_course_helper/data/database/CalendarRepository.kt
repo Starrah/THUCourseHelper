@@ -3,10 +3,7 @@ package cn.starrah.thu_course_helper.data.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import cn.starrah.thu_course_helper.data.database.CalendarRepository.initializeTerm
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.*
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
@@ -57,10 +54,10 @@ object CalendarRepository {
     /**
      * 可以在主线程中调用。
      *
-     * 根据日期查找该日的所有日程
-     * @param [days] 所有要查找的日期的[LocalDate]对象构成的列表
-     * @return [days]中所有日期对应的所有日程构成的列表；
-     * 返回[CalendarTimeDataWithItem]的列表，可以同时获得时间段数据和对应的日程数据。
+     * 根据一组日期，查找这些日期对应的所有日程，返回它们的并集。
+     * @param [days] 所有要查找的日期构成的列表
+     * @return [days]中所有日期对应的所有日程构成的列表；返回的是[CalendarTimeDataWithItem]的列表，
+     * 可以同时获得时间段数据和对应的日程数据。
      */
     suspend fun findTimesByDays(days: List<LocalDate>): LiveData<List<CalendarTimeDataWithItem>> {
         return withContext(Dispatchers.IO) {
@@ -71,12 +68,26 @@ object CalendarRepository {
     /**
      * 可以在主线程中调用。
      *
-     * 插入或更新时间段的数据，并维护快速查找表[CalendarFastSearchHelpTable]。
+     * 根据一组日期，分别查找每一天的日程
+     * @param [days] 所有要查找的日期构成的列表
+     * @return 是一个列表。[days]中传入的每一个日期，将对应查找到一个
+     * [LiveData]<[List]<[CalendarTimeDataWithItem]>>，可以从中同时获得时间段数据和对应的日程数据。
+     */
+    suspend fun findTimesByEachDay(days: List<LocalDate>): List<LiveData<List<CalendarTimeDataWithItem>>> {
+        return withContext(Dispatchers.IO) {
+            days.map { DAO.findTimesByDays(listOf(it.toTermDayId())) }
+        }
+    }
+
+    /**
+     * 可以在主线程中调用。
      *
-     * 具体行为是：对每个时间段，首先判断时间段数据改变是否包括日期的改变、需要调整[CalendarFastSearchHelpTable]快速查找表中的内容：
+     * 插入或更新时间段的数据，并维护快速查找表[FastSearchTable]。
+     *
+     * 具体行为是：对每个时间段，首先判断时间段数据改变是否包括日期的改变、需要调整[FastSearchTable]快速查找表中的内容：
      * 如果不需要，那么直接使用UPDATE语句更新[CalendarTimeData]中的数据；
      * 如果需要，则使用INSERT OR REPLACE语句。对于此前不存在的时间段，该语句会插入数据；
-     * 对于已存在的时间段，该语句等价于首先DELETE掉原来的记录（同时[CalendarFastSearchHelpTable]快速查找表中的内容由于CASCADE而自然删除），
+     * 对于已存在的时间段，该语句等价于首先DELETE掉原来的记录（同时[FastSearchTable]快速查找表中的内容由于CASCADE而自然删除），
      * 然后INSERT进新的记录。最后，计算每个被INSERT的项的日期数据，插入快速查找表中。
      *
      * 注意：对于调整某个[CalendarItemData]的时间段的情况，不应使用本函数，而是应使用[updateItemAndTimes]函数，
@@ -114,7 +125,7 @@ object CalendarRepository {
      *
      * 具体的，对于传入的[times]的每一项，如果它在原来的[CalendarItemData]中不存在，则插入，否则则更新；
      * 对于原来的[CalendarItemData]中的每一个时间段，如果不存在于[times]中，则删除该记录。
-     * 无论何种情况，都会自动维护[CalendarFastSearchHelpTable]快速查找表中的记录。
+     * 无论何种情况，都会自动维护[FastSearchTable]快速查找表中的记录。
      *
      * 注意：对于日程项数据和时间段数据同时改变的情况，不应使用本函数，而是应使用[updateItemAndTimes]函数，
      * 因为本函数不会改变时间段数据。
@@ -134,7 +145,7 @@ object CalendarRepository {
      *
      * 具体的，首先尝试更新或插入[item]；
      * 然后，对于这个[item]，根据传入的[times]，尝试更新、插入、删除[item]下面的所有时间段信息，
-     * 同时自动维护[CalendarFastSearchHelpTable]快速查找表中的记录。
+     * 同时自动维护[FastSearchTable]快速查找表中的记录。
      *
      * @param [item] 日程项
      * @param [times] 该日程下属的所有时间段

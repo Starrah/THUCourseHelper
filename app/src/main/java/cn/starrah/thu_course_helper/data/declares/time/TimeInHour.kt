@@ -37,16 +37,16 @@ data class TimeInHour(
         } else if (time > CREP.timeRule.bigs.last().endTime) {
             return Pair(
                 bigs.size + 1,
-                invLerp(time, bigs.last().endTime, null).toFloat()
+                invLerp(time, bigs.last().endTime, null)
             )
         } else if (isForEndTime) {
-            var bigIndex: Int = 0
+            var bigIndex = 0
             for (i in 1..bigs.size - 1) {
                 if (bigs[i].startTime >= time) break
                 bigIndex = i
             }
             val bigClass = bigs[bigIndex]
-            var smallIndex: Int = 0
+            var smallIndex = 0
             for (i in 1..bigClass.smalls.size - 1) {
                 if (bigClass.smalls[i].startTime >= time) break
                 smallIndex = i
@@ -55,13 +55,13 @@ data class TimeInHour(
             val smallOffset = smallIndex + invLerp(time, smallClass.startTime, smallClass.endTime)
             return Pair(bigIndex + 1, smallOffset)
         } else {
-            var bigIndex: Int = 0
+            var bigIndex = 0
             for (i in 0..bigs.size - 2) {
                 if (bigs[i].endTime > time) break
                 bigIndex = i + 1
             }
             val bigClass = bigs[bigIndex]
-            var smallIndex: Int = 0
+            var smallIndex = 0
             for (i in 0..bigClass.smalls.size - 2) {
                 if (bigClass.smalls[i].endTime > time) break
                 smallIndex = i + 1
