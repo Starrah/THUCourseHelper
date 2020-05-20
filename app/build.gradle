@@ -64,4 +64,7 @@ dependencies {
     implementation "androidx.cardview:cardview:1.0.0"
     implementation 'androidx.viewpager:viewpager:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
+
+    //数据库debug工具
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
 }
