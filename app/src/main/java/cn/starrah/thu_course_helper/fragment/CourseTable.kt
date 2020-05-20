@@ -4,9 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
+import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -55,14 +59,25 @@ class CourseTable : TableFragment() {
         initializeListWidth()
     }
 
-    /*
-    描述：获取本周的所有课程时间段（这里应该是个虚函数，课程，日程表实现不同）
-    参数：日期
-    返回：无
-    TODO
+    /**
+    * 描述：获取本周的所有课程时间段（这里应该是个虚函数，课程，日程表实现不同）
+    * 参数：日期
+    * 返回：无
+     * TODO
     */
-    override protected fun getValidTimes() {
-        val time1: TimeInCourseSchedule = TimeInCourseSchedule(
+    override protected suspend fun getValidTimes() {
+        for (week_num in DayOfWeek.values()) {
+            var the_day: LocalDate = allDates[week_num]!!
+            var the_list = listOf<LocalDate>(the_day)
+
+            timeList[week_num] = CREP.findTimesByDays(the_list)
+            //timeList[week_num]!!.observe(this, showOneItem(week_num, timeList[week_num]))
+        }
+
+        println("finished")
+    }
+
+        /*val time1: TimeInCourseSchedule = TimeInCourseSchedule(
             startBig = 6, startOffsetSmall = 0.0f,
             lengthSmall = 2.0f, date = LocalDate.parse("2020-05-05")
         )
@@ -127,8 +142,8 @@ class CourseTable : TableFragment() {
         var theList3: MutableList<CalendarTimeData> = timeList[DayOfWeek.THURSDAY]!!;
         theList3.add(data5)
         theList3.add(data6)
-        timeList[DayOfWeek.THURSDAY] = theList3
-    }
+        timeList[DayOfWeek.THURSDAY] = theList3*/
+
 
 
     /*
@@ -138,6 +153,10 @@ class CourseTable : TableFragment() {
     */
     override fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeData) {
         var v:View? = null;
+        System.out.println(theItem)
+        if(theItem == null) {
+            return
+        }
         if (showType == "course") {
             if (theItem.timeInCourseSchedule == null) {
                 return

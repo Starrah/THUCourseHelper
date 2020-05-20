@@ -1,6 +1,7 @@
 package cn.starrah.thu_course_helper
 
 
+import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -10,13 +11,17 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.data.constants.LayoutConstants
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
-import java.time.DayOfWeek
-import java.time.Duration
-import java.time.LocalDate
-import java.time.LocalTime
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
+import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.time.*
+import java.time.ZoneOffset.UTC
 
 
 /*
@@ -35,7 +40,7 @@ abstract class TableFragment : Fragment(){
     protected var showType: String = "hour"
 
     /*当前周*/
-    protected val currentWeek: Int = 12;
+    protected var currentWeek: Int = 12;
 
     /*当前周所有日期，以string形式yyyy-MM-dd表示*/
     protected val allDates = mutableMapOf<DayOfWeek, LocalDate>(
@@ -49,15 +54,7 @@ abstract class TableFragment : Fragment(){
     )
 
     /*所有在当前周有效的时间*/
-    protected val timeList = mutableMapOf<DayOfWeek, MutableList<CalendarTimeData>>(
-        DayOfWeek.MONDAY to mutableListOf<CalendarTimeData>(),
-        DayOfWeek.TUESDAY to mutableListOf<CalendarTimeData>(),
-        DayOfWeek.WEDNESDAY to mutableListOf<CalendarTimeData>(),
-        DayOfWeek.THURSDAY to mutableListOf<CalendarTimeData>(),
-        DayOfWeek.FRIDAY to mutableListOf<CalendarTimeData>(),
-        DayOfWeek.SATURDAY to mutableListOf<CalendarTimeData>(),
-        DayOfWeek.SUNDAY to mutableListOf<CalendarTimeData>()
-    )
+    protected val timeList = mutableMapOf<DayOfWeek, LiveData<List<CalendarTimeDataWithItem>>>()
 
     /*周一到周日显示的视图*/
     protected val showPlaceID = mapOf<DayOfWeek, Int>(
@@ -71,10 +68,10 @@ abstract class TableFragment : Fragment(){
     )
 
     //控件初始化相关函数
-    /*
-    描述：初始化控件的宽度，高度（都是linearlayout）
-    参数：id，宽度，高度
-    返回：无
+    /**
+    *描述：初始化控件的宽度，高度（都是linearlayout）
+    *参数：id，宽度，高度
+    *返回：无
      */
     fun setWidthHeight(ID:Int, Width:Int, Height:Int) {
         val view: LinearLayout = theActivity!!.findViewById(ID)
@@ -82,17 +79,17 @@ abstract class TableFragment : Fragment(){
         view.setLayoutParams(params)
     }
 
-    /*
-    描述：按照设置初始化视图
-    参数：无
-    返回：无
+    /**
+    *描述：按照设置初始化视图
+    *参数：无
+    *返回：无
     */
     abstract protected fun initializeLayout();
 
-    /*
-    描述：初始化基本都layout
-    参数：无
-    返回：无
+    /**
+    *描述：初始化基本都layout
+    *参数：无
+    *返回：无
      */
     protected fun initializeBaseLayout() {
         //绑定上下scrollview
@@ -122,10 +119,10 @@ abstract class TableFragment : Fragment(){
         setWidthHeight(R.id.left_view_layout, LayoutConstants.LeftWidth, ViewGroup.LayoutParams.MATCH_PARENT)
     }
 
-    /*
-    描述：初始化左侧一栏的高度和宽度（按照大节）
-    参数：无
-    返回：无
+    /**
+    *描述：初始化左侧一栏的高度和宽度（按照大节）
+    *参数：无
+    *返回：无
     */
     protected fun initializeLeftCourse() {
         val showCourseIDCourseClass = arrayOf<Int>(
@@ -142,10 +139,10 @@ abstract class TableFragment : Fragment(){
         }
     }
 
-    /*
-    描述：初始化左侧一栏的高度和宽度（按照小时）
-    参数：无
-    返回：无
+    /**
+    *描述：初始化左侧一栏的高度和宽度（按照小时）
+    *参数：无
+    *返回：无
     */
     protected fun initializeLeftHour() {
         val showCourseID = arrayOf<Int>(
@@ -205,45 +202,88 @@ abstract class TableFragment : Fragment(){
     }
 
 
+
     override fun onStart() {
         super.onStart()
+        setWeekToday()
+        updateAllDates()
         //TODO 根据当前日期获取周
         //TODO 根据当前周获取各个日期
 
-        getValidTimes()
         if(theActivity == null)
         {
             return
         }
         initializeLayout()
-        showAllCourses()
+        lifecycleScope.launch {
+            getValidTimes()
+            showAllCourses()
+        }
+
 
     }
 
+    /**
+     * 描述：设置当前周为本周，更新currentWeek
+     * 参数：无
+     * 返回：无
+     */
+    fun setWeekToday() {
+        var today:LocalDate = LocalDate.now()
+        var current_week:Int = CREP.term.dateToWeekNumber(today)
+        currentWeek = current_week
+    }
 
-    /*
-    描述：获取本周的所有月，日信息
-    参数：无
-    返回：无
+
+    /**
+    * 描述：更新本周的所有月，日信息,更新allDates
+    * 参数：无
+    * 返回：无
+     * @sample：如果要设置为今天对应的周，必须先调用setWeekToday。否则要设置当前周。
     TODO
     */
-    fun getAllDates() {
-
+    fun updateAllDates() {
+        var day_list = CREP.term.datesInAWeek(currentWeek, false)
+        for(i in day_list.indices) {
+            if(i == 0) {
+                allDates.replace(DayOfWeek.MONDAY, day_list.get(i))
+            }
+            else if(i == 1) {
+                allDates.replace(DayOfWeek.TUESDAY, day_list.get(i))
+            }
+            else if(i == 2) {
+                allDates.replace(DayOfWeek.WEDNESDAY, day_list.get(i))
+            }
+            else if(i == 3) {
+                allDates.replace(DayOfWeek.THURSDAY, day_list.get(i))
+            }
+            else if(i == 4) {
+                allDates.replace(DayOfWeek.FRIDAY, day_list.get(i))
+            }
+            else if(i == 5) {
+                allDates.replace(DayOfWeek.SATURDAY, day_list.get(i))
+            }
+            else if(i == 6) {
+                allDates.replace(DayOfWeek.SUNDAY, day_list.get(i))
+            }
+        }
     }
 
-    /*
-    描述：获取本周的所有课程时间段（这里应该是个虚函数，课程，日程表实现不同）
-    参数：日期
-    返回：无
+
+
+    /**
+    * 描述：获取本周的所有课程时间段（这里应该是个虚函数，课程，日程表实现不同）
+    * 参数：日期
+    * 返回：无
     TODO
      */
-    abstract protected fun getValidTimes();
+    abstract protected suspend fun getValidTimes();
 
 
-    /*
-    描述：显示所有课程
-    参数：无
-    返回：无
+    /**
+    * 描述：显示所有课程
+    * 参数：无
+    * 返回：无
     */
     public fun showAllCourses() {
         if(theActivity == null)
@@ -251,7 +291,12 @@ abstract class TableFragment : Fragment(){
             return
         }
         for (day in DayOfWeek.values()) {
-            for (course in timeList[day]!!) {
+            println("timelist")
+            println(timeList[day]!!.value)
+            if(timeList[day]!!.value == null) {
+                continue
+            }
+            for (course in timeList[day]!!.value!!) {
                 showOneItem(day, course)
             }
         }
@@ -292,10 +337,10 @@ abstract class TableFragment : Fragment(){
     }
 
 
-    /*
-    描述：显示某个日程时间段（小时）
-    参数：这个时间段在周几，这个时间段的信息
-    返回：绑定的view
+    /**
+    *描述：显示某个日程时间段（小时）
+    *参数：这个时间段在周几，这个时间段的信息
+    *返回：绑定的view
     */
     protected fun showOneHour(theWeekDay: DayOfWeek, theItem: CalendarTimeData): View {
 
@@ -334,10 +379,10 @@ abstract class TableFragment : Fragment(){
         return v
     }
 
-    /*
-    描述：根据时间求得在小时表的y坐标
-    参数：时间
-    返回：y坐标
+    /**
+    *描述：根据时间求得在小时表的y坐标
+    *参数：时间
+    *返回：y坐标
     */
     protected fun GetPlaceByDuration(time:Duration):Float {
         var place:Float = 0.0F

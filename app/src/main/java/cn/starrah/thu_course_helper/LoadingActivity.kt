@@ -13,6 +13,7 @@ import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import com.alibaba.fastjson.JSON
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.Thread.sleep
@@ -37,8 +38,9 @@ class LoadingActivity : AppCompatActivity() {
                 val term = JSON.parseObject(SPRING2019TERMJSON, SchoolTerm::class.java)
                 CREP.initializeTerm(this@LoadingActivity, term)
                 System.out.println("finished")
-                sleep(8000);
+                delay(8000);
                 var the_intent: Intent = Intent();
+
                 the_intent.setClass(this@LoadingActivity, MainActivity::class.java)
                 startActivity(the_intent);
                 finish();
