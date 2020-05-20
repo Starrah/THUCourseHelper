@@ -132,7 +132,7 @@ class TimeTable : TableFragment() {
     返回：无
     */
     override fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeData) {
-        System.out.println(theItem)
+        //System.out.println(theItem)
         if(theItem == null) {
             return
         }

@@ -18,6 +18,7 @@ import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
+import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.*
@@ -41,6 +42,18 @@ abstract class TableFragment : Fragment(){
 
     /*当前周*/
     protected var currentWeek: Int = 12;
+
+    /*当前条目id列表*/
+    /*编码规则：100 * 当前周情况 + 编号*/
+    protected var itemIDList = mutableMapOf<DayOfWeek, ArrayList<Int>>(
+        DayOfWeek.MONDAY to ArrayList(),
+        DayOfWeek.TUESDAY to ArrayList(),
+        DayOfWeek.WEDNESDAY to ArrayList(),
+        DayOfWeek.THURSDAY to ArrayList(),
+        DayOfWeek.FRIDAY to ArrayList(),
+        DayOfWeek.SATURDAY to ArrayList(),
+        DayOfWeek.SUNDAY to ArrayList()
+    )
 
     /*当前周所有日期，以string形式yyyy-MM-dd表示*/
     protected val allDates = mutableMapOf<DayOfWeek, LocalDate>(
@@ -285,18 +298,14 @@ abstract class TableFragment : Fragment(){
     * 参数：无
     * 返回：无
     */
-    public fun showAllCourses() {
+    public suspend fun showAllCourses() {
         if(theActivity == null)
         {
             return
         }
+        clearOriginalCourses()
         for (day in DayOfWeek.values()) {
-            println("timelist")
-            println(timeList[day]!!.value)
-            if(timeList[day]!!.value == null) {
-                continue
-            }
-            for (course in timeList[day]!!.value!!) {
+            for (course in timeList[day]!!.getNotNullValue()) {
                 showOneItem(day, course)
             }
         }
@@ -304,11 +313,24 @@ abstract class TableFragment : Fragment(){
 
     abstract protected fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeData);
 
+    /**
+     * 描述：清除之前显示的课程view
+     * 参数：无
+     * 返回：无
+     */
+    protected fun clearOriginalCourses() {
+        for (day in DayOfWeek.values()) {
+            var viewID: Int = showPlaceID[day]!!
+            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+            dayView.removeAllViews()
+            itemIDList[day]!!.clear()
+        }
+    }
 
-    /*
-    描述：显示某个日程时间段（大节）
-    参数：这个时间段在周几，这个时间段的信息
-    返回：绑定的view
+    /**
+    * 描述：显示某个日程时间段（大节）
+    * 参数：这个时间段在周几，这个时间段的信息
+    * 返回：绑定的view
     */
     protected fun showOneCourse(theWeekDay: DayOfWeek, theCourse: CalendarTimeData): View {
 
@@ -323,6 +345,10 @@ abstract class TableFragment : Fragment(){
         var theHeight: Int = (LayoutConstants.HeightPerSmall * intevalSmall).toInt()
 
         var v: View = LayoutInflater.from(theActivity!!).inflate(R.layout.course_item, null); //加载单个课程布局
+
+        //给v设置id并且存储
+        v.id = theWeekDay.value * 100 + itemIDList.size
+        itemIDList[theWeekDay]!!.add(v.id)
 
         v.setY(startHeight); //设置开始高度,即第几节课开始
 
@@ -367,6 +393,11 @@ abstract class TableFragment : Fragment(){
         var lengthY:Int = GetPlaceByDuration(intevalTime).toInt()
 
         var v: View = LayoutInflater.from(theActivity!!).inflate(R.layout.course_item, null); //加载单个课程布局
+
+        //给v设置id并且存储
+        v.id = theWeekDay.value * 100 + itemIDList.size
+        itemIDList[theWeekDay]!!.add(v.id)
+
         v.setY(startY); //设置开始高度,即第几节课开始
 
         var params: LinearLayout.LayoutParams =

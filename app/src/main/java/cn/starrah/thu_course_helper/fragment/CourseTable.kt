@@ -153,7 +153,7 @@ class CourseTable : TableFragment() {
     */
     override fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeData) {
         var v:View? = null;
-        System.out.println(theItem)
+        //System.out.println(theItem)
         if(theItem == null) {
             return
         }
