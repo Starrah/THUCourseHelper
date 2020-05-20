@@ -115,13 +115,13 @@ data class TimeInCourseSchedule(
 
     class TC {
         @TypeConverter
-        fun toDBDataType(value: TimeInCourseSchedule): String {
-            return JSON.toJSONString(value)
+        fun toDBDataType(value: TimeInCourseSchedule?): String? {
+            return value?.let { JSON.toJSONString(it) }
         }
 
         @TypeConverter
-        fun fromDBDataType(value: String): TimeInCourseSchedule {
-            return JSON.parseObject(value, TimeInCourseSchedule::class.java)
+        fun fromDBDataType(value: String?): TimeInCourseSchedule? {
+            return value?.let { JSON.parseObject(it, TimeInCourseSchedule::class.java) }
         }
     }
 }

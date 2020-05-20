@@ -49,7 +49,7 @@ abstract class CalendarDao {
     protected abstract fun _findItemsByIds(itemIds: List<Int>): List<CalendarItemData>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract fun _insertTimes(times: List<CalendarTimeData>)
+    protected abstract fun _insertTimes(times: List<CalendarTimeData>): List<Long>
 
     @Update
     protected abstract fun _updateTimes(times: List<CalendarTimeData>): Int
@@ -81,7 +81,10 @@ abstract class CalendarDao {
      */
     @Transaction
     open fun updateTimes(times: List<CalendarTimeData>) {
-        _updateOrInsertTimes(times, _findTimesByIds(times.filter { it.id != 0 }.map { it.id }))
+        val existList = times.filter { it.id != 0 }.map { it.id }.run {
+            if (!isEmpty()) _findTimesByIds(this) else listOf()
+        }
+        _updateOrInsertTimes(times, existList)
     }
 
     /**
@@ -120,12 +123,17 @@ abstract class CalendarDao {
      */
     @Transaction
     open fun updateTimesInItem(times: List<CalendarTimeData>, itemId: Int) {
+        for (time in times) {
+            if (time.item_id == 0) time.item_id = itemId
+            assert(time.item_id == itemId)
+        }
+
         val oldTimes = _findTimesByItem(itemId)
         val newTimesMap = times.associateBy { it.id }
         val oldToUpdateOnes = oldTimes.filter { newTimesMap.containsKey(it.id) }
         val oldToDeleteOnes = oldTimes - oldToUpdateOnes
 
-        _deleteTimes(oldToDeleteOnes)
+        oldToDeleteOnes.run { if (!isEmpty()) _deleteTimes(oldToDeleteOnes) }
         _updateOrInsertTimes(times, oldToUpdateOnes)
     }
 
@@ -154,11 +162,16 @@ abstract class CalendarDao {
             oldTimes = _findTimesByItem(itemId)
         }
 
+        for (time in times) {
+            if (time.item_id == 0) time.item_id = itemId
+            assert(time.item_id == itemId)
+        }
+
         val newTimesMap = times.associateBy { it.id }
         val oldToUpdateOnes = oldTimes.filter { newTimesMap.containsKey(it.id) }
         val oldToDeleteOnes = oldTimes - oldToUpdateOnes
 
-        _deleteTimes(oldToDeleteOnes)
+        oldToDeleteOnes.run { if (!isEmpty()) _deleteTimes(oldToDeleteOnes) }
         _updateOrInsertTimes(times, oldToUpdateOnes)
     }
 
@@ -174,8 +187,17 @@ abstract class CalendarDao {
         }
         val toInsertOnes = times - toUpdateOnes
 
-        val updatedCount = _updateTimes(toUpdateOnes)
+        val updatedCount = toUpdateOnes.run { if (!isEmpty()) _updateTimes(toUpdateOnes) else 0 }
         assert(updatedCount == toUpdateOnes.size)
+
+        toInsertOnes.run {
+            if (!isEmpty()) {
+                val res = _insertTimes(this)
+                for ((one, id) in this.zip(res)) {
+                    one.id = id.toInt()
+                }
+            }
+        }
 
         val fastDatas = mutableListOf<FastSearchTable>()
         toInsertOnes.forEach { t ->
@@ -186,8 +208,7 @@ abstract class CalendarDao {
                 )
             }
         }
-        _insertTimes(toInsertOnes)
-        _insertFastSearch(fastDatas)
+        fastDatas.run { if (!isEmpty()) _insertFastSearch(this) }
     }
 
 

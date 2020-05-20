@@ -91,13 +91,13 @@ data class TimeInHour(
 
     class TC {
         @TypeConverter
-        fun toDBDataType(value: TimeInHour): String {
-            return JSON.toJSONString(value)
+        fun toDBDataType(value: TimeInHour?): String? {
+            return value?.let { JSON.toJSONString(it) }
         }
 
         @TypeConverter
-        fun fromDBDataType(value: String): TimeInHour {
-            return JSON.parseObject(value, TimeInHour::class.java)
+        fun fromDBDataType(value: String?): TimeInHour? {
+            return value?.let { JSON.parseObject(it, TimeInHour::class.java) }
         }
     }
 }
