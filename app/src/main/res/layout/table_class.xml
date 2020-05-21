@@ -7,22 +7,35 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <!--Toolbar-->
+
+    <!--top-->
     <LinearLayout
         android:id="@+id/top"
         android:layout_width="match_parent"
-        android:layout_height="200px">
-        <androidx.appcompat.widget.Toolbar
+        android:layout_height="200px"
+        android:orientation="vertical"
+        android:background="#7fab96c5"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/AlertDialog.AppCompat.Light">
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#7fab96c5"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/AlertDialog.AppCompat.Light"/>
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:id = "@+id/term_info"
+            android:text="一"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:id = "@+id/date_info"
+            android:text="一"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100px">
+        android:layout_height="200px">
     <TextView
         android:layout_width="200px"
         android:layout_height="match_parent"
@@ -30,7 +43,7 @@
         android:text="节/周"/>
     <cn.starrah.thu_course_helper.BindableScrollView
         android:layout_width="match_parent"
-        android:layout_height="100px"
+        android:layout_height="200px"
         android:id='@+id/scroll_top'>
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,6 +60,13 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="一"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id = "@+id/monday_date"
+                    android:text="18"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/tuesday_top"
@@ -59,6 +79,13 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="二"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id = "@+id/tuesday_date"
+                    android:text="19"/>
             </LinearLayout>
 
             <LinearLayout
@@ -72,6 +99,13 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="三"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id = "@+id/wednesday_date"
+                    android:text="20"/>
             </LinearLayout>
 
             <LinearLayout
@@ -85,7 +119,13 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="四"/>
-
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id = "@+id/thursday_date"
+                    android:text="21"/>
             </LinearLayout>
 
             <LinearLayout
@@ -99,6 +139,13 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="五"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id = "@+id/friday_date"
+                    android:text="22"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/saturday_top"
@@ -111,6 +158,13 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="六"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id = "@+id/saturday_date"
+                    android:text="23"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/sunday_top"
@@ -123,6 +177,13 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="日"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:id = "@+id/sunday_date"
+                    android:text="24"/>
             </LinearLayout>
         </LinearLayout>
     </cn.starrah.thu_course_helper.BindableScrollView>

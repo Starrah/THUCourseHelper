@@ -43,6 +43,18 @@ abstract class TableFragment : Fragment(){
     /*当前周*/
     protected var currentWeek: Int = 12;
 
+    /*当前年*/
+    protected var currentYear: Int = 2020;
+
+    /*当前月*/
+    protected var currentMonth: Int = 5;
+
+    /*学期信息显示位置id*/
+    protected var termInfoShowPlace: Int = R.id.term_info
+
+    /*周信息显示位置id*/
+    protected var dateInfoShowPlace: Int = R.id.date_info
+
     /*当前条目id列表*/
     /*编码规则：100 * 当前周情况 + 编号*/
     protected var itemIDList = mutableMapOf<DayOfWeek, ArrayList<Int>>(
@@ -68,6 +80,17 @@ abstract class TableFragment : Fragment(){
 
     /*所有在当前周有效的时间*/
     protected val timeList = mutableMapOf<DayOfWeek, LiveData<List<CalendarTimeDataWithItem>>>()
+
+    /*周一到周日显示r日期的视图*/
+    protected val showDateID = mapOf<DayOfWeek, Int>(
+        DayOfWeek.MONDAY to R.id.monday_date,
+        DayOfWeek.TUESDAY to R.id.tuesday_date,
+        DayOfWeek.WEDNESDAY to R.id.wednesday_date,
+        DayOfWeek.THURSDAY to R.id.thursday_date,
+        DayOfWeek.FRIDAY to R.id.friday_date,
+        DayOfWeek.SATURDAY to R.id.saturday_date,
+        DayOfWeek.SUNDAY to R.id.sunday_date
+    )
 
     /*周一到周日显示的视图*/
     protected val showPlaceID = mapOf<DayOfWeek, Int>(
@@ -210,7 +233,9 @@ abstract class TableFragment : Fragment(){
     override fun onStart() {
         super.onStart()
         setWeekToday()
+        currentWeek = 15
         updateAllDates()
+        showAllDates()
         //TODO 根据当前日期获取周
         //TODO 根据当前周获取各个日期
 
@@ -227,6 +252,8 @@ abstract class TableFragment : Fragment(){
 
     }
 
+
+
     /**
      * 描述：设置当前周为本周，更新currentWeek
      * 参数：无
@@ -238,17 +265,26 @@ abstract class TableFragment : Fragment(){
         currentWeek = current_week
     }
 
+    /**
+     * 描述：获取当前对应的年，月（多数为准）
+     */
+    fun getCurrentYearMonth() {
+
+    }
 
     /**
-    * 描述：更新本周的所有月，日信息,更新allDates
+    * 描述：更新本周的所有年，月，日信息,更新allDates,currentYear,currentMonth
     * 参数：无
     * 返回：无
      * @sample：如果要设置为今天对应的周，必须先调用setWeekToday。否则要设置当前周。
-    TODO
     */
     fun updateAllDates() {
         var day_list = CREP.term.datesInAWeek(currentWeek, false)
+        var year_list:ArrayList<Int> = ArrayList()
+        var month_list:ArrayList<Int> = ArrayList()
         for(i in day_list.indices) {
+            year_list.add(day_list.get(i).year)
+            month_list.add(day_list.get(i).monthValue)
             if(i == 0) {
                 allDates.replace(DayOfWeek.MONDAY, day_list.get(i))
             }
@@ -270,6 +306,78 @@ abstract class TableFragment : Fragment(){
             else if(i == 6) {
                 allDates.replace(DayOfWeek.SUNDAY, day_list.get(i))
             }
+        }
+
+        //更新年份信息
+        var start_year:Int = year_list.get(0)
+        var end_year:Int = year_list.get(6)
+        if(start_year == end_year) {
+            currentYear = start_year
+        }
+        else{
+            var start_num:Int = 0
+            for(item in year_list) {
+                if(item == start_year) {
+                    start_num ++
+                }
+            }
+            if(start_num >= 4){
+                currentYear = start_year
+            }
+            else {
+                currentYear = end_year
+            }
+        }
+
+        //更新月份信息
+        var start_month:Int = month_list.get(0)
+        var end_month:Int = month_list.get(6)
+        if(start_month == end_month) {
+            currentMonth = start_month
+        }
+        else{
+            var start_num:Int = 0
+            for(item in month_list) {
+                if(item == start_month) {
+                    start_num ++
+                }
+            }
+            if(start_num >= 4){
+                currentMonth = start_month
+            }
+            else {
+                currentMonth = end_month
+            }
+        }
+    }
+
+
+
+
+    /**
+     * 描述：更新本周的所有年,月，日信息显示
+     * 参数：无
+     * 返回：无
+     * @sample：必须在updateAllDates前调用
+     */
+    protected fun showAllDates() {
+        //更新学期显示
+        //学期信息的显示位置
+        var term_item: TextView = theActivity!!.findViewById<TextView>(termInfoShowPlace!!)
+        var term_text:String = CREP.term.chineseShortName+ " 第" + currentWeek + "周"
+        term_item.setText(term_text)
+
+        //年月期显示位置
+        var date_item: TextView = theActivity!!.findViewById<TextView>(dateInfoShowPlace!!)
+        var date_text:String = "" + currentYear + "年" + currentMonth + "月"
+        date_item.setText(date_text)
+
+        //更新日显示
+        for(week_day in DayOfWeek.values()) {
+            var show_place = theActivity!!.findViewById<TextView>(showDateID[week_day]!!)
+            var the_date:LocalDate = allDates[week_day]!!
+            var show_num:Int = the_date.dayOfMonth
+            show_place.setText("" + show_num)
         }
     }
 
