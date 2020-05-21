@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--编辑/添加一个日程-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    >
+    <!--top-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/icon_delete"
+            android:id="@+id/delete_item"
+            android:layout_gravity="left"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/item_top"
+            android:textColor="@color/colorBlack"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:textSize="30dp" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/icon_save"
+            android:layout_gravity="right"
+            android:id="@+id/save_item"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/border"
+        android:layout_margin="30dp">
+
+        <!--名称-->
+        <LinearLayout style="@style/layout">
+            <TextView style="@style/define"
+                android:drawableLeft="@drawable/icon_item"
+                android:text ="@string/item_name"/>
+            <EditText style="@style/input"
+                android:id="@+id/item_edit_name"/>
+        </LinearLayout>
+
+
+        <!--类别-->
+        <LinearLayout style="@style/layout">
+            <TextView style="@style/define"
+                android:drawableLeft="@drawable/icon_type"
+                android:text ="@string/item_type"/>
+            <Spinner style="@style/input"
+                android:id="@+id/item_edit_type"/>
+        </LinearLayout>
+
+        <!--选择细节，不同类别不同-->
+        <FrameLayout
+            android:id="@+id/item_edit_info"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <!--描述-->
+        <LinearLayout style="@style/layout">
+            <TextView style="@style/define"
+                android:drawableLeft="@drawable/icon_item"
+                android:text ="@string/item_comment"/>
+            <EditText style="@style/input"
+                android:id="@+id/item_edit_comment"/>
+        </LinearLayout>
+    </LinearLayout>
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <!--放新时间的位置-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/new_time_place">
+
+            </LinearLayout>
+
+        </ScrollView>
+    <!--bottom-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/icon_add"
+            android:id="@+id/add_new_time"
+            android:layout_gravity="right"/>
+    </LinearLayout>
+</LinearLayout>

@@ -316,13 +316,14 @@
                     android:layout_width="160px"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
+
                     <RelativeLayout
                         android:id="@+id/wednesday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_margin="1dp"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_margin="1dp"/>
+                        android:orientation="vertical" />
                 </LinearLayout>
 
                 <LinearLayout

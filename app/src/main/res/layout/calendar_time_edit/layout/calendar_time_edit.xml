@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--编辑/添加一个时间段-->
+
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/colorWhite">
+    android:background="@drawable/border"
+    android:layout_margin="30dp">
+
     <!--top-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <ImageButton
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_gravity="right"
+            android:background="@drawable/icon_delete"
+            android:id="@+id/delete_time"/>
     </LinearLayout>
 
     <!--名称-->
@@ -61,5 +73,4 @@
         <EditText style="@style/input"
             android:id="@+id/time_edit_comment"/>
     </LinearLayout>
-
 </LinearLayout>

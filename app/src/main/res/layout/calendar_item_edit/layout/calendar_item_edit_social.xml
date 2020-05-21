@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--类别是社工/社团-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+
+    <!--组织-->
+    <LinearLayout style="@style/layout">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_item"
+            android:text ="@string/item_association"/>
+        <TextView style="@style/input"
+            android:id="@+id/item_edit_association"/>
+    </LinearLayout>
+
+
+</LinearLayout>
