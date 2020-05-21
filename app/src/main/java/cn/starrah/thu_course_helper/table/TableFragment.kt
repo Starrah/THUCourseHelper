@@ -115,18 +115,10 @@ abstract class TableFragment : Fragment(){
         //获取手机高度宽度
         val dm = DisplayMetrics()
         theActivity!!.windowManager.defaultDisplay.getMetrics(dm)
-        val TotalWidth: Int = dm.widthPixels
-        val TotalHeight: Int = dm.heightPixels
 
         //初始化最上方高度
         setWidthHeight(R.id.top, ViewGroup.LayoutParams.MATCH_PARENT, LayoutConstants.TopTabHeight)
 
-        //初始化中间高度
-        //val middleHeight = TotalHeight - LayoutConstants.BottomTabHeight - 100
-        //setWidthHeight(R.id.main_place, ViewGroup.LayoutParams.MATCH_PARENT, middleHeight)
-
-        //初始化最下方高度
-        //setWidthHeight(R.id.bottom, ViewGroup.LayoutParams.MATCH_PARENT, LayoutConstants.BottomTabHeight)
 
         //初始化最左一栏宽度
         setWidthHeight(R.id.left_view_layout, LayoutConstants.LeftWidth, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -180,7 +172,6 @@ abstract class TableFragment : Fragment(){
         val dm = DisplayMetrics()
         theActivity!!.windowManager.defaultDisplay.getMetrics(dm)
         val TotalWidth: Int = dm.widthPixels
-        val TotalHeight: Int = dm.heightPixels
         var averageWidth: Int = (TotalWidth - LayoutConstants.LeftWidth) / showDays
 
         //初始化日期/周几宽度
@@ -311,7 +302,7 @@ abstract class TableFragment : Fragment(){
         }
     }
 
-    abstract protected fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeData);
+    abstract protected fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem);
 
     /**
      * 描述：清除之前显示的课程view
@@ -332,7 +323,7 @@ abstract class TableFragment : Fragment(){
     * 参数：这个时间段在周几，这个时间段的信息
     * 返回：绑定的view
     */
-    protected fun showOneCourse(theWeekDay: DayOfWeek, theCourse: CalendarTimeData): View {
+    protected fun showOneCourse(theWeekDay: DayOfWeek, theCourse: CalendarTimeDataWithItem): View {
 
 
         var viewID: Int = showPlaceID[theWeekDay]!!
@@ -357,7 +348,9 @@ abstract class TableFragment : Fragment(){
         v.setLayoutParams(params);
 
         var theTextView = v.findViewById<TextView>(R.id.text_view);
-        theTextView.setText(theCourse.name); //显示课程名
+        var sub_name:String = theCourse.name
+        var main_name:String = theCourse.calendarItem.name
+        theTextView.setText(main_name + sub_name); //显示课程名        dayView.addView(v);
         dayView.addView(v);
         return v
     }
@@ -368,7 +361,7 @@ abstract class TableFragment : Fragment(){
     *参数：这个时间段在周几，这个时间段的信息
     *返回：绑定的view
     */
-    protected fun showOneHour(theWeekDay: DayOfWeek, theItem: CalendarTimeData): View {
+    protected fun showOneHour(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem): View {
 
         var viewID: Int = showPlaceID[theWeekDay]!!
         var dayView = requireActivity().findViewById<RelativeLayout>(viewID)
@@ -405,7 +398,9 @@ abstract class TableFragment : Fragment(){
         v.setLayoutParams(params);
 
         var theTextView = v.findViewById<TextView>(R.id.text_view);
-        theTextView.setText(theItem.name); //显示课程名
+        var sub_name:String = theItem.name
+        var main_name:String = theItem.calendarItem.name
+        theTextView.setText(main_name + sub_name); //显示课程名
         dayView.addView(v);
         return v
     }
