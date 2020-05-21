@@ -5,13 +5,14 @@
     android:layout_width="45dp"
     android:layout_height="70dp"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardBackgroundColor="#7feacdd1"
+    app:cardBackgroundColor="#7fab96c5"
     app:cardCornerRadius="7dp">
 
     <TextView
         android:id="@+id/text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:layout_gravity="center"
         android:gravity="center"/>
 

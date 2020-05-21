@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -38,11 +40,45 @@ class CourseTable : TableFragment() {
         return view
     }
 
+    /**
+     * 描述：初始化左侧大节文字
+     * 参数：无
+     * 返回：无
+     * @sample "第一\n大节\n08:00-\n09:35"
+     */
+    fun initalizeClassText() {
+        val show_class_text_id = arrayOf<Int>(0, R.id.class_1_text, R.id.class_2_text,
+            R.id.class_3_text, R.id.class_4_text, R.id.class_5_text, R.id.class_6_text)
+        val show_string_list = arrayOf<String>("", "第一\n大节\n", "第二\n大节\n", "第三\n大节\n", "第四\n大节\n", "第五\n大节\n", "第六\n大节\n")
+        var i = 1;
+        while(i <= 6) {
+            var show_place = theActivity!!.findViewById<TextView?>(show_class_text_id[i])
+            var text_start_hour = CREP.timeRule.getBigByNumber(i).startTime.hour.toString()
+            if (text_start_hour.length < 2) {
+                text_start_hour = "0" + text_start_hour
+            }
+            var text_start_minute = CREP.timeRule.getBigByNumber(i).startTime.minute.toString()
+            if (text_start_minute.length < 2) {
+                text_start_minute = "0" + text_start_minute
+            }
+            var text_end_hour = CREP.timeRule.getBigByNumber(i).endTime.hour.toString()
+            if (text_end_hour.length < 2) {
+                text_end_hour = "0" + text_end_hour
+            }
+            var text_end_minute = CREP.timeRule.getBigByNumber(i).endTime.minute.toString()
+            if (text_end_minute.length < 2) {
+                text_end_minute = "0" + text_end_minute
+            }
+            var text_final:String = show_string_list[i] + text_start_hour + ":" + text_start_minute + "-\n" + text_end_hour + ":" + text_end_minute
+            show_place!!.setText(text_final)
+            i ++
+        }
+    }
 
-    /*
-    描述：按照设置初始化视图
-    参数：无
-    返回：无
+    /**
+    *描述：按照设置初始化视图
+    *参数：无
+    *返回：无
     */
     override fun initializeLayout() {
         if(theActivity == null)
@@ -52,6 +88,7 @@ class CourseTable : TableFragment() {
         initializeBaseLayout()
         if(showType == "course") {
             initializeLeftCourse()
+            initalizeClassText()
         }
         else
         {

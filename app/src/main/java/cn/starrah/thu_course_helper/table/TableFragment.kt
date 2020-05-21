@@ -103,6 +103,8 @@ abstract class TableFragment : Fragment(){
         DayOfWeek.SUNDAY to R.id.sunday_place
     )
 
+
+
     //控件初始化相关函数
     /**
     *描述：初始化控件的宽度，高度（都是linearlayout）
@@ -185,10 +187,10 @@ abstract class TableFragment : Fragment(){
         }
     }
 
-    /*
-    描述：初始化周一到周日的宽度，在设置改变的时候需要调用
-    参数：无
-    返回：无
+    /**
+    *描述：初始化周一到周日的宽度，在设置改变的时候需要调用
+    *参数：无
+    *返回：无
     */
     protected fun initializeListWidth() {
         //获取手机高度宽度
