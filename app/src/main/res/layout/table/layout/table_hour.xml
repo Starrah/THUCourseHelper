@@ -41,6 +41,7 @@
         android:layout_width="200px"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:background="@drawable/border_table"
         android:text="小时/周"/>
     <cn.starrah.thu_course_helper.BindableScrollView
         android:layout_width="match_parent"
@@ -60,6 +61,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:background="@drawable/border_table"
                 android:text="一"/>
                 <TextView
                     android:layout_width="match_parent"
@@ -67,6 +69,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:id = "@+id/monday_date"
+                    android:background="@drawable/border_table"
                     android:text="18"/>
             </LinearLayout>
             <LinearLayout
@@ -79,12 +82,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
+                    android:background="@drawable/border_table"
                     android:text="二"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
+                    android:background="@drawable/border_table"
                     android:id = "@+id/tuesday_date"
                     android:text="19"/>
             </LinearLayout>
@@ -99,13 +104,16 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="三"/>
+                    android:background="@drawable/border_table"
+                    android:text="三"
+                    />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:id = "@+id/wednesday_date"
+                    android:background="@drawable/border_table"
                     android:text="20"/>
             </LinearLayout>
 
@@ -119,6 +127,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
+                    android:background="@drawable/border_table"
                     android:text="四"/>
                 <TextView
                     android:layout_width="match_parent"
@@ -126,6 +135,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:id = "@+id/thursday_date"
+                    android:background="@drawable/border_table"
                     android:text="21"/>
 
             </LinearLayout>
@@ -140,6 +150,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
+                    android:background="@drawable/border_table"
                     android:text="五"/>
                 <TextView
                     android:layout_width="match_parent"
@@ -147,6 +158,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:id = "@+id/friday_date"
+                    android:background="@drawable/border_table"
                     android:text="22"/>
             </LinearLayout>
             <LinearLayout
@@ -159,6 +171,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
+                    android:background="@drawable/border_table"
                     android:text="六"/>
                 <TextView
                     android:layout_width="match_parent"
@@ -166,6 +179,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:id = "@+id/saturday_date"
+                    android:background="@drawable/border_table"
                     android:text="23"/>
             </LinearLayout>
             <LinearLayout
@@ -178,6 +192,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
+                    android:background="@drawable/border_table"
                     android:text="日"/>
                 <TextView
                     android:layout_width="match_parent"
@@ -185,6 +200,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:id = "@+id/sunday_date"
+                    android:background="@drawable/border_table"
                     android:text="24"/>
             </LinearLayout>
         </LinearLayout>
@@ -213,6 +229,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="00:00-\n01:00"/>
                 </LinearLayout>
 
@@ -225,6 +242,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="01:00-\n02:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -236,6 +254,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="02:00-\n03:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -247,6 +266,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="03:00-\n04:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -258,6 +278,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="04:00-\n05:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -269,6 +290,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="05:00-\n06:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -280,6 +302,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="06:00-\n07:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -291,6 +314,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="07:00-\n08:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -302,6 +326,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="08:00-\n09:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -313,6 +338,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="09:00-\n10:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -324,6 +350,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="10:00-\n11:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -335,6 +362,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="11:00-\n12:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -346,6 +374,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="12:00-\n13:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -357,6 +386,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="13:00-\n14:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -368,6 +398,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="14:00-\n15:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -379,6 +410,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="15:00-\n16:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -390,6 +422,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="16:00-\n17:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -401,6 +434,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="17:00-\n18:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -412,6 +446,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="18:00-\n19:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -423,6 +458,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="19:00-\n20:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -434,6 +470,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="20:00-\n21:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -445,6 +482,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="21:00-\n22:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -456,6 +494,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="22:00-\n23:00"/>
                 </LinearLayout>
                 <LinearLayout
@@ -467,6 +506,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
+                        android:background="@drawable/border_table"
                         android:text="23:00-\n24:00"/>
                 </LinearLayout>
 
