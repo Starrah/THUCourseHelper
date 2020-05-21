@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--时间段是时间节点-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+
+    <!--时间-->
+    <LinearLayout style="@style/layout">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_time"
+            android:text ="@string/time_point"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_point"/>
+    </LinearLayout>
+
+</LinearLayout>

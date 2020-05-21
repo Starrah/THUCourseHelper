@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--时间段是课程-->
+<LinearLayout
+xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical">
+
+
+<!--开始大节-->
+<LinearLayout style="@style/layout">
+    <TextView style="@style/define"
+        android:drawableLeft="@drawable/icon_time"
+        android:text ="@string/time_start_course"/>
+    <Spinner style="@style/input"
+        android:id="@+id/time_edit_start_class"/>
+</LinearLayout>
+
+<!--时长/小节-->
+<LinearLayout style="@style/layout">
+    <TextView style="@style/define"
+        android:drawableLeft="@drawable/icon_time"
+        android:text ="@string/time_length_course"/>
+    <EditText style="@style/input"
+        android:id="@+id/time_edit_length_class"/>
+</LinearLayout>
+
+</LinearLayout>

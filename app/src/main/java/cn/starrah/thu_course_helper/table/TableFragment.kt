@@ -234,6 +234,7 @@ abstract class TableFragment : Fragment(){
         super.onStart()
         setWeekToday()
         currentWeek = 15
+
         updateAllDates()
         showAllDates()
         //TODO 根据当前日期获取周

@@ -1,8 +1,41 @@
 <resources>
+    <!--主体信息-->
     <string name="app_name">清华课程小助手</string>
     <string name="course_table">课程表</string>
     <string name="time_table">日程表</string>
     <string name="information">信息</string>
     <string name="settings">设置</string>
+
+    <!--日程信息-->
+    <string name="item_name">名称</string>
+    <string name="item_type">类别</string>
+    <string name="item_teacher">教师</string>
+    <string name="item_course_id">课程号</string>
+    <string name="item_association">组织</string>
+    <string name="item_comment">说明</string>
+
+    <!--时间段信息-->
+    <string name="time_name">名称</string>
+    <string name="time_place">地点</string>
+    <string name="time_type">时间类别</string>
+    <string name="time_comment">说明</string>
+
+    <!--定期-->
+    <string name="time_week">周</string>
+    <string name="time_day">星期</string>
+
+    <!--单次-->
+    <string name="time_date">日期</string>
+
+    <!--小时表示-->
+    <string name="time_start">开始时间</string>
+    <string name="time_end">结束时间</string>
+
+    <!--大节表示-->
+    <string name="time_start_course">开始大节</string>
+    <string name="time_length_course">时长/小节</string>
+
+    <!--时间节点-->
+    <string name="time_point">时间</string>
 
 </resources>
