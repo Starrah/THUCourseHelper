@@ -104,8 +104,8 @@ data class SchoolTerm(
      */
     fun datesInAWeek(weekNumber: Int, onlyMONToFRI: Boolean = false): List<LocalDate> {
         if (weekNumber !in 1..totalWeekCount) throw RuntimeException("周数不合法！")
-        val range = if (onlyMONToFRI) 0 until 5 else 0 until 7
-        return range.map { startDate.plusDays((((weekNumber - 1) * 7) + it).toLong()) }
+            val range = if (onlyMONToFRI) 0 until 5 else 0 until 7
+            return range.map { startDate.plusDays((((weekNumber - 1) * 7) + it).toLong()) }
     }
 
     /**
