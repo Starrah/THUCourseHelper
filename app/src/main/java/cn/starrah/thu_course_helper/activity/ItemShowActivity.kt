@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
  * 描述：显示某个日程和全部的activity类
  */
 class ItemShowActivity : AppCompatActivity(){
-
+    //TODO:按钮事件绑定
 
     private var showItem: CalendarItemDataWithTimes? = null;
     private var showID:Int = -1;
@@ -349,4 +349,45 @@ class ItemShowActivity : AppCompatActivity(){
         return result
     }
 
+
+    /**
+     * 描述：处理返回按钮的事件--返回
+     * 参数：无
+     * 返回：无
+     */
+    fun handleReturn(view: View) {
+        finish()
+    }
+
+    /**
+     * 描述：处理编辑按钮的事件--跳转到编辑页面
+     * 参数：无
+     * 返回：无
+     * TODO
+     */
+    fun handleEdit(view: View) {
+
+    }
+
+    /**
+     * 描述：处理提醒按钮的事件--跳转到提醒界面
+     * 参数：无
+     * 返回：无
+     * TODO
+     */
+    fun handleRemind(view: View) {
+
+    }
+
+    /**
+     * 描述：处理删除按钮的事件--删除当前内容，跳转回去
+     * 参数：无
+     * 返回：无
+     */
+    fun handleDelete(view: View) {
+        lifecycleScope.launch{
+            CREP.deleteItem(showItem!!)
+            finish()
+        }
+    }
 }

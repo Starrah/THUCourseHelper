@@ -22,7 +22,8 @@
             android:layout_height="match_parent"
             android:background="@drawable/icon_back"
             android:id="@+id/item_show_back"
-            android:layout_gravity="left" />
+            android:layout_gravity="left"
+            android:onClick="handleReturn"/>
 
         <!--显示名称-->
         <TextView
@@ -47,14 +48,16 @@
                 android:layout_marginHorizontal="5dp"
                 android:background="@drawable/icon_edit"
                 android:layout_gravity="right"
-                android:id="@+id/item_show_edit"/>
+                android:id="@+id/item_show_edit"
+                android:onClick="handleEdit"/>
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="5dp"
                 android:background="@drawable/icon_delete"
                 android:layout_gravity="right"
-                android:id="@+id/item_show_delete"/>
+                android:id="@+id/item_show_delete"
+                android:onClick="handleDelete"/>
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -62,6 +65,7 @@
                 android:background="@drawable/icon_remind"
                 android:layout_gravity="right"
                 android:id="@+id/item_show_remind"
+                android:onClick="handleRemind"
                 />
         </LinearLayout>
     </LinearLayout>
