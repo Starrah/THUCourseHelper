@@ -1,7 +1,6 @@
 package cn.starrah.thu_course_helper
 
 
-import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -15,14 +14,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.data.constants.LayoutConstants
 import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
-import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.time.*
-import java.time.ZoneOffset.UTC
+import java.time.DayOfWeek
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalTime
 
 
 /*
@@ -54,6 +52,10 @@ abstract class TableFragment : Fragment(){
 
     /*周信息显示位置id*/
     protected var dateInfoShowPlace: Int = R.id.date_info
+
+    companion object {
+        public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"
+    }
 
     /*当前条目id列表*/
     /*编码规则：100 * 当前周情况 + 编号*/
