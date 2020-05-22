@@ -66,11 +66,13 @@
         android:layout_height="wrap_content" />
 
     <!--描述-->
-    <LinearLayout style="@style/layout">
+    <LinearLayout
+        android:layout_height="wrap_content"
+        style="@style/layout">
         <TextView style="@style/define"
             android:drawableLeft="@drawable/icon_item"
             android:text ="@string/time_comment"/>
         <EditText style="@style/input"
-            android:id="@+id/time_edit_comment"/>
+            android:id="@+id/time_edit_comment" />
     </LinearLayout>
 </LinearLayout>

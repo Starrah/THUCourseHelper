@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--编辑/添加一个日程-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    >
+
+    <!--top-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/border">
+
+        <!--返回按钮-->
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/icon_back"
+            android:id="@+id/item_show_back"
+            android:layout_gravity="left" />
+
+        <!--显示名称-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:id="@+id/item_show_top"
+            android:textColor="@color/colorBlack"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:textSize="20dp"
+            android:text="name"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:background="@drawable/border">
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="5dp"
+                android:background="@drawable/icon_edit"
+                android:layout_gravity="right"
+                android:id="@+id/item_show_edit"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="5dp"
+                android:background="@drawable/icon_delete"
+                android:layout_gravity="right"
+                android:id="@+id/item_show_delete"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="5dp"
+                android:background="@drawable/icon_remind"
+                android:layout_gravity="right"
+                android:id="@+id/item_show_remind"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/border"
+        android:layout_margin="30dp">
+
+        <!--名称-->
+        <LinearLayout style="@style/layout">
+            <TextView style="@style/define_show"
+                android:drawableLeft="@drawable/icon_item"
+                android:text ="@string/item_name"/>
+            <TextView style="@style/input_show"
+                android:id="@+id/item_show_name"
+                android:text="1453"/>
+        </LinearLayout>
+
+
+        <!--类别-->
+        <LinearLayout style="@style/layout">
+            <TextView style="@style/define_show"
+                android:drawableLeft="@drawable/icon_type"
+                android:text ="@string/item_type"/>
+            <TextView style="@style/input_show"
+                android:id="@+id/item_show_type"
+                android:text="0529"/>
+        </LinearLayout>
+
+        <!--选择细节，不同类别不同-->
+        <FrameLayout
+            android:id="@+id/item_show_info"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <!--描述-->
+        <LinearLayout
+            android:layout_height="wrap_content"
+            style="@style/layout">
+            <TextView style="@style/define_show"
+                android:drawableLeft="@drawable/icon_item"
+                android:text ="@string/item_comment"/>
+            <TextView
+                android:layout_height="wrap_content"
+                style="@style/input_show"
+                android:id="@+id/item_show_comment"
+                android:text="ceddin deden!neslin baban!"/>
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+        <!--放新时间的位置-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/new_time_place_show">
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>
