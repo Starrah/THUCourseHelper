@@ -102,7 +102,8 @@
         <FrameLayout
             android:id="@+id/item_show_info"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            />
 
         <!--描述-->
         <LinearLayout
@@ -129,7 +130,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:id="@+id/new_time_place_show">
+            android:id="@+id/new_time_place_show"
+            android:layout_marginHorizontal="30dp"
+            android:divider="@drawable/divider"
+            android:showDividers="middle">
+
         </LinearLayout>
     </ScrollView>
 

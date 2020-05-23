@@ -5,17 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
+import android.widget.Toast
 import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
-import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
-import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import java.time.DayOfWeek
-import java.time.LocalDate
 
 
 class CourseTable : TableFragment() {
@@ -46,7 +40,7 @@ class CourseTable : TableFragment() {
      * 返回：无
      * @sample "第一\n大节\n08:00-\n09:35"
      */
-    fun initalizeClassText() {
+    private fun initalizeClassText() {
         val show_class_text_id = arrayOf<Int>(0, R.id.class_1_text, R.id.class_2_text,
             R.id.class_3_text, R.id.class_4_text, R.id.class_5_text, R.id.class_6_text)
         val show_string_list = arrayOf<String>("", "第一\n大节\n", "第二\n大节\n", "第三\n大节\n", "第四\n大节\n", "第五\n大节\n", "第六\n大节\n")
@@ -97,20 +91,7 @@ class CourseTable : TableFragment() {
         initializeListWidth()
     }
 
-    /**
-    * 描述：获取本周的所有课程时间段（这里应该是个虚函数，课程，日程表实现不同）
-    * 参数：日期
-    * 返回：无
-     * TODO
-    */
-    override protected suspend fun getValidTimes() {
-        for (week_num in DayOfWeek.values()) {
-            var the_day: LocalDate = allDates[week_num]!!
-            var the_list = listOf<LocalDate>(the_day)
 
-            timeList[week_num] = CREP.findTimesByDays(the_list)
-        }
-    }
 
 
     /*
@@ -120,6 +101,10 @@ class CourseTable : TableFragment() {
     */
     override fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem) {
         var v:View? = null;
+        //只显示能大节显示的课程
+        if(theItem.calendarItem.type != CalendarItemType.COURSE) {
+            return
+        }
         if (showType == "course") {
             if (theItem.timeInCourseSchedule == null) {
                 return
@@ -134,8 +119,8 @@ class CourseTable : TableFragment() {
             v = showOneHour(theWeekDay, theItem)
         }
 
-        //TODO:绑定事件
     }
+
 
 
 

@@ -9,6 +9,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+//import butterknife.Bind
+//import butterknife.ButterKnife
 import cn.starrah.thu_course_helper.TableFragment
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
@@ -19,13 +21,13 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
+import org.w3c.dom.Text
 
 
 /**
  * 描述：显示某个日程和全部的activity类
  */
 class ItemShowActivity : AppCompatActivity(){
-    //TODO:按钮事件绑定
 
     private var showItem: CalendarItemDataWithTimes? = null;
     private var showID:Int = -1;
@@ -38,6 +40,7 @@ class ItemShowActivity : AppCompatActivity(){
     protected override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.calendar_item_show_main)
+        //ButterKnife.bind(this)
 
         val intent = intent
         val message = intent.getIntExtra(TableFragment.EXTRA_MESSAGE, -1)
@@ -79,10 +82,14 @@ class ItemShowActivity : AppCompatActivity(){
      * 返回：无
      */
     suspend fun showData() {
+
         //名称
         var item_name:String = showItem!!.name
-        var show_name:TextView = findViewById(R.id.item_show_name)
-        show_name.setText(item_name)
+        var item_show_name:TextView = findViewById(R.id.item_show_name)
+        item_show_name.setText(item_name)
+        var item_show_top:TextView = findViewById(R.id.item_show_top)
+        item_show_top.setText(item_name)
+
 
         //类别
         var item_type:CalendarItemType = showItem!!.type
@@ -91,38 +98,41 @@ class ItemShowActivity : AppCompatActivity(){
         show_type.setText(item_type_show)
 
         //教师，课程号，detail
-        var detail_place = findViewById<FrameLayout>(R.id.item_edit_info)
+        var detail_place = findViewById<FrameLayout>(R.id.item_show_info)
         if(item_type == CalendarItemType.COURSE) {
-            val layout = LayoutInflater.from(this).inflate(R.layout.calendar_item_edit_course, null);
+            val layout = LayoutInflater.from(this).inflate(R.layout.calendar_item_show_course, null);
 
             var item_teacher:String? = showItem!!.detail[CalendarItemLegalDetailKey.TEACHER]
             if(item_teacher == null) {
                 item_teacher = showDefault
             }
-            var show_teacher:TextView = findViewById(R.id.item_show_teacher)
+            var show_teacher:TextView = layout.findViewById(R.id.item_show_teacher)
             show_teacher.setText(item_teacher)
 
             var item_course_id:String? = showItem!!.detail[CalendarItemLegalDetailKey.COURSEID]
             if(item_course_id == null) {
                 item_course_id = showDefault
             }
-            var show_course_id:TextView = findViewById(R.id.item_show_course_id)
+            var show_course_id:TextView = layout.findViewById(R.id.item_show_course_id)
             show_course_id.setText(item_course_id)
 
             detail_place.addView(layout)
+
         }
         else if(item_type == CalendarItemType.SOCIALWORK || item_type == CalendarItemType.ASSOCIATION) {
-            val layout = LayoutInflater.from(this).inflate(R.layout.calendar_item_edit_social, null);
+            val layout =
+                LayoutInflater.from(this).inflate(R.layout.calendar_item_show_social, null);
 
-            var item_association:String? = showItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION]
-            if(item_association == null) {
+            var item_association: String? =
+                showItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION]
+            if (item_association == null) {
                 item_association = showDefault
             }
-            var show_teacher:TextView = findViewById(R.id.item_show_teacher)
+            var show_teacher: TextView = layout.findViewById(R.id.item_show_teacher)
             show_teacher.setText(item_association)
 
-
             detail_place.addView(layout)
+
         }
 
         //详情
@@ -150,13 +160,15 @@ class ItemShowActivity : AppCompatActivity(){
      */
     suspend fun showOneTime(time:CalendarTimeData, parent_place:LinearLayout) {
         val layout = LayoutInflater.from(this).inflate(R.layout.calendar_time_show, null);
+
+
         //名称
         var time_name:String = time.name
-        var show_name:TextView = findViewById(R.id.time_show_name)
+        var show_name:TextView = layout.findViewById(R.id.time_show_name)
         show_name.setText(time_name)
 
-        var show_date:TextView = findViewById(R.id.time_show_date)
-        var show_time:TextView = findViewById(R.id.time_show_time)
+        var show_date:TextView = layout.findViewById(R.id.time_show_date)
+        var show_time:TextView = layout.findViewById(R.id.time_show_time)
 
         //日期和时间
         if(time.type == CalendarTimeType.REPEAT_COURSE) {
@@ -194,7 +206,7 @@ class ItemShowActivity : AppCompatActivity(){
 
             //日期--第14周周五（5月22日）
             var the_date = schedule.date
-            var time_month = the_date!!.month
+            var time_month = the_date!!.month.value
             var time_day = the_date!!.dayOfMonth
             var the_week_num = CREP.term.dateToWeekNumber(the_date)
             var the_week_day = the_date.dayOfWeek.chineseName
@@ -213,7 +225,7 @@ class ItemShowActivity : AppCompatActivity(){
 
             //日期--5月22日
             var the_date_year = schedule.date!!.year
-            var the_date_month = schedule.date!!.month
+            var the_date_month = schedule.date!!.month.value
             var the_date_day = schedule.date!!.dayOfMonth
             var date_string:String = "" + the_date_year + "年" + the_date_month + "月" + the_date_day + "日"
             show_date.setText(date_string)
@@ -229,7 +241,7 @@ class ItemShowActivity : AppCompatActivity(){
 
             //日期--5月22日
             var the_date_year = schedule.date!!.year
-            var the_date_month = schedule.date!!.month
+            var the_date_month = schedule.date!!.month.value
             var the_date_day = schedule.date!!.dayOfMonth
             var date_string:String = "" + the_date_year + "年" + the_date_month + "月" + the_date_day + "日"
             show_date.setText(date_string)
@@ -237,12 +249,12 @@ class ItemShowActivity : AppCompatActivity(){
 
         //地点
         var time_place:String = time.place
-        var show_place:TextView = findViewById(R.id.time_show_place)
+        var show_place:TextView = layout.findViewById(R.id.time_show_place)
         show_place.setText(time_place)
 
         //说明
         var time_comment:String = time.comment
-        var show_comment:TextView = findViewById(R.id.time_show_comment)
+        var show_comment:TextView = layout.findViewById(R.id.time_show_comment)
         show_comment.setText(time_comment)
 
         //添加

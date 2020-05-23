@@ -43,20 +43,6 @@ class TimeTable : TableFragment() {
         initializeListWidth()
     }
 
-    /*
-    描述：获取本周的所有课程时间段（这里应该是个虚函数，课程，日程表实现不同）
-    参数：日期
-    返回：无
-    TODO
-    */
-    override protected suspend fun getValidTimes() {
-        for (week_num in DayOfWeek.values()) {
-            var the_day: LocalDate = allDates[week_num]!!
-            var the_list = listOf<LocalDate>(the_day)
-
-            timeList[week_num] = CREP.findTimesByDays(the_list)
-        }
-    }
 
     /*
     描述：显示某个日程时间段

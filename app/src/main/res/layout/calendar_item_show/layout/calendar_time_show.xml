@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/border"
-    android:layout_margin="30dp">
+    android:layout_marginVertical="30dp">
 
 
     <!--名称-->
