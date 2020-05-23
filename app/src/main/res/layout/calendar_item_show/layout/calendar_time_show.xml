@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--编辑/添加一个时间段-->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/border"
+    android:layout_marginVertical="30dp">
+
+
+    <!--名称-->
+    <LinearLayout style="@style/layout">
+        <TextView style="@style/define_show"
+            android:drawableLeft="@drawable/icon_item"
+            android:text ="@string/time_name"/>
+        <TextView style="@style/input_show"
+            android:id="@+id/time_show_name"/>
+    </LinearLayout>
+
+    <!--日期，类似第14周周五（5月22日）或者前八周 周五这种-->
+    <LinearLayout style="@style/layout">
+        <TextView style="@style/define_show"
+            android:drawableLeft="@drawable/icon_day"
+            android:text ="@string/time_date"/>
+        <TextView style="@style/input_show"
+            android:id="@+id/time_show_date"/>
+    </LinearLayout>
+
+    <!--时间，类似8:00-9:30-->
+    <LinearLayout style="@style/layout">
+        <TextView style="@style/define_show"
+            android:drawableLeft="@drawable/icon_item"
+            android:text ="@string/time_time"/>
+        <TextView style="@style/input_show"
+            android:id="@+id/time_show_time"/>
+    </LinearLayout>
+
+    <!--地点-->
+    <LinearLayout style="@style/layout">
+        <TextView style="@style/define_show"
+            android:drawableLeft="@drawable/icon_place"
+            android:text ="@string/time_place"/>
+        <TextView style="@style/input_show"
+            android:id="@+id/time_show_place"/>
+    </LinearLayout>
+
+    <!--描述-->
+    <LinearLayout style="@style/layout">
+        <TextView style="@style/define_show"
+            android:drawableLeft="@drawable/icon_item"
+            android:text ="@string/time_comment"/>
+        <TextView style="@style/input_show"
+            android:id="@+id/time_show_comment"/>
+    </LinearLayout>
+</LinearLayout>

@@ -6,6 +6,9 @@
     <string name="information">信息</string>
     <string name="settings">设置</string>
 
+    <string name="back">返回</string>
+
+
     <!--日程信息-->
     <string name="item_top">编辑日程信息</string>
     <string name="item_name">名称</string>
@@ -20,6 +23,7 @@
     <string name="time_place">地点</string>
     <string name="time_type">时间类别</string>
     <string name="time_comment">说明</string>
+    <string name="time_time">时间</string>
     <!--定期-->
     <string name="time_week">周</string>
     <string name="time_day">星期</string>

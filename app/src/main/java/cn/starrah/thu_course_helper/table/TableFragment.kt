@@ -1,7 +1,7 @@
 package cn.starrah.thu_course_helper
 
 
-import android.os.Bundle
+import android.content.Intent
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -9,20 +9,21 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
+import cn.starrah.thu_course_helper.activity.ItemShowActivity
 import cn.starrah.thu_course_helper.data.constants.LayoutConstants
 import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
-import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.time.*
-import java.time.ZoneOffset.UTC
+import java.time.DayOfWeek
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalTime
 
 
 /*
@@ -31,7 +32,7 @@ import java.time.ZoneOffset.UTC
 abstract class TableFragment : Fragment(){
 
     //父类activity
-    protected var theActivity: FragmentActivity? = null
+    public var theActivity: FragmentActivity? = null
 
     /*当前显示设置*/
     //显示几天
@@ -55,17 +56,10 @@ abstract class TableFragment : Fragment(){
     /*周信息显示位置id*/
     protected var dateInfoShowPlace: Int = R.id.date_info
 
-    /*当前条目id列表*/
-    /*编码规则：100 * 当前周情况 + 编号*/
-    protected var itemIDList = mutableMapOf<DayOfWeek, ArrayList<Int>>(
-        DayOfWeek.MONDAY to ArrayList(),
-        DayOfWeek.TUESDAY to ArrayList(),
-        DayOfWeek.WEDNESDAY to ArrayList(),
-        DayOfWeek.THURSDAY to ArrayList(),
-        DayOfWeek.FRIDAY to ArrayList(),
-        DayOfWeek.SATURDAY to ArrayList(),
-        DayOfWeek.SUNDAY to ArrayList()
-    )
+    companion object {
+        public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"
+    }
+
 
     /*当前周所有日期，以string形式yyyy-MM-dd表示*/
     protected val allDates = mutableMapOf<DayOfWeek, LocalDate>(
@@ -107,17 +101,6 @@ abstract class TableFragment : Fragment(){
 
     //控件初始化相关函数
     /**
-    *描述：初始化控件的宽度，高度（都是linearlayout）
-    *参数：id，宽度，高度
-    *返回：无
-     */
-    fun setWidthHeight(ID:Int, Width:Int, Height:Int) {
-        val view: LinearLayout = theActivity!!.findViewById(ID)
-        var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(Width, Height);
-        view.setLayoutParams(params)
-    }
-
-    /**
     *描述：按照设置初始化视图
     *参数：无
     *返回：无
@@ -125,7 +108,19 @@ abstract class TableFragment : Fragment(){
     abstract protected fun initializeLayout();
 
     /**
-    *描述：初始化基本都layout
+     *描述：初始化控件的宽度，高度（都是linearlayout）
+     *参数：id，宽度，高度
+     *返回：无
+     */
+    fun setWidthHeight(ID:Int, Width:Int, Height:Int) {
+        val view: LinearLayout = theActivity!!.findViewById(ID)
+        var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(Width, Height);
+        view.setLayoutParams(params)
+    }
+
+
+    /**
+    *描述：初始化基本layout
     *参数：无
     *返回：无
      */
@@ -239,8 +234,7 @@ abstract class TableFragment : Fragment(){
 
         updateAllDates()
         showAllDates()
-        //TODO 根据当前日期获取周
-        //TODO 根据当前周获取各个日期
+
 
         if(theActivity == null)
         {
@@ -266,13 +260,6 @@ abstract class TableFragment : Fragment(){
         var today:LocalDate = LocalDate.now()
         var current_week:Int = CREP.term.dateToWeekNumber(today)
         currentWeek = current_week
-    }
-
-    /**
-     * 描述：获取当前对应的年，月（多数为准）
-     */
-    fun getCurrentYearMonth() {
-
     }
 
     /**
@@ -361,7 +348,7 @@ abstract class TableFragment : Fragment(){
      * 描述：更新本周的所有年,月，日信息显示
      * 参数：无
      * 返回：无
-     * @sample：必须在updateAllDates前调用
+     * @sample：必须在updateAllDates后调用
      */
     protected fun showAllDates() {
         //更新学期显示
@@ -387,12 +374,18 @@ abstract class TableFragment : Fragment(){
 
 
     /**
-    * 描述：获取本周的所有课程时间段（这里应该是个虚函数，课程，日程表实现不同）
-    * 参数：日期
-    * 返回：无
-    TODO
+     * 描述：获取本周的所有日程时间段
+     * 参数：日期
+     * 返回：无
      */
-    abstract protected suspend fun getValidTimes();
+    protected suspend fun getValidTimes() {
+        for (week_num in DayOfWeek.values()) {
+            var the_day: LocalDate = allDates[week_num]!!
+            var the_list = listOf<LocalDate>(the_day)
+
+            timeList[week_num] = CREP.findTimesByDays(the_list)
+        }
+    }
 
 
     /**
@@ -425,7 +418,6 @@ abstract class TableFragment : Fragment(){
             var viewID: Int = showPlaceID[day]!!
             var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
             dayView.removeAllViews()
-            itemIDList[day]!!.clear()
         }
     }
 
@@ -448,9 +440,6 @@ abstract class TableFragment : Fragment(){
 
         var v: View = LayoutInflater.from(theActivity!!).inflate(R.layout.course_item, null); //加载单个课程布局
 
-        //给v设置id并且存储
-        v.id = theWeekDay.value * 100 + itemIDList.size
-        itemIDList[theWeekDay]!!.add(v.id)
 
         v.setY(startHeight); //设置开始高度,即第几节课开始
 
@@ -462,6 +451,17 @@ abstract class TableFragment : Fragment(){
         var sub_name:String = theCourse.name
         var main_name:String = theCourse.calendarItem.name
         theTextView.setText(main_name + sub_name); //显示课程名        dayView.addView(v);
+
+        //设置v的id和绑定时间处理函数
+        v.id = theCourse.calendarItem.id
+        v.setOnClickListener(View.OnClickListener() {
+            var id: Int = v.id
+            var intent = Intent(theActivity!!, ItemShowActivity::class.java)
+            intent.putExtra(EXTRA_MESSAGE, id)
+            theActivity!!.startActivity(intent)
+        })
+
+
         dayView.addView(v);
         return v
     }
@@ -498,9 +498,6 @@ abstract class TableFragment : Fragment(){
 
         var v: View = LayoutInflater.from(theActivity!!).inflate(R.layout.course_item, null); //加载单个课程布局
 
-        //给v设置id并且存储
-        v.id = theWeekDay.value * 100 + itemIDList.size
-        itemIDList[theWeekDay]!!.add(v.id)
 
         v.setY(startY); //设置开始高度,即第几节课开始
 
@@ -512,7 +509,17 @@ abstract class TableFragment : Fragment(){
         var sub_name:String = theItem.name
         var main_name:String = theItem.calendarItem.name
         theTextView.setText(main_name + sub_name); //显示课程名
-        dayView.addView(v);
+
+        //设置v的id和绑定时间处理函数
+        v.id = theItem.calendarItem.id
+        v.setOnClickListener(View.OnClickListener() {
+                var id: Int = v.id
+                var intent = Intent(theActivity!!, ItemShowActivity::class.java)
+                intent.putExtra(EXTRA_MESSAGE, id)
+                theActivity!!.startActivity(intent)
+        })
+
+        dayView.addView(v)
         return v
     }
 
@@ -526,4 +533,7 @@ abstract class TableFragment : Fragment(){
         place = (time.seconds * LayoutConstants.HeightPerHour).toFloat() / 3600
         return place
     }
+
+
+
 }

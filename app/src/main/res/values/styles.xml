@@ -10,7 +10,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!--用于编辑，显示日程，提醒具体信息-->
+    <!--用于编辑日程，提醒具体信息-->
     <style name="define" parent="@style/Widget.AppCompat.TextView">
         <item name="android:layout_width">120dp</item>
         <item name="android:layout_height">match_parent</item>
@@ -25,6 +25,9 @@
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_marginLeft">20dp</item>
         <item name="android:layout_marginRight">20dp</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:gravity">center|left</item>
     </style>
 
     <style name="layout">
@@ -40,5 +43,25 @@
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">center</item>
         <item name="background">@drawable/border_table</item>
+    </style>
+
+    <!--用于显示日程，提醒具体信息-->
+    <style name="define_show" parent="@style/Widget.AppCompat.TextView">
+        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <!--<item name="android:textAlignment">center</item>-->
+        <item name="android:gravity">center|left</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:textSize">20dp</item>
+    </style>
+
+    <style name="input_show">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:gravity">center|left</item>
     </style>
 </resources>

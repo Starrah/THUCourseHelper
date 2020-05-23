@@ -226,4 +226,9 @@ object CalendarRepository {
             DAO.findItemByTime(time.id)
         }
     }
+
+    suspend fun deleteItem(item: CalendarItemData) {
+        TODO()
+    }
+
 }

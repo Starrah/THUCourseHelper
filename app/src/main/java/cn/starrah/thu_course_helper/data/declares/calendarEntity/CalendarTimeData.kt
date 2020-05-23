@@ -43,6 +43,9 @@ open class CalendarTimeData(
     /** 地点 */
     var place: String = "",
 
+    /** 说明 */
+    var comment: String = "",
+
     /** 提醒设置 */
     @Embedded(prefix = "RMD") var remindData: CalendarRemindData = CalendarRemindData(),
 
