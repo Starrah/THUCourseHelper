@@ -31,7 +31,7 @@ class ItemShowActivity : AppCompatActivity(){
 
     private var showItem: CalendarItemDataWithTimes? = null;
     private var showID:Int = -1;
-    private val showDefault:String = "暂无"
+
 
     companion object {
         public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"

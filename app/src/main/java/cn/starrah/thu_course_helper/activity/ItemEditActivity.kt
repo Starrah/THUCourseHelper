@@ -4,13 +4,12 @@ package cn.starrah.thu_course_helper.activity
 //import butterknife.ButterKnife
 
 import android.app.Dialog
-import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
-import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.R
@@ -22,14 +21,15 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
+import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.builder.TimePickerBuilder
+import com.bigkoo.pickerview.listener.OnOptionsSelectListener
 import com.bigkoo.pickerview.listener.OnTimeSelectChangeListener
 import com.bigkoo.pickerview.listener.OnTimeSelectListener
+import com.bigkoo.pickerview.view.OptionsPickerView
 import com.bigkoo.pickerview.view.TimePickerView
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
-import java.time.LocalDate
-import java.time.LocalTime
+import java.time.*
 import java.util.*
 
 
@@ -47,8 +47,124 @@ class ItemEditActivity : AppCompatActivity(){
     //时间选择器（滚轮），用来选择时间
     private lateinit var pvTime: TimePickerView
 
-    companion object {
+    //日期选择器
+    private lateinit var pvDate: TimePickerView
 
+
+    /**
+     * 描述：用于记录所有时间段的标签信息
+     * 编码规则：最上方：名称，类别，教师，课程号，组织，说明：0-5
+     * 第i个下方标签：13*i + 6
+     * 第i个标签的删除按钮：13*i + 7
+     * 第i个标签的11个元素:13 * i + 8 --13 * i + 18
+     */
+    private var tagList:MutableList<Int> = mutableListOf()
+    //父亲view的存储列表，和上方一一对应
+    private var viewList:MutableList<View> = mutableListOf()
+    //新view赋值的数字
+    private var currentNum = 0
+
+    /**
+     * 描述：根据tag获取所需的father的view
+     * 参数：tag
+     * 返回：view
+     */
+    private fun getFatherViewByTag(tag: Int): View {
+        var current_num:Int = (tag - 6) / 13
+        var current_view:View? = null
+        for(i in tagList.indices) {
+            if(tagList[i] == current_num) {
+                current_view = viewList[i]
+                break
+            }
+        }
+        return current_view!!
+    }
+
+    /**
+     * 描述：根据tag获取所需的father的view
+     * 参数：tag
+     * 返回：view
+     */
+    private fun getTimeByTag(tag: Int): CalendarTimeData {
+        var current_num:Int = (tag - 6) / 13
+        var current_time:CalendarTimeData? = null
+        for(i in tagList.indices) {
+            if(tagList[i] == current_num) {
+                current_time = currentItem!!.times[i]
+                break
+            }
+        }
+        return current_time!!
+    }
+
+
+    /**
+     * 描述：添加一个新的下方栏
+     * 参数：view
+     * 返回：无
+     */
+    private fun addOneView(view:View) {
+        var int_tag = view.tag as Int
+        tagList.add((int_tag - 6) / 13)
+        viewList.add(view)
+    }
+
+    /**
+     * 描述：设置最上方几个元素的tag
+     * 参数：无
+     * 返回：无
+     */
+    private fun setBaseTags() {
+        var item_edit_name: EditText = findViewById(R.id.item_edit_name)
+        item_edit_name.setTag(0)
+        var item_edit_type: TextView = findViewById(R.id.item_edit_type)
+        item_edit_type.setTag(1)
+        var item_edit_teacher: EditText = findViewById(R.id.item_edit_teacher)
+        item_edit_teacher.setTag(2)
+        var item_edit_course_id: EditText = findViewById(R.id.item_edit_course_id)
+        item_edit_course_id.setTag(3)
+        var item_edit_association: EditText = findViewById(R.id.item_edit_association)
+        item_edit_association.setTag(4)
+        var item_edit_comment: EditText = findViewById(R.id.item_edit_comment)
+        item_edit_comment.setTag(5)
+    }
+
+    /**
+     * 描述：设置下方某个元素tag
+     * 参数：这个tag的view
+     * 返回：无
+     */
+    private fun setSonTags(layout:View) {
+        layout.setTag(currentNum * 13 + 6)
+        var time_edit_name: EditText = layout.findViewById(R.id.time_edit_name)
+        time_edit_name.setTag(currentNum * 13 + 7)
+        var time_edit_place: EditText = layout.findViewById(R.id.time_edit_place)
+        time_edit_place.setTag(currentNum * 13 + 8)
+        var time_edit_type: TextView = layout.findViewById(R.id.time_edit_time_type)
+        time_edit_type.setTag(currentNum * 13 + 9)
+        var time_edit_week: TextView = layout.findViewById(R.id.time_edit_week)
+        time_edit_week.setTag(currentNum * 13 + 10)
+        var time_edit_day: TextView = layout.findViewById(R.id.time_edit_day)
+        time_edit_day.setTag(currentNum * 13 + 11)
+        var time_edit_date: TextView = layout.findViewById(R.id.time_edit_date)
+        time_edit_date.setTag(currentNum * 13 + 12)
+        var time_edit_start_course: TextView = layout.findViewById(R.id.time_edit_start_course)
+        time_edit_start_course.setTag(currentNum * 13 + 13)
+        var time_edit_length_course: TextView = layout.findViewById(R.id.time_edit_length_course)
+        time_edit_length_course.setTag(currentNum * 13 + 14)
+        var time_edit_start_hour: TextView = layout.findViewById(R.id.time_edit_start_hour)
+        time_edit_start_hour.setTag(currentNum * 13 + 15)
+        var time_edit_end_hour: TextView = layout.findViewById(R.id.time_edit_end_hour)
+        time_edit_end_hour.setTag(currentNum * 13 + 16)
+        var time_edit_point: TextView = layout.findViewById(R.id.time_edit_point)
+        time_edit_point.setTag(currentNum * 13 + 17)
+        var time_edit_comment: EditText = layout.findViewById(R.id.time_edit_comment)
+        time_edit_comment.setTag(currentNum * 13 + 18)
+        currentNum ++
+    }
+
+    companion object {
         /**
          * 描述：将时间转换成 08:00 这种形式
          */
@@ -97,10 +213,10 @@ class ItemEditActivity : AppCompatActivity(){
             view = parent.findViewById(ID)
         }
         //和style一致
-        var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 40);
+        var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 50);
         params.height = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
-            60f,
+            50f,
             resources.displayMetrics
         ).toInt()
         view.layoutParams = params
@@ -119,7 +235,11 @@ class ItemEditActivity : AppCompatActivity(){
         currentID = message
 
 
-        initTimePicker();
+        initTimePicker()
+        initDatePicker()
+
+        getCourseOptionData()
+        initCourseOptionPicker()
 
 
         lifecycleScope.launch {
@@ -173,18 +293,17 @@ class ItemEditActivity : AppCompatActivity(){
      * 返回：无
      */
     suspend fun showData() {
-
         //名称
         var item_name:String = currentItem!!.name
         var item_edit_name: EditText = findViewById(R.id.item_edit_name)
         item_edit_name.setText(item_name)
-
 
         //类别
         var item_type:CalendarItemType = currentItem!!.type
         var item_type_string: String = currentItem!!.type.chineseName
         var edit_type: TextView = findViewById(R.id.item_edit_type)
         edit_type.text = item_type_string
+
 
         //教师，课程号，detail
         if(item_type == CalendarItemType.COURSE) {
@@ -241,12 +360,19 @@ class ItemEditActivity : AppCompatActivity(){
         }
         edit_comment.setText(item_comment)
 
+        //设置tag
+        setBaseTags()
 
         //具体下面
         var parent_place = findViewById<LinearLayout>(R.id.new_time_place)
         parent_place.removeAllViews()
         for(time in currentItem!!.times) {
-            showOneTime(time, parent_place)
+            val layout = LayoutInflater.from(this).inflate(R.layout.calendar_time_edit, null);
+            showOneTime(time, layout!!)
+            //设置新tag
+            setSonTags(layout)
+            parent_place.addView(layout)
+            addOneView(layout)
         }
     }
 
@@ -257,9 +383,7 @@ class ItemEditActivity : AppCompatActivity(){
      * 参数：具体时间段信息time, 父亲节点位置
      * 返回：无
      */
-    suspend fun showOneTime(time: CalendarTimeData, parent_place:LinearLayout) {
-        val layout = LayoutInflater.from(this).inflate(R.layout.calendar_time_edit, null);
-
+    suspend fun showOneTime(time: CalendarTimeData, layout: View) {
 
         //名称
         var time_name:String = time.name
@@ -321,6 +445,13 @@ class ItemEditActivity : AppCompatActivity(){
             var date_string = date.toString()
             var edit_date: TextView = layout.findViewById(R.id.time_edit_date)
             edit_date.setText(date_string)
+            //绑定选择器
+            edit_date.setOnClickListener(View.OnClickListener() {
+                if (pvDate != null) {
+                    pvDate.setDate(Calendar.getInstance());
+                    pvDate.show(edit_date);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                }
+            })
         }
 
 
@@ -336,10 +467,17 @@ class ItemEditActivity : AppCompatActivity(){
             //设置初值
             var start_big = time.timeInCourseSchedule!!.startBig.toInt()
             var start_small = time.timeInCourseSchedule!!.startOffsetSmall.toInt()
-            var start_string = "第" + start_big + "大节"+"第" + (start_small + 1) + "小节"
-            var edit_start: TextView = layout.findViewById(R.id.time_edit_start_hour)
-            edit_start.setText(start_string)
-
+            var start_string = "第" + start_big + "大节"
+            if(start_small != 0) {
+                start_string = start_string +"第" + (start_small + 1) + "小节"
+            }
+            var edit_start: TextView = layout.findViewById(R.id.time_edit_start_course)
+            edit_start.text = start_string
+            edit_start.setOnClickListener(View.OnClickListener() {
+                if (pvCourseOptions != null) {
+                    pvCourseOptions.show();//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                }
+            })
 
 
 
@@ -358,27 +496,26 @@ class ItemEditActivity : AppCompatActivity(){
             var start_string:String = getTimeString(time.timeInHour!!.startTime)
             var end_string:String = getTimeString(time.timeInHour!!.endTime)
 
-            var edit_start: TextView = layout.findViewById(R.id.time_edit_start_hour)
-            edit_start.setText(start_string)
+            var edit_start:TextView = layout.findViewById(R.id.time_edit_start_hour)
             //绑定选择器
             edit_start.setOnClickListener(View.OnClickListener() {
                 if (pvTime != null) {
-                    // pvTime.setDate(Calendar.getInstance());
-                    /* pvTime.show(); //show timePicker*/
+                    pvTime.setDate(Calendar.getInstance());
                     pvTime.show(edit_start);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
                 }
             })
+            edit_start.text = start_string
+
 
             var edit_end: TextView = layout.findViewById(R.id.time_edit_end_hour)
-            edit_end.setText(end_string)
             //绑定选择器
             edit_end.setOnClickListener(View.OnClickListener() {
                 if (pvTime != null) {
-                    // pvTime.setDate(Calendar.getInstance());
-                    /* pvTime.show(); //show timePicker*/
+                    pvTime.setDate(Calendar.getInstance());
                     pvTime.show(edit_end);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
                 }
             })
+            edit_end.text = end_string
         }
         else {
             //时间显示，其余隐藏
@@ -390,15 +527,15 @@ class ItemEditActivity : AppCompatActivity(){
             var time_string:String = getTimeString(time.timeInHour!!.startTime)
 
             var edit_point: TextView = layout.findViewById(R.id.time_edit_point)
-            edit_point.setText(time_string)
             //绑定选择器
             edit_point.setOnClickListener(View.OnClickListener() {
                 if (pvTime != null) {
-                    // pvTime.setDate(Calendar.getInstance());
-                    /* pvTime.show(); //show timePicker*/
+                    pvTime.setDate(Calendar.getInstance());
                     pvTime.show(edit_point);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
                 }
             })
+            edit_point.text = time_string
+
         }
 
         //说明
@@ -406,9 +543,6 @@ class ItemEditActivity : AppCompatActivity(){
         var edit_comment: EditText = layout.findViewById(R.id.time_edit_comment)
         edit_comment.setText(time_comment)
 
-        //添加
-        //TODO 存储在一个数组里
-        parent_place.addView(layout)
     }
 
     /**
@@ -514,16 +648,37 @@ class ItemEditActivity : AppCompatActivity(){
 
     //选择类控件初始化函数
     /**
-     * 描述：初始化时间选择器
+     * 描述：初始化时间选择器---用于时间和时间节点选择
      * 参数：无
      * 返回：无
      */
     private fun initTimePicker() { //Dialog 模式下，在底部弹出
         pvTime = TimePickerBuilder(this, object : OnTimeSelectListener {
             override fun onTimeSelect(date: Date?, v: View?) {
-                Toast.makeText(this@ItemEditActivity, date!!.time.toString(), Toast.LENGTH_SHORT)
-                    .show()
-                Log.i("pvTime", "onTimeSelect")
+                val instant: Instant = date!!.toInstant()
+                val zone: ZoneId = ZoneId.systemDefault()
+                val localDateTime: LocalDateTime = LocalDateTime.ofInstant(instant, zone)
+                val localTime: LocalTime = localDateTime.toLocalTime()
+                val string = getTimeString(localTime)
+
+                val tag:Int = v!!.tag!! as Int
+                var layout:View = getFatherViewByTag(tag)
+                val current_time:CalendarTimeData = getTimeByTag(tag)
+                if (tag % 13 == 2 || tag % 13 == 4) {
+                    current_time.timeInHour!!.startTime = localTime
+                }
+                else if(tag % 13 == 3 || tag % 13 == 4) {
+                    current_time.timeInHour!!.endTime = localTime
+                }
+                if(tag % 13 == 2) {
+                    layout.findViewById<TextView>(R.id.time_edit_start_hour).text = string
+                }
+                else if(tag % 13 == 3) {
+                    layout.findViewById<TextView>(R.id.time_edit_end_hour).text = string
+                }
+                else if(tag % 13 == 4) {
+                    layout.findViewById<TextView>(R.id.time_edit_point).text = string
+                }
             }
         })
             .setTimeSelectChangeListener(object : OnTimeSelectChangeListener {
@@ -531,13 +686,16 @@ class ItemEditActivity : AppCompatActivity(){
                     Log.i("pvTime", "onTimeSelectChanged")
                 }
             })
-            .setType(booleanArrayOf(true, true, true, true, true, true))
+            .setTitleText("时间选择")
+            .setType(booleanArrayOf(false, false, false, true, true, false))
+            .setLabel("年", "月", "日", "时", "分", "秒")
             .isDialog(true) //默认设置false ，内部实现将DecorView 作为它的父控件。
             .addOnCancelClickListener(object : View.OnClickListener {
                 override fun onClick(view: View?) {
                     Log.i("pvTime", "onCancelClickListener")
                 }
             })
+
             .setItemVisibleCount(5) //若设置偶数，实际值会加1（比如设置6，则最大可见条目为7）
             .setLineSpacingMultiplier(2.0f)
             .isAlphaGradient(true)
@@ -560,6 +718,173 @@ class ItemEditActivity : AppCompatActivity(){
             }
         }
     }
+
+
+    /**
+     * 描述：初始化日期选择器--选择哪一天
+     * 参数：无
+     * 返回：无
+     */
+    private fun initDatePicker() { //Dialog 模式下，在底部弹出
+        pvDate = TimePickerBuilder(this, object : OnTimeSelectListener {
+            override fun onTimeSelect(date: Date?, v: View?) {
+                val instant: Instant = date!!.toInstant()
+                val zone: ZoneId = ZoneId.systemDefault()
+                val localDateTime: LocalDateTime = LocalDateTime.ofInstant(instant, zone)
+                val localDate: LocalDate = localDateTime.toLocalDate()
+                val string = localDate.toString()
+
+                val tag:Int = v!!.tag!! as Int
+                var layout:View = getFatherViewByTag(tag)
+                val current_time:CalendarTimeData = getTimeByTag(tag)
+                if(current_time.timeInCourseSchedule != null) {
+                    current_time.timeInCourseSchedule!!.date = localDate
+                    current_time.timeInCourseSchedule!!.dayOfWeek = localDate.dayOfWeek
+                }
+                else if(current_time.timeInHour != null) {
+                    current_time.timeInHour!!.date = localDate
+                    current_time.timeInHour!!.dayOfWeek = localDate.dayOfWeek
+                }
+
+                layout.findViewById<TextView>(R.id.time_edit_date).text = string
+
+            }
+        })
+            .setTimeSelectChangeListener(object : OnTimeSelectChangeListener {
+                override fun onTimeSelectChanged(date: Date?) {
+                    Log.i("pvTime", "onTimeSelectChanged")
+                }
+            })
+            .setTitleText("日期选择")
+            .setType(booleanArrayOf(true, true, true, false, false, false))
+            .setLabel("年", "月", "日", "时", "分", "秒")
+            .isDialog(true) //默认设置false ，内部实现将DecorView 作为它的父控件。
+            .addOnCancelClickListener(object : View.OnClickListener {
+                override fun onClick(view: View?) {
+                    Log.i("pvTime", "onCancelClickListener")
+                }
+            })
+            .setItemVisibleCount(5) //若设置偶数，实际值会加1（比如设置6，则最大可见条目为7）
+            .setLineSpacingMultiplier(2.0f)
+            .isAlphaGradient(true)
+            .build()
+        val mDialog: Dialog = pvDate.getDialog()
+        if (mDialog != null) {
+            val params = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM
+            )
+            params.leftMargin = 0
+            params.rightMargin = 0
+            pvDate.getDialogContainerLayout().setLayoutParams(params)
+            val dialogWindow: Window? = mDialog.getWindow()
+            if (dialogWindow != null) {
+                dialogWindow.setWindowAnimations(com.bigkoo.pickerview.R.style.picker_view_slide_anim) //修改动画样式
+                dialogWindow.setGravity(Gravity.BOTTOM) //改成Bottom,底部显示
+                dialogWindow.setDimAmount(0.3f)
+            }
+        }
+    }
+
+
+    //大节选择，用于选择开始时间
+    private val bigCourseChoices = ArrayList<String>()
+    //大节对应的小节选择，用于选择开始时间
+    private val smallCourseChoices = ArrayList<ArrayList<String>>()
+
+    //大节-小节选择器
+    private lateinit var pvCourseOptions: OptionsPickerView<Any>
+
+    /**
+     * 描述：加载大节-小节选择器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initCourseOptionPicker() { //条件选择器初始化
+        /**
+         * 注意 ：如果是三级联动的数据(省市区等)，请参照 JsonDataActivity 类里面的写法。
+         */
+        pvCourseOptions = OptionsPickerBuilder(this,
+            OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                //String tx = options1Items.get(options1).getPickerViewText()
+                val tx: String = bigCourseChoices.get(options1) + smallCourseChoices.get(options1).get(options2)
+                Toast.makeText(this@ItemEditActivity, tx, Toast.LENGTH_SHORT).show()
+            })
+            .setTitleText("时间选择（大节）")
+            .setContentTextSize(20) //设置滚轮文字大小
+            .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+            .setSelectOptions(0, 1) //默认选中项
+            .setBgColor(Color.BLACK)
+            .setTitleBgColor(Color.DKGRAY)
+            .setTitleColor(Color.LTGRAY)
+            .setCancelColor(Color.YELLOW)
+            .setSubmitColor(Color.YELLOW)
+            .setTextColorCenter(Color.LTGRAY)
+            .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+            .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+            .setOutSideColor(0x00000000) //设置外部遮罩颜色
+            .setOptionsSelectChangeListener { options1, options2, options3 ->
+
+            }
+            .build<Any>()
+
+        pvCourseOptions.setPicker(bigCourseChoices as List<Any>?, smallCourseChoices as List<MutableList<Any>>?) //二级选择器
+    }
+
+    /**
+     * 描述：加载大节选项对应的data
+     * 参数：无
+     * 返回：无
+     * 注意：必须在initCourseOptionPicker前调用
+     */
+    private fun getCourseOptionData() {
+        //选项1
+        bigCourseChoices.add("第一大节")
+        bigCourseChoices.add("第二大节")
+        bigCourseChoices.add("第三大节")
+        bigCourseChoices.add("第四大节")
+        bigCourseChoices.add("第五大节")
+        bigCourseChoices.add("第六大节")
+
+
+        //选项2
+        val small_courses_1 = ArrayList<String>()
+        small_courses_1.add("第一小节")
+        small_courses_1.add("第二小节")
+
+        val small_courses_2 = ArrayList<String>()
+        small_courses_2.add("第一小节")
+        small_courses_2.add("第二小节")
+        small_courses_2.add("第三小节")
+
+        val small_courses_3 = ArrayList<String>()
+        small_courses_3.add("第一小节")
+        small_courses_3.add("第二小节")
+
+        val small_courses_4 = ArrayList<String>()
+        small_courses_4.add("第一小节")
+        small_courses_4.add("第二小节")
+
+        val small_courses_5 = ArrayList<String>()
+        small_courses_5.add("第一小节")
+        small_courses_5.add("第二小节")
+
+        val small_courses_6 = ArrayList<String>()
+        small_courses_6.add("第一小节")
+        small_courses_6.add("第二小节")
+        small_courses_6.add("第三小节")
+
+        smallCourseChoices.add(small_courses_1)
+        smallCourseChoices.add(small_courses_2)
+        smallCourseChoices.add(small_courses_3)
+        smallCourseChoices.add(small_courses_4)
+        smallCourseChoices.add(small_courses_5)
+        smallCourseChoices.add(small_courses_6)
+        /*--------数据源添加完毕---------*/
+    }
+
+
 
 
     //按钮绑定函数

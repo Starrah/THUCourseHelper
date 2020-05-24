@@ -110,7 +110,7 @@
         <TextView style="@style/define"
             android:drawableLeft="@drawable/icon_time"
             android:text ="@string/time_start"/>
-        <TextView style="@style/button_show"
+        <TextView style="@style/input"
             android:id="@+id/time_edit_start_hour"/>
     </LinearLayout>
 
@@ -120,7 +120,7 @@
         <TextView style="@style/define"
             android:drawableLeft="@drawable/icon_time"
             android:text ="@string/time_end"/>
-        <TextView style="@style/button_show"
+        <TextView style="@style/input"
             android:id="@+id/time_edit_end_hour"/>
     </LinearLayout>
 
@@ -130,7 +130,7 @@
         <TextView style="@style/define"
             android:drawableLeft="@drawable/icon_time"
             android:text ="@string/time_point"/>
-        <TextView style="@style/button_show"
+        <TextView style="@style/input"
             android:id="@+id/time_edit_point"/>
     </LinearLayout>
 

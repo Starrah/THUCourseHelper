@@ -453,9 +453,9 @@ abstract class TableFragment : Fragment(){
         theTextView.setText(main_name + sub_name); //显示课程名        dayView.addView(v);
 
         //设置v的id和绑定时间处理函数
-        v.id = theCourse.calendarItem.id
+        v.tag = theCourse.calendarItem.id
         v.setOnClickListener(View.OnClickListener() {
-            var id: Int = v.id
+            var id: Int = v.tag as Int
             var intent = Intent(theActivity!!, ItemShowActivity::class.java)
             intent.putExtra(EXTRA_MESSAGE, id)
             theActivity!!.startActivity(intent)
@@ -511,9 +511,9 @@ abstract class TableFragment : Fragment(){
         theTextView.setText(main_name + sub_name); //显示课程名
 
         //设置v的id和绑定时间处理函数
-        v.id = theItem.calendarItem.id
+        v.tag = theItem.calendarItem.id
         v.setOnClickListener(View.OnClickListener() {
-                var id: Int = v.id
+                var id: Int = v.tag as Int
                 var intent = Intent(theActivity!!, ItemShowActivity::class.java)
                 intent.putExtra(EXTRA_MESSAGE, id)
                 theActivity!!.startActivity(intent)
