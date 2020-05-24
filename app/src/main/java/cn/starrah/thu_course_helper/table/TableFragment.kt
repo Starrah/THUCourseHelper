@@ -230,7 +230,7 @@ abstract class TableFragment : Fragment(){
     override fun onStart() {
         super.onStart()
         setWeekToday()
-        currentWeek = 15
+        //currentWeek = 15
 
         updateAllDates()
         showAllDates()

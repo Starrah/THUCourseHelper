@@ -1,10 +1,11 @@
 package cn.starrah.thu_course_helper.activity
 
+import android.content.Intent
 import cn.starrah.thu_course_helper.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.FrameLayout
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +22,6 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 
 
 /**
@@ -33,13 +33,28 @@ class ItemShowActivity : AppCompatActivity(){
     private var showID:Int = -1;
     private val showDefault:String = "暂无"
 
+    companion object {
+        public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"
+    }
+
+    /**
+     *描述：隐藏控件
+     *参数：id
+     *返回：无
+     */
+    fun HideItem(ID:Int) {
+        val view: LinearLayout = findViewById(ID)
+        var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0);
+        view.setLayoutParams(params)
+    }
+
     /**
      * 描述：初始化
      * @param savedInstanceState 存储的data，其实只有待显示活动的ID
      */
     protected override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.calendar_item_show_main)
+        setContentView(R.layout.calendar_item_show)
         //ButterKnife.bind(this)
 
         val intent = intent
@@ -98,41 +113,33 @@ class ItemShowActivity : AppCompatActivity(){
         show_type.setText(item_type_show)
 
         //教师，课程号，detail
-        var detail_place = findViewById<FrameLayout>(R.id.item_show_info)
-        if(item_type == CalendarItemType.COURSE) {
-            val layout = LayoutInflater.from(this).inflate(R.layout.calendar_item_show_course, null);
-
-            var item_teacher:String? = showItem!!.detail[CalendarItemLegalDetailKey.TEACHER]
-            if(item_teacher == null) {
-                item_teacher = showDefault
-            }
-            var show_teacher:TextView = layout.findViewById(R.id.item_show_teacher)
-            show_teacher.setText(item_teacher)
-
-            var item_course_id:String? = showItem!!.detail[CalendarItemLegalDetailKey.COURSEID]
-            if(item_course_id == null) {
-                item_course_id = showDefault
-            }
-            var show_course_id:TextView = layout.findViewById(R.id.item_show_course_id)
-            show_course_id.setText(item_course_id)
-
-            detail_place.addView(layout)
-
+        var item_teacher:String? = showItem!!.detail[CalendarItemLegalDetailKey.TEACHER]
+        if(item_teacher == null) {
+            HideItem(R.id.item_show_teacher_place)
         }
-        else if(item_type == CalendarItemType.SOCIALWORK || item_type == CalendarItemType.ASSOCIATION) {
-            val layout =
-                LayoutInflater.from(this).inflate(R.layout.calendar_item_show_social, null);
+        else {
+            var show_teacher: TextView = findViewById(R.id.item_show_teacher)
+            show_teacher.setText(item_teacher)
+        }
 
-            var item_association: String? =
-                showItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION]
-            if (item_association == null) {
-                item_association = showDefault
-            }
-            var show_teacher: TextView = layout.findViewById(R.id.item_show_teacher)
-            show_teacher.setText(item_association)
 
-            detail_place.addView(layout)
+        var item_course_id:String? = showItem!!.detail[CalendarItemLegalDetailKey.COURSEID]
+        if(item_course_id == null) {
+            HideItem(R.id.item_show_course_id_place)
+        }
+        else {
+            var show_course_id: TextView = findViewById(R.id.item_show_course_id)
+            show_course_id.setText(item_course_id)
+        }
 
+        var item_association: String? =
+            showItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION]
+        if (item_association == null) {
+            HideItem(R.id.item_show_association_place)
+        }
+        else {
+            var show_association: TextView = findViewById(R.id.item_show_association)
+            show_association.setText(item_association)
         }
 
         //详情
@@ -186,8 +193,8 @@ class ItemShowActivity : AppCompatActivity(){
         else if(time.type == CalendarTimeType.REPEAT_HOUR) {
             //时间---周三9:00-10:00
             var schedule = time.timeInHour
-            var start_time:String = "" + schedule!!.startTime.hour + ":" + schedule!!.startTime.minute
-            var end_time:String = "" + schedule!!.endTime.hour + ":" + schedule!!.endTime.minute
+            var start_time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
+            var end_time:String = ItemEditActivity.getTimeString(schedule!!.endTime)
             var week_day = schedule!!.dayOfWeek
             var week_day_string:String = week_day!!.chineseName
             var day_time:String = week_day_string + start_time  + "-" + end_time
@@ -216,8 +223,8 @@ class ItemShowActivity : AppCompatActivity(){
         else if(time.type == CalendarTimeType.SINGLE_HOUR) {
             //时间---周五9:00-10:00
             var schedule = time.timeInHour
-            var start_time:String = "" + schedule!!.startTime.hour + ":" + schedule!!.startTime.minute
-            var end_time:String = "" + schedule!!.endTime.hour + ":" + schedule!!.endTime.minute
+            var start_time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
+            var end_time:String = ItemEditActivity.getTimeString(schedule!!.endTime)
             var week_day = schedule!!.dayOfWeek
             var week_day_string:String = week_day!!.chineseName
             var day_time:String = week_day_string + start_time  + "-" + end_time
@@ -233,7 +240,7 @@ class ItemShowActivity : AppCompatActivity(){
         else if(time.type == CalendarTimeType.POINT) {
             //时间---周五9:00
             var schedule = time.timeInHour
-            var time:String = "" + schedule!!.startTime.hour + ":" + schedule!!.startTime.minute
+            var time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
             var week_day = schedule!!.dayOfWeek
             var week_day_string:String = week_day!!.chineseName
             var day_time:String = week_day_string + time
@@ -375,10 +382,12 @@ class ItemShowActivity : AppCompatActivity(){
      * 描述：处理编辑按钮的事件--跳转到编辑页面
      * 参数：无
      * 返回：无
-     * TODO
      */
     fun handleEdit(view: View) {
-
+        var id: Int = showID
+        var intent = Intent(this, ItemEditActivity::class.java)
+        intent.putExtra(EXTRA_MESSAGE, id)
+        startActivity(intent)
     }
 
     /**
@@ -397,9 +406,10 @@ class ItemShowActivity : AppCompatActivity(){
      * 返回：无
      */
     fun handleDelete(view: View) {
-        lifecycleScope.launch{
+        /*lifecycleScope.launch{
             CREP.deleteItem(showItem!!)
             finish()
-        }
+        }*/
+        //TODO
     }
 }
