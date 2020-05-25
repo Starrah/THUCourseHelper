@@ -44,11 +44,7 @@ class ItemEditActivity : AppCompatActivity(){
     //当前元素的id，如果没有就-1
     private var currentID:Int = -1;
 
-    //时间选择器（滚轮），用来选择时间
-    private lateinit var pvTime: TimePickerView
 
-    //日期选择器
-    private lateinit var pvDate: TimePickerView
 
 
     /**
@@ -240,7 +236,8 @@ class ItemEditActivity : AppCompatActivity(){
 
         getCourseOptionData()
         initCourseOptionPicker()
-
+        initWeekDayOptionPicker()
+        initLengthOptionPicker()
 
         lifecycleScope.launch {
             //数据获取
@@ -423,9 +420,13 @@ class ItemEditActivity : AppCompatActivity(){
                 day_in_week = time.timeInHour!!.dayOfWeek!!.chineseName
             }
 
-
             var edit_day: TextView = layout.findViewById(R.id.time_edit_day)
             edit_day.setText(day_in_week)
+            edit_day.setOnClickListener(View.OnClickListener() {
+                if (pvWeekDayOptions != null) {
+                    pvWeekDayOptions.show(edit_day);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                }
+            })
 
         }
         else {
@@ -475,7 +476,7 @@ class ItemEditActivity : AppCompatActivity(){
             edit_start.text = start_string
             edit_start.setOnClickListener(View.OnClickListener() {
                 if (pvCourseOptions != null) {
-                    pvCourseOptions.show();//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                    pvCourseOptions.show(edit_start);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
                 }
             })
 
@@ -484,6 +485,12 @@ class ItemEditActivity : AppCompatActivity(){
             var length_string:String = "" + time.timeInCourseSchedule!!.lengthSmall.toInt()
             var edit_length: TextView = layout.findViewById(R.id.time_edit_length_course)
             edit_length.setText(length_string)
+            edit_length.setOnClickListener(View.OnClickListener() {
+                if (pvLengthOptions != null) {
+                    pvLengthOptions.show(edit_length);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                }
+            })
+
         }
         else if(time_type == CalendarTimeType.REPEAT_HOUR || time_type == CalendarTimeType.SINGLE_HOUR){
             //开始时间，结束时间显示，开始大节，结束大节，时间隐藏
@@ -647,6 +654,13 @@ class ItemEditActivity : AppCompatActivity(){
 
 
     //选择类控件初始化函数
+
+    //时间选择器（滚轮），用来选择时间
+    private lateinit var pvTime: TimePickerView
+
+    //日期选择器
+    private lateinit var pvDate: TimePickerView
+
     /**
      * 描述：初始化时间选择器---用于时间和时间节点选择
      * 参数：无
@@ -670,15 +684,7 @@ class ItemEditActivity : AppCompatActivity(){
                 else if(tag % 13 == 3 || tag % 13 == 4) {
                     current_time.timeInHour!!.endTime = localTime
                 }
-                if(tag % 13 == 2) {
-                    layout.findViewById<TextView>(R.id.time_edit_start_hour).text = string
-                }
-                else if(tag % 13 == 3) {
-                    layout.findViewById<TextView>(R.id.time_edit_end_hour).text = string
-                }
-                else if(tag % 13 == 4) {
-                    layout.findViewById<TextView>(R.id.time_edit_point).text = string
-                }
+                (v as TextView).text = string
             }
         })
             .setTimeSelectChangeListener(object : OnTimeSelectChangeListener {
@@ -746,7 +752,8 @@ class ItemEditActivity : AppCompatActivity(){
                     current_time.timeInHour!!.dayOfWeek = localDate.dayOfWeek
                 }
 
-                layout.findViewById<TextView>(R.id.time_edit_date).text = string
+                (v as TextView).text = string
+                //layout.findViewById<TextView>(R.id.time_edit_date).text = string
 
             }
         })
@@ -797,19 +804,24 @@ class ItemEditActivity : AppCompatActivity(){
     private lateinit var pvCourseOptions: OptionsPickerView<Any>
 
     /**
-     * 描述：加载大节-小节选择器
+     * 描述：加载大节-小节选择器，之前必须调用getCourseOptionData
      * 参数：无
      * 返回：无
      */
-    private fun initCourseOptionPicker() { //条件选择器初始化
-        /**
-         * 注意 ：如果是三级联动的数据(省市区等)，请参照 JsonDataActivity 类里面的写法。
-         */
+    private fun initCourseOptionPicker() {
         pvCourseOptions = OptionsPickerBuilder(this,
             OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
-                //String tx = options1Items.get(options1).getPickerViewText()
-                val tx: String = bigCourseChoices.get(options1) + smallCourseChoices.get(options1).get(options2)
-                Toast.makeText(this@ItemEditActivity, tx, Toast.LENGTH_SHORT).show()
+                var string: String = bigCourseChoices.get(options1)
+                if(options2 != 0) {
+                    string = string + smallCourseChoices.get(options1).get(options2)
+                }
+
+                val tag:Int = v!!.tag!! as Int
+                val current_time:CalendarTimeData = getTimeByTag(tag)
+                current_time.timeInCourseSchedule!!.startBig = options1 + 1
+                current_time.timeInCourseSchedule!!.startOffsetSmall = options2.toFloat()
+                (v as TextView).text = string
+
             })
             .setTitleText("时间选择（大节）")
             .setContentTextSize(20) //设置滚轮文字大小
@@ -833,13 +845,11 @@ class ItemEditActivity : AppCompatActivity(){
     }
 
     /**
-     * 描述：加载大节选项对应的data
+     * 描述：初始化大节-小节选项数据
      * 参数：无
      * 返回：无
-     * 注意：必须在initCourseOptionPicker前调用
      */
     private fun getCourseOptionData() {
-        //选项1
         bigCourseChoices.add("第一大节")
         bigCourseChoices.add("第二大节")
         bigCourseChoices.add("第三大节")
@@ -847,44 +857,178 @@ class ItemEditActivity : AppCompatActivity(){
         bigCourseChoices.add("第五大节")
         bigCourseChoices.add("第六大节")
 
-
-        //选项2
-        val small_courses_1 = ArrayList<String>()
-        small_courses_1.add("第一小节")
-        small_courses_1.add("第二小节")
-
-        val small_courses_2 = ArrayList<String>()
-        small_courses_2.add("第一小节")
-        small_courses_2.add("第二小节")
-        small_courses_2.add("第三小节")
-
-        val small_courses_3 = ArrayList<String>()
-        small_courses_3.add("第一小节")
-        small_courses_3.add("第二小节")
-
-        val small_courses_4 = ArrayList<String>()
-        small_courses_4.add("第一小节")
-        small_courses_4.add("第二小节")
-
-        val small_courses_5 = ArrayList<String>()
-        small_courses_5.add("第一小节")
-        small_courses_5.add("第二小节")
-
-        val small_courses_6 = ArrayList<String>()
-        small_courses_6.add("第一小节")
-        small_courses_6.add("第二小节")
-        small_courses_6.add("第三小节")
-
-        smallCourseChoices.add(small_courses_1)
-        smallCourseChoices.add(small_courses_2)
-        smallCourseChoices.add(small_courses_3)
-        smallCourseChoices.add(small_courses_4)
-        smallCourseChoices.add(small_courses_5)
-        smallCourseChoices.add(small_courses_6)
-        /*--------数据源添加完毕---------*/
+        var smallCourseTwo:ArrayList<String> = arrayListOf("第一小节", "第二小节")
+        var smallCourseThree:ArrayList<String> = arrayListOf("第一小节", "第二小节","第三小节")
+        smallCourseChoices.add(smallCourseTwo)
+        smallCourseChoices.add(smallCourseThree)
+        smallCourseChoices.add(smallCourseTwo)
+        smallCourseChoices.add(smallCourseTwo)
+        smallCourseChoices.add(smallCourseTwo)
+        smallCourseChoices.add(smallCourseThree)
     }
 
 
+    //星期选择，用于选择对应的星期
+    private val weekDayChoices:ArrayList<String>  = arrayListOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
+    //小节个数选择，用于选择对应的小节长度
+    private val lengthChoices:ArrayList<String>  = arrayListOf("1", "2", "3", "4", "5", "6")
+    //类别选择，用于选择对应的类别
+    private val typeChoices:ArrayList<String>  = arrayListOf("课程", "科研", "社工", "社团", "其他")
+    //时间类别选择，用于选择对应的时间类别
+    private val timeTypeChoices:ArrayList<String>  = arrayListOf("单次（按大节）", "重复（按大节）", "单次（按时间）", "重复（按时间）", "时间节点")
+
+
+    //星期选择器
+    private lateinit var pvWeekDayOptions: OptionsPickerView<Any>
+    //小节长度选择器
+    private lateinit var pvLengthOptions: OptionsPickerView<Any>
+    //活动类别选择器
+    private lateinit var pvTypeOptions: OptionsPickerView<Any>
+    //时间类别选择器
+    private lateinit var pvTimeTypeOptions: OptionsPickerView<Any>
+
+    /**
+     * 描述：加载星期选择器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initWeekDayOptionPicker() {
+        pvWeekDayOptions = OptionsPickerBuilder(this,
+            OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                var string: String = weekDayChoices.get(options1)
+
+                val tag:Int = v!!.tag!! as Int
+                val current_time:CalendarTimeData = getTimeByTag(tag)
+                if(current_time.timeInCourseSchedule != null) {
+                    current_time.timeInCourseSchedule!!.dayOfWeek = DayOfWeek.of(options1 + 1)
+                }
+                else if(current_time.timeInHour != null) {
+                    current_time.timeInHour!!.dayOfWeek = DayOfWeek.of(options1 + 1)
+                }
+                (v as TextView).text = string
+
+            })
+            .setTitleText("星期几选择")
+            .setContentTextSize(20) //设置滚轮文字大小
+            .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+            .setSelectOptions(0, 1) //默认选中项
+            .setBgColor(Color.BLACK)
+            .setTitleBgColor(Color.DKGRAY)
+            .setTitleColor(Color.LTGRAY)
+            .setCancelColor(Color.YELLOW)
+            .setSubmitColor(Color.YELLOW)
+            .setTextColorCenter(Color.LTGRAY)
+            .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+            .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+            .setOutSideColor(0x00000000) //设置外部遮罩颜色
+            .setOptionsSelectChangeListener { options1, options2, options3 ->
+            }
+            .build<Any>()
+        pvWeekDayOptions.setPicker(weekDayChoices as List<Any>?) //一级选择器
+    }
+    /**
+     * 描述：加载小节长度选择器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initLengthOptionPicker() {
+        pvLengthOptions = OptionsPickerBuilder(this,
+            OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                var string: String = lengthChoices.get(options1)
+
+                val tag:Int = v!!.tag!! as Int
+                val current_time:CalendarTimeData = getTimeByTag(tag)
+                current_time.timeInCourseSchedule!!.lengthSmall = (options1 + 1).toFloat()
+                (v as TextView).text = string
+
+            })
+            .setTitleText("星期几选择")
+            .setContentTextSize(20) //设置滚轮文字大小
+            .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+            .setSelectOptions(0, 1) //默认选中项
+            .setBgColor(Color.BLACK)
+            .setTitleBgColor(Color.DKGRAY)
+            .setTitleColor(Color.LTGRAY)
+            .setCancelColor(Color.YELLOW)
+            .setSubmitColor(Color.YELLOW)
+            .setTextColorCenter(Color.LTGRAY)
+            .setLabels("小节", "", "")
+            .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+            .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+            .setOutSideColor(0x00000000) //设置外部遮罩颜色
+            .setOptionsSelectChangeListener { options1, options2, options3 ->
+            }
+            .build<Any>()
+        pvLengthOptions.setPicker(lengthChoices as List<Any>?) //一级选择器
+    }
+    /**
+     * 描述：加载类别选择器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initTypeOptionPicker() {
+        pvTypeOptions = OptionsPickerBuilder(this,
+            OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                var string: String = typeChoices.get(options1)
+
+                currentItem!!.type = CalendarItemType.valueOf(string)
+                //TODO:根据type刷新显示
+                (v as TextView).text = string
+
+            })
+            .setTitleText("日程类别选择")
+            .setContentTextSize(20) //设置滚轮文字大小
+            .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+            .setSelectOptions(0, 1) //默认选中项
+            .setBgColor(Color.BLACK)
+            .setTitleBgColor(Color.DKGRAY)
+            .setTitleColor(Color.LTGRAY)
+            .setCancelColor(Color.YELLOW)
+            .setSubmitColor(Color.YELLOW)
+            .setTextColorCenter(Color.LTGRAY)
+            .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+            .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+            .setOutSideColor(0x00000000) //设置外部遮罩颜色
+            .setOptionsSelectChangeListener { options1, options2, options3 ->
+            }
+            .build<Any>()
+        pvTypeOptions.setPicker(typeChoices as List<Any>?) //一级选择器
+    }
+    /**
+     * 描述：加载时间类别选择器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initTimeTypeOptionPicker() {
+        pvTimeTypeOptions = OptionsPickerBuilder(this,
+            OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                var string: String = timeTypeChoices.get(options1)
+
+                val tag:Int = v!!.tag!! as Int
+                val current_time:CalendarTimeData = getTimeByTag(tag)
+                current_time.type = CalendarTimeType.valueOf(string)
+                //TODO:根据type更新数据和显示
+                (v as TextView).text = string
+
+            })
+            .setTitleText("时间类别选择")
+            .setContentTextSize(20) //设置滚轮文字大小
+            .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+            .setSelectOptions(0, 1) //默认选中项
+            .setBgColor(Color.BLACK)
+            .setTitleBgColor(Color.DKGRAY)
+            .setTitleColor(Color.LTGRAY)
+            .setCancelColor(Color.YELLOW)
+            .setSubmitColor(Color.YELLOW)
+            .setTextColorCenter(Color.LTGRAY)
+            .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+            .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+            .setOutSideColor(0x00000000) //设置外部遮罩颜色
+            .setOptionsSelectChangeListener { options1, options2, options3 ->
+            }
+            .build<Any>()
+        pvTimeTypeOptions.setPicker(timeTypeChoices as List<Any>?) //一级选择器
+    }
 
 
     //按钮绑定函数
