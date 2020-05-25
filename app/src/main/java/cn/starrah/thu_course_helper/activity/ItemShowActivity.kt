@@ -38,17 +38,6 @@ class ItemShowActivity : AppCompatActivity(){
     }
 
     /**
-     *描述：隐藏控件
-     *参数：id
-     *返回：无
-     */
-    fun HideItem(ID:Int) {
-        val view: LinearLayout = findViewById(ID)
-        var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0);
-        view.setLayoutParams(params)
-    }
-
-    /**
      * 描述：初始化
      * @param savedInstanceState 存储的data，其实只有待显示活动的ID
      */
@@ -114,31 +103,39 @@ class ItemShowActivity : AppCompatActivity(){
 
         //教师，课程号，detail
         var item_teacher:String? = showItem!!.detail[CalendarItemLegalDetailKey.TEACHER]
+        var show_teacher_place:LinearLayout = findViewById(R.id.item_show_teacher_place)
+        var show_teacher: TextView = findViewById(R.id.item_show_teacher)
         if(item_teacher == null) {
-            HideItem(R.id.item_show_teacher_place)
+            ItemEditActivity.HideItem(show_teacher_place)
         }
         else {
-            var show_teacher: TextView = findViewById(R.id.item_show_teacher)
+            ItemEditActivity.ShowItem(show_teacher_place)
             show_teacher.setText(item_teacher)
         }
 
 
         var item_course_id:String? = showItem!!.detail[CalendarItemLegalDetailKey.COURSEID]
+        var show_course_id: TextView = findViewById(R.id.item_show_course_id)
+        var show_course_id_place: LinearLayout = findViewById(R.id.item_show_course_id_place)
+
         if(item_course_id == null) {
-            HideItem(R.id.item_show_course_id_place)
+            ItemEditActivity.HideItem(show_course_id_place)
         }
         else {
-            var show_course_id: TextView = findViewById(R.id.item_show_course_id)
+            ItemEditActivity.ShowItem(show_course_id_place)
             show_course_id.setText(item_course_id)
         }
 
         var item_association: String? =
             showItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION]
+        var show_association: TextView = findViewById(R.id.item_show_association)
+        var show_association_place: LinearLayout = findViewById(R.id.item_show_association_place)
+
         if (item_association == null) {
-            HideItem(R.id.item_show_association_place)
+            ItemEditActivity.HideItem(show_association_place)
         }
         else {
-            var show_association: TextView = findViewById(R.id.item_show_association)
+            ItemEditActivity.ShowItem(show_association_place)
             show_association.setText(item_association)
         }
 
@@ -186,7 +183,7 @@ class ItemShowActivity : AppCompatActivity(){
 
             //日期---后八周
             var week_list = time.repeatWeeks
-            var week_show = getWeeksString(week_list)
+            var week_show = ItemEditActivity.getWeeksString(week_list)
             show_date.setText(week_show)
 
         }
@@ -202,7 +199,7 @@ class ItemShowActivity : AppCompatActivity(){
 
             //日期--后八周
             var week_list = time.repeatWeeks
-            var week_show = getWeeksString(week_list)
+            var week_show = ItemEditActivity.getWeeksString(week_list)
             show_date.setText(week_show)
         }
         else if(time.type == CalendarTimeType.SINGLE_COURSE) {
@@ -266,106 +263,6 @@ class ItemShowActivity : AppCompatActivity(){
 
         //添加
         parent_place.addView(layout)
-    }
-
-    /**
-     * 描述：将周列表转换成字符串
-     * @param ：int类型列表, 代表周列表
-     * @return ：显示的字符串
-     * @see ：全周，前半学期，后半学期，单周，双周，考试周，第1,2,3,4,6周，etc
-     */
-    fun getWeeksString(week_list:MutableList<Int>):String {
-        //先map映射，去重+排序
-        var week_map:MutableMap<Int, Boolean> = mutableMapOf()
-        for(item in week_list) {
-            week_map[item] = true
-        }
-        var total_weeks = CREP.term.totalWeekCount
-        var normal_weeks = CREP.term.normalWeekCount
-
-        //一个filter，用于筛选全周，前八周，后八周，单，双周，考试周
-        //有考试周--非考试周的全false，有正常周的，考试周false
-        var i = 1
-        var week_list:MutableList<Int> = mutableListOf()
-        var whether_full = true
-        var whether_first_eight = true
-        var whether_last_eight = true
-        var whether_single = true
-        var whether_double = true
-        var whether_exam = true
-        while(i <= total_weeks) {
-            var result:Boolean? = week_map[i]
-
-            if(result == true) {
-                if(i <= normal_weeks) {
-                    whether_exam = false
-                }
-                else {
-                    whether_full = false
-                    whether_first_eight = false
-                    whether_last_eight = false
-                    whether_single = false
-                    whether_double = false
-                }
-                week_list.add(i)
-            }
-            else {
-                if(i <= normal_weeks) {
-                    whether_full = false
-                }
-                if(i <= normal_weeks && i <= normal_weeks / 2) {
-                    whether_first_eight = false
-                }
-                if(i <= normal_weeks && i > normal_weeks / 2) {
-                    whether_last_eight = false
-                }
-                if(i <= normal_weeks && i % 2 == 1) {
-                    whether_single = false
-                }
-                if(i <= normal_weeks && i % 2 == 0) {
-                    whether_double = false
-                }
-                if(i > normal_weeks) {
-                    whether_exam = false
-                }
-            }
-            i ++
-        }
-
-        //判断是否是几种特殊情况
-        var result:String = ""
-        if(whether_full) {
-            result = "全周"
-        }
-        else if(whether_first_eight) {
-            result = "前半学期"
-        }
-        else if(whether_last_eight) {
-            result = "后半学期"
-        }
-        else if(whether_single) {
-            result = "单周"
-        }
-        else if(whether_double) {
-            result = "双周"
-        }
-        else if(whether_exam) {
-            result = "考试周"
-        }
-        else if(week_list.size <= 0) {
-            result = "空"
-        }
-        else {
-            result = "第"
-            for(i in week_list.indices) {
-                result = result + week_list[i]
-                if(i != week_list.size - 1) {
-                    result = result + ","
-                }
-            }
-            result = result + "周"
-        }
-        return result
     }
 
 
