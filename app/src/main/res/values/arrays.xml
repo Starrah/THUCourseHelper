@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="time_types">
+        <item>单次（按大节）</item>
+        <item>重复（按大节）</item>
+        <item>单次（按时间）</item>
+        <item>重复（按时间）</item>
+        <item>时间节点</item>
+    </string-array>
+
+    <string-array name="types">
+        <item>课程</item>
+        <item>科研</item>
+        <item>社工</item>
+        <item>社团</item>
+        <item>其他</item>
+    </string-array>
+
+    <string-array name="week_days">
+        <item>周一</item>
+        <item>周二</item>
+        <item>周三</item>
+        <item>周四</item>
+        <item>周五</item>
+        <item>周六</item>
+        <item>周日</item>
+    </string-array>
+
+
+</resources>

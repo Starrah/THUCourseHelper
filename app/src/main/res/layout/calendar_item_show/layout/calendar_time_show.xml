@@ -47,8 +47,10 @@
     </LinearLayout>
 
     <!--描述-->
-    <LinearLayout style="@style/layout">
-        <TextView style="@style/define_show"
+    <LinearLayout
+        style="@style/layout">
+        <TextView
+            style="@style/define_show"
             android:drawableLeft="@drawable/icon_item"
             android:text ="@string/time_comment"/>
         <TextView style="@style/input_show"

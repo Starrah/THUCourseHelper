@@ -98,18 +98,43 @@
                 android:text="0529"/>
         </LinearLayout>
 
-        <!--选择细节，不同类别不同-->
-        <FrameLayout
-            android:id="@+id/item_show_info"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            />
+        <!--教师-->
+        <LinearLayout style="@style/layout"
+            android:id="@+id/item_show_teacher_place">
+            <TextView style="@style/define_show"
+                android:drawableLeft="@drawable/icon_item"
+                android:text ="@string/item_teacher"/>
+            <TextView style="@style/input"
+                android:id="@+id/item_show_teacher"/>
+        </LinearLayout>
+
+        <!--课程号-->
+        <LinearLayout style="@style/layout"
+            android:id="@+id/item_show_course_id_place">
+            <TextView style="@style/define_show"
+                android:drawableLeft="@drawable/icon_item"
+                android:text ="@string/item_course_id"/>
+            <TextView style="@style/input"
+                android:id="@+id/item_show_course_id"/>
+        </LinearLayout>
+
+        <!--组织-->
+        <LinearLayout style="@style/layout"
+            android:id="@+id/item_show_association_place">
+            <TextView style="@style/define_show"
+                android:drawableLeft="@drawable/icon_item"
+                android:text ="@string/item_association"/>
+            <TextView style="@style/input_show"
+                android:id="@+id/item_show_association"/>
+        </LinearLayout>
+
 
         <!--描述-->
         <LinearLayout
             android:layout_height="wrap_content"
             style="@style/layout">
-            <TextView style="@style/define_show"
+            <TextView
+                style="@style/define_show"
                 android:drawableLeft="@drawable/icon_item"
                 android:text ="@string/item_comment"/>
             <TextView

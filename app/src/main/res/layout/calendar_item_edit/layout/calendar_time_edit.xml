@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--编辑/添加一个时间段-->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/border"
+    android:layout_margin="30dp">
+
+    <!--top-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <ImageButton
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_gravity="right"
+            android:background="@drawable/icon_delete"
+            android:id="@+id/delete_time"/>
+    </LinearLayout>
+
+    <!--名称-->
+    <LinearLayout style="@style/layout">
+    <TextView style="@style/define"
+        android:drawableLeft="@drawable/icon_item"
+        android:text ="@string/time_name"/>
+    <EditText style="@style/input"
+        android:id="@+id/time_edit_name"/>
+    </LinearLayout>
+
+    <!--地点-->
+    <LinearLayout style="@style/layout">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_place"
+            android:text ="@string/time_place"/>
+        <EditText style="@style/input"
+            android:id="@+id/time_edit_place"/>
+    </LinearLayout>
+
+    <!--时间类别-->
+    <LinearLayout style="@style/layout">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_type"
+            android:text ="@string/time_type"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_time_type" />
+    </LinearLayout>
+
+
+    <!--周（定期）-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_week_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_date"
+            android:text ="@string/time_week"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_week"/>
+    </LinearLayout>
+
+    <!--星期（定期）-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_day_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_day"
+            android:text ="@string/time_day"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_day"/>
+    </LinearLayout>
+
+    <!--日期(单次）-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_date_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_date"
+            android:text ="@string/time_date"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_date"/>
+    </LinearLayout>
+
+    <!--开始时间（大节）-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_start_course_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_time"
+            android:text ="@string/time_start_course"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_start_course"/>
+    </LinearLayout>
+
+    <!--小节个数（大节）-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_length_course_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_time"
+            android:text ="@string/time_length_course"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_length_course"/>
+    </LinearLayout>
+
+    <!--开始时间(小时）-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_start_hour_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_time"
+            android:text ="@string/time_start"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_start_hour"/>
+    </LinearLayout>
+
+    <!--结束时间（小时）-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_end_hour_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_time"
+            android:text ="@string/time_end"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_end_hour"/>
+    </LinearLayout>
+
+    <!--时间(时间节点)-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_point_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_time"
+            android:text ="@string/time_point"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_point"/>
+    </LinearLayout>
+
+    <!--描述-->
+    <LinearLayout
+        android:layout_height="wrap_content"
+        style="@style/layout">
+        <TextView
+            style="@style/define"
+            android:drawableLeft="@drawable/icon_item"
+            android:text ="@string/time_comment"/>
+        <EditText style="@style/input"
+            android:id="@+id/time_edit_comment" />
+    </LinearLayout>
+</LinearLayout>

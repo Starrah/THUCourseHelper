@@ -2,6 +2,7 @@ package cn.starrah.thu_course_helper
 
 
 import android.content.Intent
+import android.graphics.Color
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -17,8 +18,12 @@ import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.activity.ItemShowActivity
 import cn.starrah.thu_course_helper.data.constants.LayoutConstants
 import cn.starrah.thu_course_helper.data.database.CREP
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
+import com.bigkoo.pickerview.builder.OptionsPickerBuilder
+import com.bigkoo.pickerview.listener.OnOptionsSelectListener
+import com.bigkoo.pickerview.view.OptionsPickerView
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.Duration
@@ -229,9 +234,11 @@ abstract class TableFragment : Fragment(){
 
     override fun onStart() {
         super.onStart()
-        setWeekToday()
-        currentWeek = 15
+        getWeekOptionData()
+        initWeekOptionPicker()
 
+
+        setWeekToday()
         updateAllDates()
         showAllDates()
 
@@ -356,11 +363,21 @@ abstract class TableFragment : Fragment(){
         var term_item: TextView = theActivity!!.findViewById<TextView>(termInfoShowPlace!!)
         var term_text:String = CREP.term.chineseShortName+ " 第" + currentWeek + "周"
         term_item.setText(term_text)
+        term_item.setOnClickListener(View.OnClickListener() {
+            if (pvWeekOptions != null) {
+                pvWeekOptions.show(term_item);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+            }
+        })
 
         //年月期显示位置
         var date_item: TextView = theActivity!!.findViewById<TextView>(dateInfoShowPlace!!)
         var date_text:String = "" + currentYear + "年" + currentMonth + "月"
         date_item.setText(date_text)
+        date_item.setOnClickListener(View.OnClickListener() {
+            if (pvWeekOptions != null) {
+                pvWeekOptions.show(date_item);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+            }
+        })
 
         //更新日显示
         for(week_day in DayOfWeek.values()) {
@@ -453,9 +470,9 @@ abstract class TableFragment : Fragment(){
         theTextView.setText(main_name + sub_name); //显示课程名        dayView.addView(v);
 
         //设置v的id和绑定时间处理函数
-        v.id = theCourse.calendarItem.id
+        v.tag = theCourse.calendarItem.id
         v.setOnClickListener(View.OnClickListener() {
-            var id: Int = v.id
+            var id: Int = v.tag as Int
             var intent = Intent(theActivity!!, ItemShowActivity::class.java)
             intent.putExtra(EXTRA_MESSAGE, id)
             theActivity!!.startActivity(intent)
@@ -511,9 +528,9 @@ abstract class TableFragment : Fragment(){
         theTextView.setText(main_name + sub_name); //显示课程名
 
         //设置v的id和绑定时间处理函数
-        v.id = theItem.calendarItem.id
+        v.tag = theItem.calendarItem.id
         v.setOnClickListener(View.OnClickListener() {
-                var id: Int = v.id
+                var id: Int = v.tag as Int
                 var intent = Intent(theActivity!!, ItemShowActivity::class.java)
                 intent.putExtra(EXTRA_MESSAGE, id)
                 theActivity!!.startActivity(intent)
@@ -534,6 +551,70 @@ abstract class TableFragment : Fragment(){
         return place
     }
 
+    //周选择
+    private var weekChoices:ArrayList<String> = arrayListOf()
 
+    //周选择器
+    private lateinit var pvWeekOptions: OptionsPickerView<Any>
+
+    /**
+     * 描述：加载大节-小节选择器，之前必须调用getCourseOptionData
+     * 参数：无
+     * 返回：无
+     */
+    private fun initWeekOptionPicker() {
+        pvWeekOptions = OptionsPickerBuilder(theActivity,
+            OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                currentWeek = options1 + 1
+                //TODO 刷新显示
+                updateAllDates()
+                showAllDates()
+
+                //initializeLayout()
+                lifecycleScope.launch {
+                    getValidTimes()
+                    showAllCourses()
+                }
+
+            })
+            .setTitleText("周选择")
+            .setContentTextSize(20) //设置滚轮文字大小
+            .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+            .setSelectOptions(0, 1) //默认选中项
+            .setBgColor(Color.BLACK)
+            .setTitleBgColor(Color.DKGRAY)
+            .setTitleColor(Color.LTGRAY)
+            .setCancelColor(Color.YELLOW)
+            .setSubmitColor(Color.YELLOW)
+            .setTextColorCenter(Color.LTGRAY)
+            .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+            .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+            .setOutSideColor(0x00000000) //设置外部遮罩颜色
+            .setOptionsSelectChangeListener { options1, options2, options3 ->
+
+            }
+            .build<Any>()
+
+        pvWeekOptions.setPicker(weekChoices as List<Any>?) //一级选择器
+    }
+
+    /**
+     * 描述：初始化大节-小节选项数据
+     * 参数：无
+     * 返回：无
+     */
+    private fun getWeekOptionData() {
+        weekChoices.clear()
+        var normal_count:Int = CREP.term.normalWeekCount
+        var exam_count:Int = CREP.term.examWeekCount
+        for(i in 1..normal_count) {
+            var string:String = "第"+ i +"周"
+            weekChoices.add(string)
+        }
+        for(i in 1..exam_count) {
+            var string:String = "第"+ (i + normal_count) +"周（考试周）"
+            weekChoices.add(string)
+        }
+    }
 
 }
