@@ -11,7 +11,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
+import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.builder.TimePickerBuilder
@@ -369,10 +373,9 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         private fun initTimeTypeOptionPicker() {
             pvTimeTypeOptions = OptionsPickerBuilder(mAdapter.theActivity,
                 OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
-                    var string: String = timeTypeChoices.get(options1)
                     val position: Int = getAdapterPosition()
                     var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    time.type = CalendarTimeType.valueOf(string)
+                    handleTypeChange(time, options1)
                     mAdapter.notifyDataSetChanged()
                 })
                 .setTitleText("时间类别选择")
@@ -394,13 +397,77 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             pvTimeTypeOptions.setPicker(timeTypeChoices as List<Any>?) //一级选择器
         }
 
+        /**
+         * 描述：给删除按钮绑定事件处理函数
+         * 参数：被删除的view
+         * 返回：无
+         */
         override fun onClick(v: View?) {
             TODO("Not yet implemented")
         }
 
+        /**
+         * 描述：根据修改的类别信息来修改数据
+         * 参数：第一个是待修改的时间数据，第二个是一个int，从0开始，对应修改后当前日程的类型在枚举里对应的数值
+         * 返回：无
+         */
+        fun handleTypeChange(the_time:CalendarTimeData, new_type_int:Int) {
+            var the_type: CalendarTimeType = CalendarTimeType.REPEAT_COURSE
+            for(type in CalendarTimeType.values()) {
+                if(type.ordinal == new_type_int) {
+                    the_type = type
+                    break
+                }
+            }
+
+            the_time.type = the_type
+            if(the_type == CalendarTimeType.REPEAT_COURSE || the_type == CalendarTimeType.SINGLE_COURSE) {
+                the_time.timeInHour = null
+                if(the_time.timeInCourseSchedule == null) {
+                    the_time.timeInCourseSchedule = TimeInCourseSchedule(dayOfWeek = LocalDate.now().dayOfWeek,
+                    startBig = 1, lengthSmall = 1.0f, date = LocalDate.now())
+                }
+            }
+            else{
+                the_time.timeInCourseSchedule = null
+                if(the_time.timeInHour == null) {
+                    the_time.timeInHour = TimeInHour(startTime = LocalTime.now(), endTime = LocalTime.now(),
+                    dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now())
+                }
+            }
+
+            if(the_type == CalendarTimeType.REPEAT_COURSE) {
+                the_time.timeInCourseSchedule!!.date = null
+                the_time.repeatWeeks = mutableListOf(1)
+            }
+            else if(the_type == CalendarTimeType.SINGLE_COURSE) {
+                the_time.timeInCourseSchedule!!.date = LocalDate.now()
+                the_time.timeInCourseSchedule!!.dayOfWeek = the_time.timeInCourseSchedule!!.date!!.dayOfWeek
+                the_time.repeatWeeks = mutableListOf()
+            }
+            else if(the_type == CalendarTimeType.REPEAT_HOUR) {
+                the_time.timeInHour!!.dayOfWeek = LocalDate.now().dayOfWeek
+                the_time.timeInHour!!.date = null
+                the_time.repeatWeeks = mutableListOf(1)
+            }
+            else if(the_type == CalendarTimeType.SINGLE_HOUR) {
+                the_time.timeInHour!!.dayOfWeek = null
+                the_time.timeInHour!!.date = LocalDate.now()
+                the_time.repeatWeeks = mutableListOf()
+            }
+            else if(the_type == CalendarTimeType.POINT) {
+                the_time.timeInHour!!.endTime = the_time.timeInHour!!.startTime
+                the_time.timeInHour!!.dayOfWeek = null
+                the_time.timeInHour!!.date = LocalDate.now()
+                the_time.repeatWeeks = mutableListOf()
+            }
+        }
+
     }
 
-
+    /**
+     * 描述：adapter初始化viewholder
+     */
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -412,27 +479,10 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
 
 
     /**
-     *描述：隐藏控件
-     *参数：自己
-     *返回：无
+     * 描述：绑定viewholder函数，其实就是显示一个time对应的信息
+     * 参数：对应的holder，和数据对应positiom
+     * 返回：无
      */
-    private fun HideItem(item:LinearLayout) {
-        var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0);
-        item.layoutParams = params
-    }
-
-    /**
-     *描述：显示控件
-     *参数：自己
-     *返回：无
-     */
-    private fun ShowItem(item:LinearLayout) {
-        //和style一致
-        var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 140);
-        item.layoutParams = params
-    }
-
-
     override fun onBindViewHolder(holder: ItemEditHolder, position: Int) {
         val time: CalendarTimeData = mTimeList[position]
         //名称
@@ -452,9 +502,9 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         //日期等
         if(time.type == CalendarTimeType.REPEAT_COURSE || time.type == CalendarTimeType.REPEAT_HOUR) {
             //周，星期显示，日期隐藏
-            ShowItem(holder.timeWeekPlace)
-            ShowItem(holder.timeDayWeekPlace)
-            HideItem(holder.timeDatePlace)
+            ItemEditActivity.ShowItem(holder.timeWeekPlace)
+            ItemEditActivity.ShowItem(holder.timeDayWeekPlace)
+            ItemEditActivity.HideItem(holder.timeDatePlace)
 
             //设置周，星期初值
             var week_show: String = ItemEditActivity.getWeeksString(time.repeatWeeks)
@@ -478,9 +528,9 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         }
         else {
             //日期显示，周，星期隐藏
-            HideItem(holder.timeWeekPlace)
-            HideItem(holder.timeDayWeekPlace)
-            ShowItem(holder.timeDatePlace)
+            ItemEditActivity.HideItem(holder.timeWeekPlace)
+            ItemEditActivity.HideItem(holder.timeDayWeekPlace)
+            ItemEditActivity.ShowItem(holder.timeDatePlace)
 
             //设置日期初值
             var date: LocalDate = LocalDate.now()
@@ -505,11 +555,11 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         //时间等
         if(time.type == CalendarTimeType.REPEAT_COURSE || time.type == CalendarTimeType.SINGLE_COURSE) {
             //开始大节，时长显示，开始时间，结束时间，时间隐藏
-            ShowItem(holder.timeStartCoursePlace)
-            ShowItem(holder.timeLengthCoursePlace)
-            HideItem(holder.timeStartHourPlace)
-            HideItem(holder.timeEndHourPlace)
-            HideItem(holder.timePointPlace)
+            ItemEditActivity.ShowItem(holder.timeStartCoursePlace)
+            ItemEditActivity.ShowItem(holder.timeLengthCoursePlace)
+            ItemEditActivity.HideItem(holder.timeStartHourPlace)
+            ItemEditActivity.HideItem(holder.timeEndHourPlace)
+            ItemEditActivity.HideItem(holder.timePointPlace)
 
             //设置初值
             var start_big = time.timeInCourseSchedule!!.startBig
@@ -537,11 +587,11 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         }
         else if(time.type == CalendarTimeType.REPEAT_HOUR || time.type == CalendarTimeType.SINGLE_HOUR){
             //开始时间，结束时间显示，开始大节，结束大节，时间隐藏
-            HideItem(holder.timeStartCoursePlace)
-            HideItem(holder.timeLengthCoursePlace)
-            ShowItem(holder.timeStartHourPlace)
-            ShowItem(holder.timeEndHourPlace)
-            HideItem(holder.timePointPlace)
+            ItemEditActivity.HideItem(holder.timeStartCoursePlace)
+            ItemEditActivity.HideItem(holder.timeLengthCoursePlace)
+            ItemEditActivity.ShowItem(holder.timeStartHourPlace)
+            ItemEditActivity.ShowItem(holder.timeEndHourPlace)
+            ItemEditActivity.HideItem(holder.timePointPlace)
 
             var start_string:String = ItemEditActivity.getTimeString(time.timeInHour!!.startTime)
 
@@ -569,11 +619,11 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         }
         else {
             //时间显示，其余隐藏
-            HideItem(holder.timeStartCoursePlace)
-            HideItem(holder.timeLengthCoursePlace)
-            HideItem(holder.timeStartHourPlace)
-            HideItem(holder.timeEndHourPlace)
-            ShowItem(holder.timePointPlace)
+            ItemEditActivity.HideItem(holder.timeStartCoursePlace)
+            ItemEditActivity.HideItem(holder.timeLengthCoursePlace)
+            ItemEditActivity.HideItem(holder.timeStartHourPlace)
+            ItemEditActivity.HideItem(holder.timeEndHourPlace)
+            ItemEditActivity.ShowItem(holder.timePointPlace)
 
             var time_string:String = ItemEditActivity.getTimeString(time.timeInHour!!.startTime)
             holder.timePoint.setText(time_string)
@@ -591,6 +641,11 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         holder.timeComment.setText(time.comment)
     }
 
+    /**
+     * 描述：获取数组长度
+     * 参数：无
+     * 返回：长度
+     */
     override fun getItemCount(): Int {
         return mTimeList.size
     }
