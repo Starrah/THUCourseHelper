@@ -2,19 +2,23 @@ package cn.starrah.thu_course_helper.activity
 
 //import butterknife.Bind
 //import butterknife.ButterKnife
-
+import cn.starrah.thu_course_helper.R
+import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
@@ -46,6 +50,17 @@ class ItemEditActivity : AppCompatActivity(){
     private var mRecyclerView: RecyclerView? = null
     private var mAdapter: ItemEditAdapter? = null
 
+    //各种edittext的监听器
+    //name监听器
+    public lateinit var nameChanger:TextWatcher
+    //teacher监听器
+    public lateinit var teacherChanger:TextWatcher
+    //courseid监听器
+    public lateinit var courseIDChanger:TextWatcher
+    //association监听器
+    public lateinit var associationChanger:TextWatcher
+    //comment监听器
+    public lateinit var detailChanger:TextWatcher
 
     //时间类别选择，用于选择对应的时间类别
     private val typeChoices: ArrayList<String> = arrayListOf("课程", "科研", "社工", "社团", "其他")
@@ -201,6 +216,11 @@ class ItemEditActivity : AppCompatActivity(){
         val message = intent.getIntExtra(ItemShowActivity.EXTRA_MESSAGE, -1)
         currentID = message
 
+        initNameChanger()
+        initTeacherChanger()
+        initCourseIDChanger()
+        initAssociationChanger()
+        initDetailChanger()
         initTypeOptionPicker()
 
         lifecycleScope.launch {
@@ -241,12 +261,12 @@ class ItemEditActivity : AppCompatActivity(){
         var the_item = CREP.findItemsByIds(list)
         var size = the_item.getNotNullValue().size
         if(size <= 0 || size > 1) {
-            //TODO:异常处理--未找到数据
+            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             finish()
         }
         currentItem = the_item.getNotNullValue()[0]
         if(currentItem == null) {
-            //TODO:异常处理--未找到数据
+            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             finish()
         }
     }
@@ -262,6 +282,7 @@ class ItemEditActivity : AppCompatActivity(){
         var item_name:String = currentItem!!.name
         var item_edit_name: EditText = findViewById(R.id.item_edit_name)
         item_edit_name.setText(item_name)
+        item_edit_name.addTextChangedListener(nameChanger)
 
         //类别
         var item_type:CalendarItemType = currentItem!!.type
@@ -295,6 +316,8 @@ class ItemEditActivity : AppCompatActivity(){
             }
 
             edit_teacher.setText(item_teacher)
+            edit_teacher.addTextChangedListener(teacherChanger)
+
 
             var item_course_id:String? = currentItem!!.detail[CalendarItemLegalDetailKey.COURSEID]
             if(item_course_id == null) {
@@ -302,6 +325,7 @@ class ItemEditActivity : AppCompatActivity(){
             }
 
             edit_course_id.setText(item_course_id)
+            edit_course_id.addTextChangedListener(courseIDChanger)
         }
         else if(item_type == CalendarItemType.SOCIALWORK || item_type == CalendarItemType.ASSOCIATION) {
             //组织显示，其余隐藏
@@ -317,6 +341,7 @@ class ItemEditActivity : AppCompatActivity(){
                 item_association = ""
             }
             edit_association.setText(item_association)
+            edit_association.addTextChangedListener(associationChanger)
 
         }
         else {
@@ -333,6 +358,7 @@ class ItemEditActivity : AppCompatActivity(){
             item_comment = ""
         }
         edit_comment.setText(item_comment)
+        edit_comment.addTextChangedListener(detailChanger)
     }
 
 
@@ -411,6 +437,190 @@ class ItemEditActivity : AppCompatActivity(){
     }
 
     /**
+     * 描述：用于保存时，用于判断当前currentItem是否符合要求
+     * 参数：无
+     * 返回：符合true，不符合false,并且报错
+     */
+    fun integrityCheck() :Boolean{
+        if(currentItem == null) {
+            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
+            return false
+        }
+        if(currentItem!!.times == null || currentItem!!.times.size < 1) {
+            Toast.makeText(this, "当前日程没有任何时间段!", Toast.LENGTH_LONG).show()
+            return false
+        }
+        //TODO
+        return true
+    }
+
+    /**
+     * 描述：保存修改
+     * 参数：无
+     * 返回：无
+     */
+    suspend fun saveItem() {
+        if(currentID < 0) {
+            currentItem!!.id = 0
+        }
+        CREP.updateItemAndTimes(currentItem!!)
+    }
+
+    //字符编辑绑定加载函数
+    /**
+     * 描述：初始化名称监听器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initNameChanger() {
+        nameChanger = (object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+            }
+
+            override fun afterTextChanged(editable: Editable) {
+                currentItem!!.name = editable.toString()
+            }
+        })
+    }
+    /**
+     * 描述：初始化教师监听器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initTeacherChanger() {
+        teacherChanger = (object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+            }
+
+            override fun afterTextChanged(editable: Editable) {
+                if (currentItem!!.type.equals(CalendarItemType.COURSE)) {
+                    currentItem!!.detail[CalendarItemLegalDetailKey.TEACHER] = editable.toString()
+                }
+            }
+        })
+    }
+
+    /**
+     * 描述：初始化课程号监听器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initCourseIDChanger() {
+        courseIDChanger = (object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+            }
+
+            override fun afterTextChanged(editable: Editable) {
+                if(currentItem!!.type.equals(CalendarItemType.COURSE)) {
+                    currentItem!!.detail[CalendarItemLegalDetailKey.COURSEID] = editable.toString()
+                }
+            }
+        })
+    }
+
+    /**
+     * 描述：初始化组织监听器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initAssociationChanger() {
+        associationChanger = (object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+            }
+
+            override fun afterTextChanged(editable: Editable) {
+                if(currentItem!!.type.equals(CalendarItemType.SOCIALWORK) || currentItem!!.type.equals(CalendarItemType.ASSOCIATION)) {
+                    currentItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION] = editable.toString()
+                }
+            }
+        })
+    }
+
+
+
+    /**
+     * 描述：初始化详情监听器
+     * 参数：无
+     * 返回：无
+     */
+    private fun initDetailChanger() {
+        detailChanger = (object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+            }
+
+            override fun afterTextChanged(editable: Editable) {
+                currentItem!!.detail[CalendarItemLegalDetailKey.COMMENT] = editable.toString()
+            }
+        })
+    }
+
+    //选择器加载函数
+    /**
      * 描述：加载类别选择器
      * 参数：无
      * 返回：无
@@ -439,6 +649,70 @@ class ItemEditActivity : AppCompatActivity(){
         pvTypeOptions.setPicker(typeChoices as List<Any>?) //一级选择器
     }
 
+    //对话框显示函数
+    /**
+     * 描述：返回时的对话框，如果确定，就不保存就返回，否则继续
+     * 参数：无
+     * 返回：无
+     */
+    private fun showDialogReturn() {
+        val dialog: AlertDialog.Builder =
+            object : AlertDialog.Builder(this@ItemEditActivity) {
+                override fun create(): AlertDialog {
+                    return super.create()
+                }
+
+                override fun show(): AlertDialog {
+                    return super.show()
+                }
+            }
+        dialog.setOnCancelListener { }
+        dialog.setOnDismissListener { }
+        dialog.setIcon(R.mipmap.ic_launcher_round)
+            .setTitle("返回详情")
+            .setMessage("您的编辑未保存，确定要不保存直接退出吗？")
+            .setCancelable(true)
+            .setPositiveButton("确定",
+                DialogInterface.OnClickListener { dialog, which -> finish() })
+            .setNegativeButton("取消",
+                DialogInterface.OnClickListener { dialog, which ->  })
+        dialog.show()
+    }
+
+    /**
+     * 描述：保存时的对话框，如果确定，就保存然后返回，否则取消
+     * 参数：无
+     * 返回：无
+     */
+    private fun showDialogSave() {
+        val dialog: AlertDialog.Builder =
+            object : AlertDialog.Builder(this@ItemEditActivity) {
+                override fun create(): AlertDialog {
+                    return super.create()
+                }
+
+                override fun show(): AlertDialog {
+                    return super.show()
+                }
+            }
+        dialog.setOnCancelListener { }
+        dialog.setOnDismissListener { }
+        dialog.setIcon(R.mipmap.ic_launcher_round)
+            .setTitle("保存日程")
+            .setMessage("确定要保存日程吗")
+            .setCancelable(true)
+            .setPositiveButton("确定",
+                DialogInterface.OnClickListener { dialog, which ->
+                    lifecycleScope.launch{
+                        saveItem()
+                        finish()
+                    }
+                })
+            .setNegativeButton("取消",
+                DialogInterface.OnClickListener { dialog, which ->  })
+        dialog.show()
+    }
+
     //按钮绑定函数
     /**
      * 描述：处理返回按钮的事件--返回
@@ -446,8 +720,7 @@ class ItemEditActivity : AppCompatActivity(){
      * 返回：无
      */
     fun handleReturn(view: View) {
-        //TODO Dialog提示
-        finish()
+        showDialogReturn()
     }
 
     /**
@@ -469,7 +742,11 @@ class ItemEditActivity : AppCompatActivity(){
      * 返回：无
      */
     fun handleSave(view: View) {
-        //TODO
+        //判断是否合法
+        if(integrityCheck()) {
+            //对话框，保存
+            showDialogSave()
+        }
     }
 
 

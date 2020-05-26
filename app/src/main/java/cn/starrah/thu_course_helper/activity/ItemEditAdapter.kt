@@ -1,15 +1,17 @@
 package cn.starrah.thu_course_helper.activity
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.graphics.Color
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
@@ -88,6 +90,13 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         public lateinit var pvTimeTypeOptions: OptionsPickerView<Any>
         //大节-小节选择器
         public lateinit var pvCourseOptions: OptionsPickerView<Any>
+        //name监听器
+        public lateinit var nameChanger:TextWatcher
+        //place监听器
+        public lateinit var placeChanger:TextWatcher
+        //comment监听器
+        public lateinit var detailChanger:TextWatcher
+
         init {
             getCourseOptionData()
             initTimePicker()
@@ -96,9 +105,107 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             initWeekDayOptionPicker()
             initLengthOptionPicker()
             initTimeTypeOptionPicker()
+            initNameChanger()
+            initPlaceChanger()
+            initDetailChanger()
             timeDeleteButton.setOnClickListener(this)
         }
 
+
+        //EditText监听初始化函数
+        /**
+         * 描述：初始化名称监听器
+         * 参数：无
+         * 返回：无
+         */
+        public fun initNameChanger() {
+            nameChanger = (object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                }
+
+                override fun afterTextChanged(editable: Editable) {
+                    val position: Int = getAdapterPosition()
+                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
+                    time.name = editable.toString()
+                    //mAdapter.notifyDataSetChanged()
+                }
+            })
+        }
+        /**
+         * 描述：初始化地点监听器
+         * 参数：无
+         * 返回：无
+         */
+        public fun initPlaceChanger() {
+            placeChanger = (object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                }
+
+                override fun afterTextChanged(editable: Editable) {
+                    val position: Int = getAdapterPosition()
+                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
+                    time.place = editable.toString()
+                    //mAdapter.notifyDataSetChanged()
+                }
+            })
+        }
+        /**
+         * 描述：初始化详情监听器
+         * 参数：无
+         * 返回：无
+         */
+        public fun initDetailChanger() {
+            detailChanger = (object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                }
+
+                override fun afterTextChanged(editable: Editable) {
+                    val position: Int = getAdapterPosition()
+                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
+                    time.comment = editable.toString()
+                    //mAdapter.notifyDataSetChanged()
+                }
+            })
+        }
 
 
         //选择类控件初始化函数
@@ -403,9 +510,39 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
          * 返回：无
          */
         override fun onClick(v: View?) {
-            val position: Int = getAdapterPosition()
-            mAdapter.mTimeList.removeAt(position)
-            mAdapter.notifyDataSetChanged()
+            showDialogDelete()
+        }
+
+        /**
+         * 描述：删除单一日程时的对话框，如果确定，就删除，否则继续
+         * 参数：无
+         * 返回：无
+         */
+        private fun showDialogDelete() {
+            val dialog: AlertDialog.Builder =
+                object : AlertDialog.Builder(mAdapter.theActivity) {
+                    override fun create(): AlertDialog {
+                        return super.create()
+                    }
+
+                    override fun show(): AlertDialog {
+                        return super.show()
+                    }
+                }
+            dialog.setOnCancelListener { }
+            dialog.setOnDismissListener { }
+            dialog.setIcon(R.mipmap.ic_launcher_round)
+                .setTitle("删除单一时间段")
+                .setMessage("确定要删除此时间段吗？")
+                .setCancelable(true)
+                .setPositiveButton("确定",
+                    DialogInterface.OnClickListener { dialog, which ->
+                        val position: Int = getAdapterPosition()
+                        mAdapter.mTimeList.removeAt(position)
+                        mAdapter.notifyDataSetChanged() })
+                .setNegativeButton("取消",
+                    DialogInterface.OnClickListener { dialog, which ->  })
+            dialog.show()
         }
 
         /**
@@ -489,9 +626,11 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         val time: CalendarTimeData = mTimeList[position]
         //名称
         holder.timeName.setText(time.name)
+        holder.timeName.addTextChangedListener(holder.nameChanger)
 
         //地点
         holder.timePlace.setText(time.place)
+        holder.timePlace.addTextChangedListener(holder.placeChanger)
 
         //类别
         holder.timeType.setText(time.type.chineseName)
@@ -641,6 +780,8 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
 
         //说明
         holder.timeComment.setText(time.comment)
+        holder.timeComment.addTextChangedListener(holder.detailChanger)
+
     }
 
     /**
