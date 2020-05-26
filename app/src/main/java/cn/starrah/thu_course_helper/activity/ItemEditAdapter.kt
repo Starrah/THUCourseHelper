@@ -4,10 +4,7 @@ import android.app.Dialog
 import android.graphics.Color
 import android.util.Log
 import android.view.*
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
@@ -63,6 +60,8 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         public var timePointPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_point_place)
         var mAdapter: cn.starrah.thu_course_helper.activity.ItemEditAdapter = adapter
 
+        public var timeDeleteButton:ImageButton = view.findViewById(R.id.delete_time)
+
 
 
         //大节选择，用于选择开始时间
@@ -97,6 +96,7 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             initWeekDayOptionPicker()
             initLengthOptionPicker()
             initTimeTypeOptionPicker()
+            timeDeleteButton.setOnClickListener(this)
         }
 
 
@@ -403,7 +403,9 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
          * 返回：无
          */
         override fun onClick(v: View?) {
-            TODO("Not yet implemented")
+            val position: Int = getAdapterPosition()
+            mAdapter.mTimeList.removeAt(position)
+            mAdapter.notifyDataSetChanged()
         }
 
         /**

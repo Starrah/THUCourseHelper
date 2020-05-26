@@ -5,10 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.DayOfWeek
 
 
@@ -89,6 +89,10 @@ class CourseTable : TableFragment() {
             initializeLeftHour()
         }
         initializeListWidth()
+
+        //课程表不能新建日程
+        var add_button:FloatingActionButton = theActivity!!.findViewById<FloatingActionButton >(R.id.add_item)
+        add_button.setVisibility(View.INVISIBLE)
     }
 
 

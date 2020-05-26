@@ -5,8 +5,6 @@ package cn.starrah.thu_course_helper.activity
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.TypedValue
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -23,13 +21,15 @@ import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDat
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener
 import com.bigkoo.pickerview.view.OptionsPickerView
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalTime
-import java.util.ArrayList
+import java.util.*
 
 
 /**
@@ -448,6 +448,19 @@ class ItemEditActivity : AppCompatActivity(){
     fun handleReturn(view: View) {
         //TODO Dialog提示
         finish()
+    }
+
+    /**
+     * 描述：处理添加按钮的事件--添加
+     * 参数：无
+     * 返回：无
+     */
+    fun handleAdd(view: View) {
+        val new_time_data:TimeInCourseSchedule = TimeInCourseSchedule(dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now(), startBig = 1)
+        val newTime:CalendarTimeData = CalendarTimeData(type = CalendarTimeType.SINGLE_COURSE, timeInCourseSchedule = new_time_data, timeInHour = null)
+        currentItem!!.times.add(newTime)
+        mAdapter!!.notifyDataSetChanged()
+        mRecyclerView!!.scrollToPosition(mAdapter!!.itemCount - 1)
     }
 
     /**

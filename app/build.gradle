@@ -12,6 +12,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -97,5 +98,6 @@ dependencies {
     kapt 'com.jakewharton:butterknife-compiler:10.2.1'
 
     implementation 'com.contrarywind:Android-PickerView:4.1.9'
+
 
 }
