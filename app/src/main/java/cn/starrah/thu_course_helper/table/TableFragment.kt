@@ -237,7 +237,6 @@ abstract class TableFragment : Fragment(){
         getWeekOptionData()
         initWeekOptionPicker()
 
-
         setWeekToday()
         updateAllDates()
         showAllDates()

@@ -1,17 +1,18 @@
 package cn.starrah.thu_course_helper.activity
 
+//import butterknife.Bind
+//import butterknife.ButterKnife
+import android.R.id.text2
+import android.app.Activity
 import android.content.Intent
-import cn.starrah.thu_course_helper.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-//import butterknife.Bind
-//import butterknife.ButterKnife
+import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.TableFragment
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
@@ -35,6 +36,7 @@ class ItemShowActivity : AppCompatActivity(){
 
     companion object {
         public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"
+        public val EDIT_CODE = 1024
     }
 
     /**
@@ -58,6 +60,8 @@ class ItemShowActivity : AppCompatActivity(){
             showData()
         }
     }
+
+
 
     /**
      * 描述：根据id从数据库获取数据，id是类变量showID，读取的数据存在showItem里
@@ -284,7 +288,29 @@ class ItemShowActivity : AppCompatActivity(){
         var id: Int = showID
         var intent = Intent(this, ItemEditActivity::class.java)
         intent.putExtra(EXTRA_MESSAGE, id)
-        startActivity(intent)
+        startActivityForResult(intent, EDIT_CODE)
+    }
+
+    /**
+     * 描述：处理从编辑活动退出的情况，如果编辑保存了，就刷新显示
+     * 参数：requestcode，resultcode，data
+     * 返回：无
+     */
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == EDIT_CODE) {
+            //保存了,就刷新显示
+            if (resultCode == Activity.RESULT_OK) {
+                lifecycleScope.launch() {
+                    getData()
+                    showData()
+                }
+            }
+        }
     }
 
     /**

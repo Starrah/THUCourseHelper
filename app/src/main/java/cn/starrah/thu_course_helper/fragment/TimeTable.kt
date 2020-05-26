@@ -1,16 +1,15 @@
 package cn.starrah.thu_course_helper
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
+import cn.starrah.thu_course_helper.activity.ItemEditActivity
+import cn.starrah.thu_course_helper.activity.ItemShowActivity
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
-import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.DayOfWeek
-import java.time.LocalDate
 
 
 class TimeTable : TableFragment() {
@@ -41,6 +40,13 @@ class TimeTable : TableFragment() {
         initializeBaseLayout()
         initializeLeftHour()
         initializeListWidth()
+        var add_button: FloatingActionButton = theActivity!!.findViewById<FloatingActionButton>(R.id.add_item)
+        add_button.setVisibility(View.VISIBLE)
+        add_button.setOnClickListener(View.OnClickListener {
+            var intent = Intent(theActivity!!, ItemEditActivity::class.java)
+            intent.putExtra(EXTRA_MESSAGE, -1)
+            theActivity!!.startActivity(intent)
+        })
     }
 
 
@@ -52,8 +58,6 @@ class TimeTable : TableFragment() {
     override fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem) {
         var v:View? = null;
         v = showOneHour(theWeekDay, theItem)
-
-        //TODO:绑定事件
     }
 
 

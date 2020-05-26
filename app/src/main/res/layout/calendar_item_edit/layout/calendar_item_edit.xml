@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--编辑/添加一个日程-->
-<LinearLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
@@ -9,149 +10,126 @@
     >
 
     <!--top-->
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@drawable/border">
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/icon_back"
-            android:id="@+id/item_edit_back"
-            android:layout_gravity="left"
-            android:onClick="handleReturn"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="@string/item_top"
-            android:textColor="@color/colorBlack"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:textSize="30dp" />
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/icon_save"
-            android:layout_gravity="right"
-            android:id="@+id/save_item"
-            android:onClick="handleSave"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/border"
-        android:layout_margin="30dp">
-
-        <!--名称-->
-        <LinearLayout style="@style/layout">
-            <TextView style="@style/define"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_name"/>
-            <EditText style="@style/input"
-                android:id="@+id/item_edit_name"/>
-        </LinearLayout>
-
-
-        <!--类别-->
-        <LinearLayout style="@style/layout">
-            <TextView style="@style/define"
-                android:drawableLeft="@drawable/icon_type"
-                android:text ="@string/item_type"/>
-            <TextView style="@style/input"
-                android:id="@+id/item_edit_type" />
-        </LinearLayout>
-
-        <!--教师-->
-        <LinearLayout style="@style/layout"
-            android:id="@+id/item_edit_teacher_place">
-            <TextView style="@style/define"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_teacher"/>
-            <EditText style="@style/input"
-                android:id="@+id/item_edit_teacher"/>
-        </LinearLayout>
-
-        <!--课程号-->
-        <LinearLayout style="@style/layout"
-            android:id="@+id/item_edit_course_id_place">
-            <TextView style="@style/define"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_course_id"/>
-            <EditText style="@style/input"
-                android:id="@+id/item_edit_course_id"/>
-        </LinearLayout>
-
-        <!--组织-->
-        <LinearLayout style="@style/layout"
-            android:id="@+id/item_edit_association_place">
-            <TextView style="@style/define"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_association"/>
-            <EditText style="@style/input"
-                android:id="@+id/item_edit_association"/>
-        </LinearLayout>
-
-        <!--描述-->
+        android:orientation="vertical">
         <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/layout">
-            <TextView
-                style="@style/define"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_comment"/>
-            <EditText style="@style/input"
-                android:id="@+id/item_edit_comment"/>
-        </LinearLayout>
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:background="@drawable/border">
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/icon_back"
+                android:id="@+id/item_edit_back"
+                android:layout_gravity="left"
+                android:onClick="handleReturn"/>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/item_top"
+                android:textColor="@color/colorBlack"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:textSize="30dp" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/icon_save"
+                android:layout_gravity="right"
+                android:id="@+id/save_item"
+                android:onClick="handleSave"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/border"
+            android:layout_margin="30dp">
+
+            <!--名称-->
+            <LinearLayout style="@style/layout">
+                <TextView style="@style/define"
+                    android:drawableLeft="@drawable/icon_item"
+                    android:text ="@string/item_name"/>
+                <EditText style="@style/input"
+                    android:id="@+id/item_edit_name"/>
+            </LinearLayout>
+
+
+            <!--类别-->
+            <LinearLayout style="@style/layout">
+                <TextView style="@style/define"
+                    android:drawableLeft="@drawable/icon_type"
+                    android:text ="@string/item_type"/>
+                <TextView style="@style/input"
+                    android:id="@+id/item_edit_type" />
+            </LinearLayout>
+
+            <!--教师-->
+            <LinearLayout style="@style/layout"
+                android:id="@+id/item_edit_teacher_place">
+                <TextView style="@style/define"
+                    android:drawableLeft="@drawable/icon_item"
+                    android:text ="@string/item_teacher"/>
+                <EditText style="@style/input"
+                    android:id="@+id/item_edit_teacher"/>
+            </LinearLayout>
+
+            <!--课程号-->
+            <LinearLayout style="@style/layout"
+                android:id="@+id/item_edit_course_id_place">
+                <TextView style="@style/define"
+                    android:drawableLeft="@drawable/icon_item"
+                    android:text ="@string/item_course_id"/>
+                <EditText style="@style/input"
+                    android:id="@+id/item_edit_course_id"/>
+            </LinearLayout>
+
+            <!--组织-->
+            <LinearLayout style="@style/layout"
+                android:id="@+id/item_edit_association_place">
+                <TextView style="@style/define"
+                    android:drawableLeft="@drawable/icon_item"
+                    android:text ="@string/item_association"/>
+                <EditText style="@style/input"
+                    android:id="@+id/item_edit_association"/>
+            </LinearLayout>
+
+            <!--描述-->
+            <LinearLayout
+                android:layout_height="wrap_content"
+                style="@style/layout">
+                <TextView
+                    style="@style/define"
+                    android:drawableLeft="@drawable/icon_item"
+                    android:text ="@string/item_comment"/>
+                <EditText style="@style/input"
+                    android:id="@+id/item_edit_comment"/>
+            </LinearLayout>
+        </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
+
         </androidx.recyclerview.widget.RecyclerView>
     </LinearLayout>
-        <!--
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:id="@+id/new_time_place"
-                android:layout_marginHorizontal="30dp"
-                android:divider="@drawable/divider"
-                android:showDividers="middle">
 
-            </LinearLayout>
 
-        </ScrollView>
-    -->
-    <!--bottom-->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_time"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="10dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/icon_add"
-            android:id="@+id/add_new_time"
-            android:layout_gravity="right"/>
-    </LinearLayout>
-</LinearLayout>
+        android:layout_weight="1"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="5dp"
+        app:backgroundTint="#30469b"
+        android:src="@drawable/ic_add_for_fab"
+        android:onClick="handleAdd"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
