@@ -2,6 +2,7 @@ package cn.starrah.thu_course_helper.activity
 
 //import butterknife.Bind
 //import butterknife.ButterKnife
+import android.app.Activity
 import cn.starrah.thu_course_helper.R
 import android.content.DialogInterface
 import android.graphics.Color
@@ -262,11 +263,13 @@ class ItemEditActivity : AppCompatActivity(){
         var size = the_item.getNotNullValue().size
         if(size <= 0 || size > 1) {
             Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
+            setResult(Activity.RESULT_CANCELED);
             finish()
         }
         currentItem = the_item.getNotNullValue()[0]
         if(currentItem == null) {
             Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
+            setResult(Activity.RESULT_CANCELED);
             finish()
         }
     }
@@ -673,7 +676,9 @@ class ItemEditActivity : AppCompatActivity(){
             .setMessage("您的编辑未保存，确定要不保存直接退出吗？")
             .setCancelable(true)
             .setPositiveButton("确定",
-                DialogInterface.OnClickListener { dialog, which -> finish() })
+                DialogInterface.OnClickListener { dialog, which ->
+                    setResult(Activity.RESULT_CANCELED);
+                    finish() })
             .setNegativeButton("取消",
                 DialogInterface.OnClickListener { dialog, which ->  })
         dialog.show()
@@ -704,8 +709,14 @@ class ItemEditActivity : AppCompatActivity(){
             .setPositiveButton("确定",
                 DialogInterface.OnClickListener { dialog, which ->
                     lifecycleScope.launch{
-                        saveItem()
-                        finish()
+                        try {
+                            saveItem()
+                            setResult(Activity.RESULT_OK);
+                            finish()
+                        }
+                        catch (e: Exception) {
+                            Toast.makeText(this@ItemEditActivity, "数据有误，保存失败!", Toast.LENGTH_LONG).show()
+                        }
                     }
                 })
             .setNegativeButton("取消",
