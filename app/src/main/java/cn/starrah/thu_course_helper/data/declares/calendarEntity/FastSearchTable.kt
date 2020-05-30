@@ -4,10 +4,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.TypeConverter
-import cn.starrah.thu_course_helper.data.database.CalendarRepository
+import cn.starrah.thu_course_helper.data.utils.DayIdToLocalDate
+import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import java.time.LocalDate
-import java.time.Period
-import java.time.temporal.ChronoUnit
 
 /**
  * 用于快速查找一个日期对应的所有时间段和所有日程的副主索引数据库表的实体定义
@@ -27,14 +26,17 @@ data class FastSearchTable(
     val timeId: Int = 0
 ) {
     class TC {
+        /**
+         * 转换[LocalDate]为日期ID格式（即本学期的开始当天为1、之后顺次排）
+         */
         @TypeConverter
         fun toDBDataType(value: LocalDate): Int {
-            return ChronoUnit.DAYS.between(CalendarRepository.term.startDate, value).toInt() + 1
+            return value.toTermDayId()
         }
 
         @TypeConverter
         fun fromDBDataType(value: Int): LocalDate {
-            return CalendarRepository.term.startDate + Period.ofDays(value - 1)
+            return DayIdToLocalDate(value)
         }
     }
 }

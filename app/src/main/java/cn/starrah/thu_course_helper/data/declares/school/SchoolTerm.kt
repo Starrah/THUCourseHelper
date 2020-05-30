@@ -1,7 +1,11 @@
 package cn.starrah.thu_course_helper.data.declares.school
 
+import cn.starrah.thu_course_helper.data.utils.Verifiable
+import cn.starrah.thu_course_helper.data.utils.assertDataSystem
+import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import com.alibaba.fastjson.annotation.JSONField
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.Period
 import java.time.temporal.ChronoUnit
 
@@ -45,7 +49,7 @@ data class SchoolTerm(
      * 每天的课程大小节时间安排表
      */
     val timeRule: SchoolTimeRule = SchoolTimeRule(listOf())
-) {
+) : Verifiable {
     /**
      * 形如"2019-2020学年度秋季学期"格式的中文名称
      */
@@ -104,8 +108,8 @@ data class SchoolTerm(
      */
     fun datesInAWeek(weekNumber: Int, onlyMONToFRI: Boolean = false): List<LocalDate> {
         if (weekNumber !in 1..totalWeekCount) throw RuntimeException("周数不合法！")
-            val range = if (onlyMONToFRI) 0 until 5 else 0 until 7
-            return range.map { startDate.plusDays((((weekNumber - 1) * 7) + it).toLong()) }
+        val range = if (onlyMONToFRI) 0 until 5 else 0 until 7
+        return range.map { startDate.plusDays((((weekNumber - 1) * 7) + it).toLong()) }
     }
 
     /**
@@ -113,7 +117,7 @@ data class SchoolTerm(
      * @param [weekNumber] 周数 从1开始
      */
     fun isInExamWeek(weekNumber: Int): Boolean {
-        return when (weekNumber){
+        return when (weekNumber) {
             in 1..normalWeekCount -> false
             in (normalWeekCount + 1)..totalWeekCount -> true
             else -> throw RuntimeException("周数不合法！")
@@ -131,8 +135,7 @@ data class SchoolTerm(
     private val _holidayCalHelpMap: MutableMap<Int, Int> = mutableMapOf()
 
     init {
-        fun toId(date: LocalDate): Int = ChronoUnit.DAYS.between(startDate, date).toInt() + 1
-        holidays.forEach { _holidayCalHelpMap[toId(it.date)] = it.to?.let { toId(it) }?:0 }
+        holidays.forEach { _holidayCalHelpMap[it.date.toTermDayId(this)] = it.to?.toTermDayId(this)?: 0 }
         for (i in 0 until (totalWeekCount * 7)) {
             val v = _holidayCalHelpMap[i]
             if (v == null) _holidayCalHelpMap[i] = i
@@ -140,5 +143,31 @@ data class SchoolTerm(
         }
     }
 
-    fun applyHolidayRearrange(dayIds: List<Int>): List<Int> = dayIds.mapNotNull { _holidayCalHelpMap[it] }
+    fun applyHolidayRearrange(dayIds: List<Int>): List<Int> =
+        dayIds.mapNotNull { _holidayCalHelpMap[it] }
+
+    override fun assertValid() {
+        val fromDaysSet = _holidayCalHelpMap.keys
+        _holidayCalHelpMap.values.forEach {
+            assertDataSystem(it in fromDaysSet, "节假日设置错误！")
+        }
+
+        assertDataSystem(startDate.year in beginYear..beginYear+1 &&
+                endInclusiveDate.year in beginYear..beginYear+1,
+            "学期的的日期与学年度的设置不匹配！")
+
+        assertDataSystem(normalWeekCount + examWeekCount > 0,
+            "学期的周数设置不合法！")
+
+        var lastEnd = LocalTime.of(0, 0)
+        assertDataSystem(timeRule.bigs.isNotEmpty(), "上课时间表设置不合法！")
+        for (big in timeRule.bigs){
+            assertDataSystem(big.smalls.isNotEmpty(), "上课时间表设置不合法！")
+            for (small in big.smalls) {
+                assertDataSystem(small.startTime >= lastEnd && small.endTime > small.startTime,
+                    "上课时间表设置不合法！")
+                lastEnd = small.endTime
+            }
+        }
+    }
 }

@@ -273,4 +273,10 @@ abstract class CalendarDao {
     """
     )
     abstract fun findItemByTime(timeId: Int): LiveData<CalendarItemDataWithTimes>
+
+    @Delete
+    abstract fun deleteItems(items: List<CalendarItemData>)
+
+    @Delete
+    abstract fun deleteTimes(times: List<CalendarTimeData>)
 }

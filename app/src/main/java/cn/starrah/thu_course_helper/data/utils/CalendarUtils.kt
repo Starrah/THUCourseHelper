@@ -1,15 +1,22 @@
 package cn.starrah.thu_course_helper.data.utils
 
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.FastSearchTable
+import cn.starrah.thu_course_helper.data.database.CREP
+import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.Period
+import java.time.temporal.ChronoUnit
 
-private val LocalDateTCInstance =
-    FastSearchTable.TC()
+/**
+ * 转换[LocalDate]为日期ID格式（即本学期的开始当天为1、之后顺次排）
+ */
+fun LocalDate.toTermDayId(term: SchoolTerm = CREP.term): Int{
+    return ChronoUnit.DAYS.between(term.startDate, this).toInt() + 1
+}
 
-fun LocalDate.toTermDayId(): Int = LocalDateTCInstance.toDBDataType(this)
-
-fun DayIdToLocalDate(value: Int): LocalDate = LocalDateTCInstance.fromDBDataType(value)
+fun DayIdToLocalDate(value: Int, term: SchoolTerm = CREP.term): LocalDate {
+    return term.startDate + Period.ofDays(value - 1)
+}
 
 private val _dayOfWeekChineseNameTable = mapOf<DayOfWeek, String>(
     DayOfWeek.MONDAY to "周一",

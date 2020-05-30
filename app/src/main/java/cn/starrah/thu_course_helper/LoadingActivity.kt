@@ -41,7 +41,7 @@ class LoadingActivity : AppCompatActivity() {
             val term = JSON.parseObject(SPRING2019TERMJSON, SchoolTerm::class.java)
             CREP.initializeTerm(this@LoadingActivity, term)
             loadTestData()
-            delay(8000);
+//            delay(8000);
 
 
             var the_intent: Intent = Intent()

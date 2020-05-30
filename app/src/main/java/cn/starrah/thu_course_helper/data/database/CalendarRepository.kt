@@ -45,6 +45,7 @@ object CalendarRepository {
      */
     suspend fun initializeTerm(context: Context, term: SchoolTerm) {
         withContext(Dispatchers.IO) {
+            term.assertValidResetMsg { "内置的学期数据不合法：$it" }
             this@CalendarRepository.term = term
             database = CalendarDatabase.getDatabaseInstance(context, term.dbName)
             DAO = database.Dao()
@@ -227,8 +228,18 @@ object CalendarRepository {
         }
     }
 
-    suspend fun deleteItem(item: CalendarItemData) {
-        TODO()
+    suspend fun deleteItem(item: CalendarItemData) = deleteItems(listOf(item))
+
+    suspend fun deleteItems(items: List<CalendarItemData>) {
+        return withContext(Dispatchers.IO){
+            DAO.deleteItems(items)
+        }
+    }
+
+    suspend fun deleteTimes(times: List<CalendarTimeData>) {
+        return withContext(Dispatchers.IO){
+            DAO.deleteTimes(times)
+        }
     }
 
 }

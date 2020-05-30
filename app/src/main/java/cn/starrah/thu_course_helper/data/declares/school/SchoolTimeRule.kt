@@ -43,7 +43,8 @@ data class SchoolTimeRule(
     data class BigClass(
         /** 一个大节中的所有小节 */
         val smalls: List<SmallClass>
-    ) {
+    )
+    {
         val smallsCount: Int
             @JSONField(serialize = false)
             get() = smalls.size
