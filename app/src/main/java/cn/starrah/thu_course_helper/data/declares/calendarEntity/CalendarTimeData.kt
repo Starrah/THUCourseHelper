@@ -7,6 +7,9 @@ import cn.starrah.thu_course_helper.data.database.CalendarRepository
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
+import cn.starrah.thu_course_helper.data.utils.Verifiable
+import cn.starrah.thu_course_helper.data.utils.assertData
+import cn.starrah.thu_course_helper.data.utils.assertDataSystem
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import com.alibaba.fastjson.JSON
 
@@ -51,7 +54,7 @@ open class CalendarTimeData(
 
     /** 该时间段所对应关联的日程项的数据表外键。默认等于calendarItem的id（如果传了calendarItem就不必传这个了）*/
     var item_id: Int = 0
-) {
+): Verifiable {
     /**
      * 可以在主线程调用。
      *
@@ -91,6 +94,49 @@ open class CalendarTimeData(
         fun fromDBDataType(value: String): MutableList<Int> {
             return JSON.parseArray(value, Int::class.java)
         }
+    }
+
+    override fun assertValid() {
+        when (type) {
+            CalendarTimeType.SINGLE_COURSE -> {
+                assertData(timeInCourseSchedule != null, "时间定义不能为空！")
+                timeInCourseSchedule!!.assertValid()
+                assertData(timeInCourseSchedule!!.date != null, "请选择日期！")
+                timeInCourseSchedule!!.dayOfWeek = timeInCourseSchedule!!.date!!.dayOfWeek
+            }
+            CalendarTimeType.REPEAT_COURSE -> {
+                assertData(timeInCourseSchedule != null, "时间定义不能为空！")
+                timeInCourseSchedule!!.assertValid()
+                assertData(repeatWeeks.isNotEmpty(), "请选择重复周！")
+                assertData(repeatWeeks.all { CREP.term.isWeekInTerm(it) }, "重复周选择不合法！")
+            }
+            CalendarTimeType.SINGLE_HOUR -> {
+                assertData(timeInHour != null, "时间定义不能为空！")
+                timeInHour!!.assertValid()
+                assertData(timeInHour!!.date != null, "请选择日期！")
+            }
+            CalendarTimeType.REPEAT_HOUR -> {
+                assertData(timeInHour != null, "时间定义不能为空！")
+                timeInHour!!.assertValid()
+                assertData(repeatWeeks.isNotEmpty(), "请选择重复周！")
+                assertData(repeatWeeks.all { CREP.term.isWeekInTerm(it) }, "重复周选择不合法！")
+            }
+            CalendarTimeType.POINT -> {
+                assertData(timeInHour != null, "时间定义不能为空！")
+                timeInHour!!.assertValid()
+                assertData(timeInHour!!.date != null, "请选择日期！")
+                assertDataSystem(timeInHour!!.startTime == timeInHour!!.endTime,
+                    "时间节点类型的时间段数据必须被设置为startTime==endTime！")
+            }
+        }
+        remindData.assertValid()
+    }
+
+    fun assertValidWithItem(item: CalendarItemData) {
+        assertValid()
+        item.assertValid()
+        assertDataSystem(item_id == item.id,
+            "TimeData的时间段的item_id与关联的ItemData不一致！")
     }
 }
 

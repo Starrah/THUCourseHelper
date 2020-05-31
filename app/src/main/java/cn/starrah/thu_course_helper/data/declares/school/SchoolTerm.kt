@@ -93,6 +93,23 @@ data class SchoolTerm(
         get() = startDate + Period.ofDays((normalWeekCount * 7))
 
     /**
+     * 判断所给日期是否在学期内。
+     * @param [date] 日期对象
+     */
+    fun isDateInTerm(date: LocalDate): Boolean {
+        val weekNumber = (ChronoUnit.DAYS.between(startDate, date).toInt() / 7) + 1
+        return weekNumber in 1..totalWeekCount
+    }
+
+    /**
+     * 判断所给周是否在学期内。
+     * @param [weekNumber] 周数，从1开始
+     */
+    fun isWeekInTerm(weekNumber: Int): Boolean {
+        return weekNumber in 1..totalWeekCount
+    }
+
+    /**
      * 把日期转换为学期的周数。
      * @return 周数 从1开始
      */

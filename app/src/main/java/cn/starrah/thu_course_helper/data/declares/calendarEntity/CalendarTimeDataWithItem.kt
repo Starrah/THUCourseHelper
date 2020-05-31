@@ -9,7 +9,7 @@ class CalendarTimeDataWithItem : CalendarTimeData() {
 
     /** 该时间段所对应关联的日程项数据对象的引用。*/
     var calendarItem: CalendarItemData
-        get() = _im[0]
+        get() = _im.single()
         set(value) {
             _im = listOf(value)
         }
@@ -24,5 +24,9 @@ class CalendarTimeDataWithItem : CalendarTimeData() {
         val superRes = super.queryItem()
         calendarItem = superRes.value ?: calendarItem
         return superRes
+    }
+
+    fun assertValidWithItem() {
+        super.assertValidWithItem(calendarItem)
     }
 }

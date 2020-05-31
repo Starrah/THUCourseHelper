@@ -19,4 +19,8 @@ class CalendarItemDataWithTimes(
         times = superRes.value?.toMutableList()?:times
         return superRes
     }
+
+    fun assertValidWithTimes() {
+        super.assertValidWithTimes(times)
+    }
 }

@@ -3,6 +3,8 @@ package cn.starrah.thu_course_helper.data.declares.time
 import androidx.room.TypeConverter
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.utils.OneBitNumToChineseTable
+import cn.starrah.thu_course_helper.data.utils.Verifiable
+import cn.starrah.thu_course_helper.data.utils.assertData
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.annotation.JSONField
@@ -41,7 +43,21 @@ data class TimeInCourseSchedule(
     /** 日期。此字段不一定含有（只在对应的类型为单次的情况下才含有） */
     var date: LocalDate? = null
 
-) {
+): Verifiable {
+    override fun assertValid() {
+        assertData(lengthSmall > 0, "课程的小节长度必须大于0！")
+        val (endBig, endOffsetSmall) = _calculateEnd()
+        assertData(startBig in 0 until CREP.timeRule.bigsCount &&
+                endBig in 0 until CREP.timeRule.bigsCount, "大节设置不合法！")
+        val startBigSmallCount = CREP.timeRule.getBigByNumber(startBig).smallsCount
+        assertData(startOffsetSmall >= 0 && startOffsetSmall < startBigSmallCount,
+            "开始的小节设置不合法，第${startBig}大节仅有${startBigSmallCount}小节！")
+        val endBigSmallCount = CREP.timeRule.getBigByNumber(endBig).smallsCount
+        assertData(endOffsetSmall > 0 && endOffsetSmall <= endBigSmallCount,
+            "开始的小节设置不合法，第${endBig}大节仅有${endBigSmallCount}小节！")
+        date?.let { assertData(CREP.term.isDateInTerm(date!!), "设置的日期不在本学期内！") }
+    }
+
     /** 返回该以大节形式描述的时间定义的汉字格式，前端可使用显示。*/
     val chineseName: String
         @JSONField(serialize = false)

@@ -3,6 +3,7 @@ package cn.starrah.thu_course_helper.data.declares.calendarEntity
 import androidx.room.TypeConverter
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindMethodType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindType
+import cn.starrah.thu_course_helper.data.utils.Verifiable
 import java.time.Duration
 
 /**
@@ -20,7 +21,9 @@ data class CalendarRemindData(
 
     /** 闹钟铃声 */
     var alarmSound: String = ""
-) {
+): Verifiable {
+    override fun assertValid() {}
+
     class TC {
         @TypeConverter
         fun toDBDataType(value: Duration): Long {

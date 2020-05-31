@@ -7,6 +7,9 @@ import androidx.room.TypeConverter
 import cn.starrah.thu_course_helper.data.database.CalendarRepository
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
+import cn.starrah.thu_course_helper.data.utils.Verifiable
+import cn.starrah.thu_course_helper.data.utils.assertData
+import cn.starrah.thu_course_helper.data.utils.assertDataSystem
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.TypeReference
 
@@ -35,7 +38,7 @@ open class CalendarItemData(
      * 如果想获得该字段允许的所有Key的列表，请使用[CalendarItemType.AllowedDetailKeys]。
      */
     var detail: MutableMap<CalendarItemLegalDetailKey, String> = mutableMapOf()
-) {
+): Verifiable {
     /**
      * 可以在主线程调用。
      *
@@ -56,6 +59,16 @@ open class CalendarItemData(
             return JSON.parseObject(
                 value,
                 object : TypeReference<MutableMap<CalendarItemLegalDetailKey, String>>() {})
+        }
+    }
+
+    override fun assertValid() {}
+
+    fun assertValidWithTimes(times: List<CalendarTimeData>) {
+        assertValid()
+        for (time in times) {
+            time.assertValid()
+            assertDataSystem(time.item_id == id, "TimeData的时间段的item_id与关联的ItemData不一致！")
         }
     }
 }

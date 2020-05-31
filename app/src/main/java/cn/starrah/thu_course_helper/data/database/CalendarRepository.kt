@@ -97,6 +97,7 @@ object CalendarRepository {
      */
     suspend fun updateTimes(times: List<CalendarTimeData>) {
         withContext(Dispatchers.IO) {
+            times.forEach { it.assertValid() }
             DAO.updateTimes(times)
         }
     }
@@ -115,6 +116,7 @@ object CalendarRepository {
      */
     suspend fun updateItem(item: CalendarItemData): Int {
         return withContext(Dispatchers.IO) {
+            item.assertValid()
             DAO.updateItem(item)
         }
     }
@@ -135,6 +137,7 @@ object CalendarRepository {
      */
     suspend fun updateTimesInItem(times: List<CalendarTimeData>, item: CalendarItemData) {
         withContext(Dispatchers.IO) {
+            item.assertValidWithTimes(times)
             DAO.updateTimesInItem(times, item.id)
         }
     }
@@ -153,6 +156,7 @@ object CalendarRepository {
      */
     suspend fun updateItemAndTimes(item: CalendarItemData, times: List<CalendarTimeData>) {
         withContext(Dispatchers.IO) {
+            item.assertValidWithTimes(times)
             DAO.updateItemAndTimes(item, times)
         }
     }
@@ -228,14 +232,32 @@ object CalendarRepository {
         }
     }
 
+    /**
+     * 删除一个日程项。
+     *
+     * 注意：如果要删除的日程项本身并不存在，这个方法则什么也不做，并不会抛出异常。
+     * @param [item] 要删除的日程项
+     */
     suspend fun deleteItem(item: CalendarItemData) = deleteItems(listOf(item))
 
+    /**
+     * 删除一组日程项。
+     *
+     * 注意：如果要删除的日程项本身并不存在，这个方法则什么也不做，并不会抛出异常。
+     * @param [items] 要删除的日程项
+     */
     suspend fun deleteItems(items: List<CalendarItemData>) {
         return withContext(Dispatchers.IO){
             DAO.deleteItems(items)
         }
     }
 
+    /**
+     * 删除一组时间段。
+     *
+     * 注意：如果要删除的时间段本身并不存在，这个方法则什么也不做，并不会抛出异常。
+     * @param [times] 要删除的时间段
+     */
     suspend fun deleteTimes(times: List<CalendarTimeData>) {
         return withContext(Dispatchers.IO){
             DAO.deleteTimes(times)

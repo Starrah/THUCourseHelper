@@ -2,6 +2,8 @@ package cn.starrah.thu_course_helper.data.declares.time
 
 import androidx.room.TypeConverter
 import cn.starrah.thu_course_helper.data.database.CREP
+import cn.starrah.thu_course_helper.data.utils.Verifiable
+import cn.starrah.thu_course_helper.data.utils.assertData
 import cn.starrah.thu_course_helper.data.utils.invLerp
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.annotation.JSONField
@@ -25,7 +27,12 @@ data class TimeInHour(
 
     /** 日期。此字段不一定含有（只在对应的类型为单次的情况下才含有） */
     var date: LocalDate? = null
-) {
+): Verifiable {
+    override fun assertValid() {
+        assertData(endTime >= startTime, "结束时间不能早于开始时间！")
+        date?.let { assertData(CREP.term.isDateInTerm(date!!), "设置的日期不在本学期内！") }
+    }
+
     val length: Duration
         @JSONField(serialize = false)
         get() = Duration.between(startTime, endTime)
