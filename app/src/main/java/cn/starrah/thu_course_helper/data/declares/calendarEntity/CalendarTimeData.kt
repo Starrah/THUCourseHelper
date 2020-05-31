@@ -54,7 +54,7 @@ open class CalendarTimeData(
 
     /** 该时间段所对应关联的日程项的数据表外键。默认等于calendarItem的id（如果传了calendarItem就不必传这个了）*/
     var item_id: Int = 0
-): Verifiable {
+) : Verifiable {
     /**
      * 可以在主线程调用。
      *
@@ -125,8 +125,10 @@ open class CalendarTimeData(
                 assertData(timeInHour != null, "时间定义不能为空！")
                 timeInHour!!.assertValid()
                 assertData(timeInHour!!.date != null, "请选择日期！")
-                assertDataSystem(timeInHour!!.startTime == timeInHour!!.endTime,
-                    "时间节点类型的时间段数据必须被设置为startTime==endTime！")
+                assertDataSystem(
+                    timeInHour!!.startTime == timeInHour!!.endTime,
+                    "时间节点类型的时间段数据必须被设置为startTime==endTime！"
+                )
             }
         }
         remindData.assertValid()
@@ -135,8 +137,33 @@ open class CalendarTimeData(
     fun assertValidWithItem(item: CalendarItemData) {
         assertValid()
         item.assertValid()
-        assertDataSystem(item_id == item.id,
-            "TimeData的时间段的item_id与关联的ItemData不一致！")
+        assertDataSystem(
+            item_id == item.id,
+            "TimeData的时间段的item_id与关联的ItemData不一致！"
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is CalendarTimeData) {
+            return id == other.id && name == other.name && type == other.type && timeInCourseSchedule == other.timeInCourseSchedule &&
+                    timeInHour == other.timeInHour && repeatWeeks == other.repeatWeeks && place == other.place &&
+                    comment == other.comment && remindData == other.remindData && item_id == other.item_id
+        }
+        return super.equals(other)
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + name.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + (timeInCourseSchedule?.hashCode() ?: 0)
+        result = 31 * result + (timeInHour?.hashCode() ?: 0)
+        result = 31 * result + repeatWeeks.hashCode()
+        result = 31 * result + place.hashCode()
+        result = 31 * result + comment.hashCode()
+        result = 31 * result + remindData.hashCode()
+        result = 31 * result + item_id
+        return result
     }
 }
 

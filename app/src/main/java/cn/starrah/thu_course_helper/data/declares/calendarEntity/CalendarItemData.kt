@@ -71,5 +71,20 @@ open class CalendarItemData(
             assertDataSystem(time.item_id == id, "TimeData的时间段的item_id与关联的ItemData不一致！")
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is CalendarItemData) {
+            return id == other.id && name == other.name && type == other.type && detail == other.detail
+        }
+        return super.equals(other)
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + name.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + detail.hashCode()
+        return result
+    }
 }
 
