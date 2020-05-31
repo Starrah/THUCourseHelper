@@ -55,5 +55,7 @@
     <string name="table_show_day_number_5d">5天</string>
     <string name="table_show_day_number_7d">7天</string>
 
+    <string name="errmsg_open_sync_learnx">登录并保存密码后可用</string>
+
 
 </resources>

@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
         app:key="login_status"
         app:summary=""
         app:title="@string/settings_not_login"
         app:defaultValue="0" />
+    <!--        android:layout=""-->
+<!--
+注：现在的Preference的默认view，是只显示登录名（学号）、已登录状态、保存密码状态的。
+但是可以使用android:layout=对应的layout文件，来指定这个preference对应的view的。
+之后可以用这个方法实现显示姓名、头像等等。
+-->
+
 
     <SwitchPreferenceCompat
         app:key="sync_learnx_homeworks"
         app:title="@string/settings_sync_learnx"
-        app:defaultValue="false" />
+        app:defaultValue="false"
+        app:enabled="false" />
 
     <ListPreference
         app:entries="@array/table_show_day_number"
