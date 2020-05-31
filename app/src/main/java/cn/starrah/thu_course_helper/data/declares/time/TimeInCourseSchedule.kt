@@ -47,8 +47,8 @@ data class TimeInCourseSchedule(
     override fun assertValid() {
         assertData(lengthSmall > 0, "课程的小节长度必须大于0！")
         val (endBig, endOffsetSmall) = _calculateEnd()
-        assertData(startBig in 0 until CREP.timeRule.bigsCount &&
-                endBig in 0 until CREP.timeRule.bigsCount, "大节设置不合法！")
+        assertData(startBig in 1..CREP.timeRule.bigsCount &&
+                endBig in 1..CREP.timeRule.bigsCount, "大节设置不合法！")
         val startBigSmallCount = CREP.timeRule.getBigByNumber(startBig).smallsCount
         assertData(startOffsetSmall >= 0 && startOffsetSmall < startBigSmallCount,
             "开始的小节设置不合法，第${startBig}大节仅有${startBigSmallCount}小节！")

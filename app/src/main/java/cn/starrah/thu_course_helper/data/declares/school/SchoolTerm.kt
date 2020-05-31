@@ -164,10 +164,8 @@ data class SchoolTerm(
         dayIds.mapNotNull { _holidayCalHelpMap[it] }
 
     override fun assertValid() {
-        val fromDaysSet = _holidayCalHelpMap.keys
-        _holidayCalHelpMap.values.forEach {
-            assertDataSystem(it in fromDaysSet, "节假日设置错误！")
-        }
+        assertDataSystem(_holidayCalHelpMap.values.toSet().size == _holidayCalHelpMap.size,
+            "节假日设置错误！")
 
         assertDataSystem(startDate.year in beginYear..beginYear+1 &&
                 endInclusiveDate.year in beginYear..beginYear+1,

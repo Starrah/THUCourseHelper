@@ -26,5 +26,9 @@
         <item>周日</item>
     </string-array>
 
+    <string-array name="table_show_day_number">
+        <item>@string/table_show_day_number_5d</item>
+        <item>@string/table_show_day_number_5d</item>
+    </string-array>
 
 </resources>

@@ -46,5 +46,14 @@
     <string name="settings_ok">确认</string>
     <string name="settings_no">取消</string>
 
+    <string name="settings_not_login">未登录</string>
+    <string name="settings_sync_learnx">从网络学堂同步课程作业</string>
+    <string name="settings_course_show_days">课程表每周显示日数</string>
+    <string name="settings_time_show_days">日程表每周显示日数</string>
+    <string name="settings_stay_notice">常驻通知栏</string>
+
+    <string name="table_show_day_number_5d">5天</string>
+    <string name="table_show_day_number_7d">7天</string>
+
 
 </resources>

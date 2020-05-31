@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentTransaction
 import cn.starrah.thu_course_helper.data.SPRING2019TERMJSON
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
+import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import com.alibaba.fastjson.JSON
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.runBlocking
@@ -61,7 +62,7 @@ class MainActivity : FragmentActivity() {
                     }
                     R.id.navigation_settings -> {
                         supportFragmentManager.inTransaction {
-                            replace(R.id.frame_page, Settings())
+                            replace(R.id.frame_page, SettingsFragment())
                         }
                         return true
                     }

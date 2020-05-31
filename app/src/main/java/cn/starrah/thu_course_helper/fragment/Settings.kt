@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import cn.starrah.thu_course_helper.fragment.LoginDialog
 
-
+@Deprecated("已经建立了使用androidx.preference库的配置项Fragment，因此不必在使用此类了。")
 class Settings : Fragment() {
 
     //父类activity

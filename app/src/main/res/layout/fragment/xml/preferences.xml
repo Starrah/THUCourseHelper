@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Preference
+        app:key="login_status"
+        app:summary=""
+        app:title="@string/settings_not_login"
+        app:defaultValue="0" />
+
+    <SwitchPreferenceCompat
+        app:key="sync_learnx_homeworks"
+        app:title="@string/settings_sync_learnx"
+        app:defaultValue="false" />
+
+    <ListPreference
+        app:entries="@array/table_show_day_number"
+        app:entryValues="@array/table_show_day_number"
+        app:key="course_show_days"
+        app:title="@string/settings_course_show_days"
+        app:defaultValue="@string/table_show_day_number_5d"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        app:entries="@array/table_show_day_number"
+        app:entryValues="@array/table_show_day_number"
+        app:key="time_show_days"
+        app:title="@string/settings_time_show_days"
+        app:defaultValue="@string/table_show_day_number_5d"
+        app:useSimpleSummaryProvider="true" />
+
+    <SwitchPreferenceCompat
+        app:key="stay_notice"
+        app:title="@string/settings_stay_notice"
+        app:defaultValue="false" />
+
+</PreferenceScreen>
