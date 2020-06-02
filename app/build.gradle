@@ -105,5 +105,7 @@ dependencies {
 
     implementation 'com.contrarywind:Android-PickerView:4.1.9'
 
+    implementation 'com.github.teambition:TbRepeatPicker:1.0.2'
+
 
 }

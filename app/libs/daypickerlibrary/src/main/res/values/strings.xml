@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">DayPickerLibrary</string>
+    <string name="day_picker_day_sunday">SUN</string>
+    <string name="day_picker_day_monday">MON</string>
+    <string name="day_picker_day_tuesday">TUE</string>
+    <string name="day_picker_day_wednesday">WED</string>
+    <string name="day_picker_day_thursday">THU</string>
+    <string name="day_picker_day_friday">FRI</string>
+    <string name="day_picker_day_saturday">SAT</string>
+    <string name="day_picker_dialog_title">Select Days</string>
+
+    <plurals name="day_picker_dialog_title">
+        <item quantity="one">Select Day</item>
+        <item quantity="other">@string/day_picker_dialog_title</item>
+    </plurals>
+</resources>

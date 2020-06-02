@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="DayPickerTitleTextStyle">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+</resources>
