@@ -8,10 +8,10 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/day_pick_dialog_header"
-        android:text="@string/day_picker_dialog_title"
+        android:id="@+id/pick_dialog_header"
+        android:text="@string/picker_dialog_title"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/daypicker_header_height"
+        android:layout_height="@dimen/picker_header_height"
         android:gravity="start|center_vertical"
         android:layout_gravity="start|center_vertical"
         android:includeFontPadding="false"
@@ -21,10 +21,10 @@
         android:background="?attr/colorAccent"
         style="@style/DayPickerTitleTextStyle"/>
 
-    <com.github.informramiz.daypickerlibrary.views.DayPickerView
+    <cn.starrah.thu_course_helper.picker.PickerView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/dayPickerView"
+        android:id="@+id/pickerView"
         android:layout_gravity="center"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"

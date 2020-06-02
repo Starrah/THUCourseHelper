@@ -57,5 +57,5 @@
 
     <string name="errmsg_open_sync_learnx">登录并保存密码后可用</string>
 
-
+    <string name="picker_dialog_title">选择周</string>
 </resources>

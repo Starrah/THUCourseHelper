@@ -1,5 +1,6 @@
 package cn.starrah.thu_course_helper
 
+import cn.starrah.thu_course_helper.R
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.FragmentActivity
@@ -8,7 +9,10 @@ import androidx.fragment.app.FragmentTransaction
 import cn.starrah.thu_course_helper.data.SPRING2019TERMJSON
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
+import cn.starrah.thu_course_helper.fragment.CourseTable
+import cn.starrah.thu_course_helper.fragment.Information
 import cn.starrah.thu_course_helper.fragment.SettingsFragment
+import cn.starrah.thu_course_helper.fragment.TimeTable
 import com.alibaba.fastjson.JSON
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.runBlocking

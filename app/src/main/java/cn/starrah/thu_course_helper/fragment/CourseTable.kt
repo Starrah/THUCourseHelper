@@ -1,10 +1,12 @@
-package cn.starrah.thu_course_helper
+package cn.starrah.thu_course_helper.fragment
 
+import cn.starrah.thu_course_helper.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import cn.starrah.thu_course_helper.TableFragment
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
