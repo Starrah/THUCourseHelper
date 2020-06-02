@@ -565,7 +565,6 @@ abstract class TableFragment : Fragment(){
         pvWeekOptions = OptionsPickerBuilder(theActivity,
             OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
                 currentWeek = options1 + 1
-                //TODO 刷新显示
                 updateAllDates()
                 showAllDates()
 

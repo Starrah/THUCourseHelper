@@ -2,6 +2,6 @@
 <resources>
     <dimen name="circular_text_view_size">50dp</dimen>
     <dimen name="margin_between_day_view">16dp</dimen>
-    <dimen name="daypicker_header_height">70dp</dimen>
+    <dimen name="picker_header_height">70dp</dimen>
     <dimen name="circle_stroke_width">1dp</dimen>
 </resources>

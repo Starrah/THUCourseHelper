@@ -1,5 +1,10 @@
 <resources>
 
+    <style name="DayPickerTitleTextStyle">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="@style/Theme.AppCompat.NoActionBar">
         <item name="windowActionBar">false</item>
