@@ -1,11 +1,14 @@
 package cn.starrah.thu_course_helper.fragment
 
+import android.annotation.SuppressLint
 import cn.starrah.thu_course_helper.R
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.TableFragment
 import cn.starrah.thu_course_helper.activity.ItemEditActivity
 import cn.starrah.thu_course_helper.activity.ItemShowActivity
@@ -20,14 +23,38 @@ class TimeTable : TableFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        showDays = 5
-
         theActivity = requireActivity()
+        initSettings()
         var view:View = inflater.inflate(R.layout.table_hour, container, false)
 
         return view
     }
 
+    /**
+     * 描述：加载设置--显示方式和显示天数，在oncreateview调用
+     * 参数：无
+     * 返回：无
+     */
+    @SuppressLint("ResourceType")
+    override fun initSettings() {
+
+        //加载常量字符串
+        showDayFive = resources.getString(R.string.table_show_day_number_5d).toString();
+        showDaySeven = resources.getString(R.string.table_show_day_number_7d).toString();
+        showTypeCourse = resources.getString(R.string.settings_course_show_type_course).toString();
+        showTypeHour = resources.getString(R.string.settings_course_show_type_hour).toString();
+
+        var prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(theActivity)
+
+        showType = showTypeHour
+        var showDaysString = prefs.getString("time_show_days", showDayFive).toString()
+        if(showDaysString.equals(showDayFive)) {
+            showDays = 5
+        }
+        else {
+            showDays = 7
+        }
+    }
 
     /*
     描述：按照设置初始化视图

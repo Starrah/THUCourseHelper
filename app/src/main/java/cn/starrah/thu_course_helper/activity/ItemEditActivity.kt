@@ -102,6 +102,7 @@ class ItemEditActivity : AppCompatActivity(){
             //有考试周--非考试周的全false，有正常周的，考试周false
             var i = 1
             var week_list:MutableList<Int> = mutableListOf()
+            var whether_really_full = true
             var whether_full = true
             var whether_first_eight = true
             var whether_last_eight = true
@@ -125,6 +126,7 @@ class ItemEditActivity : AppCompatActivity(){
                     week_list.add(i)
                 }
                 else {
+                    whether_really_full = false
                     if(i <= normal_weeks) {
                         whether_full = false
                     }
@@ -149,8 +151,11 @@ class ItemEditActivity : AppCompatActivity(){
 
             //判断是否是几种特殊情况
             var result:String = ""
-            if(whether_full) {
-                result = "全周"
+            if(whether_really_full) {
+                result = "全学期（含考试周）"
+            }
+            else if(whether_full) {
+                result = "全学期（不含考试周）"
             }
             else if(whether_first_eight) {
                 result = "前半学期"
@@ -453,7 +458,6 @@ class ItemEditActivity : AppCompatActivity(){
             Toast.makeText(this, "当前日程没有任何时间段!", Toast.LENGTH_LONG).show()
             return false
         }
-        //TODO
         return true
     }
 
@@ -715,7 +719,7 @@ class ItemEditActivity : AppCompatActivity(){
                             finish()
                         }
                         catch (e: Exception) {
-                            Toast.makeText(this@ItemEditActivity, "数据有误，保存失败!", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
                         }
                     }
                 })
@@ -741,7 +745,7 @@ class ItemEditActivity : AppCompatActivity(){
      */
     fun handleAdd(view: View) {
         val new_time_data:TimeInCourseSchedule = TimeInCourseSchedule(dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now(), startBig = 1)
-        val newTime:CalendarTimeData = CalendarTimeData(type = CalendarTimeType.SINGLE_COURSE, timeInCourseSchedule = new_time_data, timeInHour = null)
+        val newTime:CalendarTimeData = CalendarTimeData(item_id = currentItem!!.id, type = CalendarTimeType.SINGLE_COURSE, timeInCourseSchedule = new_time_data, timeInHour = null)
         currentItem!!.times.add(newTime)
         mAdapter!!.notifyDataSetChanged()
         mRecyclerView!!.scrollToPosition(mAdapter!!.itemCount - 1)

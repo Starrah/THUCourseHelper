@@ -21,6 +21,14 @@
         app:enabled="false" />
 
     <ListPreference
+        app:entries="@array/table_show_type"
+        app:entryValues="@array/table_show_type"
+        app:key="course_show_type"
+        app:title="@string/settings_course_show_type"
+        app:defaultValue="@string/settings_course_show_type_course"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
         app:entries="@array/table_show_day_number"
         app:entryValues="@array/table_show_day_number"
         app:key="course_show_days"

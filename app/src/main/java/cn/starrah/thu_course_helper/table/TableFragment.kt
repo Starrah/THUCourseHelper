@@ -1,8 +1,12 @@
 package cn.starrah.thu_course_helper
 
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
+import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.activity.ItemShowActivity
 import cn.starrah.thu_course_helper.data.constants.LayoutConstants
 import cn.starrah.thu_course_helper.data.database.CREP
@@ -42,9 +47,13 @@ abstract class TableFragment : Fragment(){
     /*当前显示设置*/
     //显示几天
     protected var showDays: Int = 5
+    protected var showDayFive: String = ""
+    protected var showDaySeven: String = ""
 
     //大节还是小时
-    protected var showType: String = "hour"
+    protected var showType: String = ""
+    protected var showTypeHour: String = ""
+    protected var showTypeCourse: String = ""
 
     /*当前周*/
     protected var currentWeek: Int = 12;
@@ -65,6 +74,7 @@ abstract class TableFragment : Fragment(){
         public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"
     }
 
+    private val PREFRENCE_FILE_KEY = "PREFERENCES"
 
     /*当前周所有日期，以string形式yyyy-MM-dd表示*/
     protected val allDates = mutableMapOf<DayOfWeek, LocalDate>(
@@ -101,6 +111,14 @@ abstract class TableFragment : Fragment(){
         DayOfWeek.SATURDAY to R.id.saturday_place,
         DayOfWeek.SUNDAY to R.id.sunday_place
     )
+
+    /**
+     * 描述：加载设置--显示方式和显示天数，在oncreateview调用
+     * 参数：无
+     * 返回：无
+     */
+    @SuppressLint("ResourceType")
+    abstract protected fun initSettings();
 
 
 
@@ -240,7 +258,6 @@ abstract class TableFragment : Fragment(){
         setWeekToday()
         updateAllDates()
         showAllDates()
-
 
         if(theActivity == null)
         {

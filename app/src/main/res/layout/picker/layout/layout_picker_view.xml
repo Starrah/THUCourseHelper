@@ -16,7 +16,67 @@
         android:layout_height="wrap_content"
         android:columnCount="4"
         android:orientation="horizontal"
+        android:layout_gravity="center"
         android:id="@+id/week_select_place">
 
     </GridLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp">
+        <Button
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:text ="@string/choose_first_half"
+            android:layout_weight="1"
+            android:id="@+id/choose_half_1"
+            android:layout_marginHorizontal="10dp" />
+        <Button
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:text ="@string/choose_second_half"
+            android:layout_weight="1"
+            android:id="@+id/choose_half_2"
+            android:layout_marginHorizontal="10dp" />
+        <Button
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:text ="@string/choose_odd_weeks"
+            android:layout_weight="1"
+            android:id="@+id/choose_odd"
+            android:layout_marginHorizontal="10dp" />
+        <Button
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:text ="@string/choose_even_weeks"
+            android:layout_weight="1"
+            android:id="@+id/choose_even"
+            android:layout_marginHorizontal="10dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp">
+    <Button
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:text ="@string/choose_all_weeks"
+        android:layout_weight="1"
+        android:id="@+id/choose_all"
+        android:layout_marginHorizontal="10dp" />
+    <Button
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:text ="@string/choose_normal_weeks"
+        android:layout_weight="1"
+        android:id="@+id/choose_normal"
+        android:layout_marginHorizontal="10dp" />
+    <Button
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:text ="@string/choose_exam_weeks"
+        android:layout_weight="1"
+        android:id="@+id/choose_exam"
+        android:layout_marginHorizontal="10dp" />
+    </LinearLayout>
 </LinearLayout>
