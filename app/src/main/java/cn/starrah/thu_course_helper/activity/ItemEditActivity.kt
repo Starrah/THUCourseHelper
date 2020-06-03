@@ -458,7 +458,6 @@ class ItemEditActivity : AppCompatActivity(){
             Toast.makeText(this, "当前日程没有任何时间段!", Toast.LENGTH_LONG).show()
             return false
         }
-        //TODO
         return true
     }
 
@@ -720,7 +719,7 @@ class ItemEditActivity : AppCompatActivity(){
                             finish()
                         }
                         catch (e: Exception) {
-                            Toast.makeText(this@ItemEditActivity, "数据有误，保存失败!", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
                         }
                     }
                 })
@@ -746,7 +745,7 @@ class ItemEditActivity : AppCompatActivity(){
      */
     fun handleAdd(view: View) {
         val new_time_data:TimeInCourseSchedule = TimeInCourseSchedule(dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now(), startBig = 1)
-        val newTime:CalendarTimeData = CalendarTimeData(type = CalendarTimeType.SINGLE_COURSE, timeInCourseSchedule = new_time_data, timeInHour = null)
+        val newTime:CalendarTimeData = CalendarTimeData(item_id = currentItem!!.id, type = CalendarTimeType.SINGLE_COURSE, timeInCourseSchedule = new_time_data, timeInHour = null)
         currentItem!!.times.add(newTime)
         mAdapter!!.notifyDataSetChanged()
         mRecyclerView!!.scrollToPosition(mAdapter!!.itemCount - 1)

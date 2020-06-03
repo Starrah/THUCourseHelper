@@ -3,12 +3,15 @@ package cn.starrah.thu_course_helper.activity
 
 import android.R.id.text2
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.R
@@ -50,7 +53,7 @@ class ItemShowActivity : AppCompatActivity(){
         val intent = intent
         val message = intent.getIntExtra(TableFragment.EXTRA_MESSAGE, -1)
         if(message < 0) {
-            //TODO:异常处理
+            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             finish()
         }
         showID = message
@@ -73,12 +76,12 @@ class ItemShowActivity : AppCompatActivity(){
         var the_item = CREP.findItemsByIds(list)
         var size = the_item.getNotNullValue().size
         if(size <= 0 || size > 1) {
-            //TODO:异常处理--未找到数据
+            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             finish()
         }
         showItem = the_item.getNotNullValue()[0]
         if(showItem == null) {
-            //TODO:异常处理--未找到数据
+            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             finish()
         }
     }
@@ -270,6 +273,46 @@ class ItemShowActivity : AppCompatActivity(){
 
 
     /**
+     * 描述：删除时的对话框，如果确定，就删除然后返回，否则取消
+     * 参数：无
+     * 返回：无
+     */
+    private fun showDialogDelete() {
+        val dialog: AlertDialog.Builder =
+            object : AlertDialog.Builder(this@ItemShowActivity) {
+                override fun create(): AlertDialog {
+                    return super.create()
+                }
+
+                override fun show(): AlertDialog {
+                    return super.show()
+                }
+            }
+        dialog.setOnCancelListener { }
+        dialog.setOnDismissListener { }
+        dialog.setIcon(R.mipmap.ic_launcher_round)
+            .setTitle("删除日程")
+            .setMessage("确定要删除日程吗")
+            .setCancelable(true)
+            .setPositiveButton("确定",
+                DialogInterface.OnClickListener { dialog, which ->
+                    lifecycleScope.launch{
+                        try {
+                            CREP.deleteItem(showItem!!)
+                            setResult(Activity.RESULT_OK);
+                            finish()
+                        }
+                        catch (e: Exception) {
+                            Toast.makeText(this@ItemShowActivity, e.message, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                })
+            .setNegativeButton("取消",
+                DialogInterface.OnClickListener { dialog, which ->  })
+        dialog.show()
+    }
+
+    /**
      * 描述：处理返回按钮的事件--返回
      * 参数：无
      * 返回：无
@@ -328,10 +371,6 @@ class ItemShowActivity : AppCompatActivity(){
      * 返回：无
      */
     fun handleDelete(view: View) {
-        /*lifecycleScope.launch{
-            CREP.deleteItem(showItem!!)
-            finish()
-        }*/
-        //TODO
+        showDialogDelete()
     }
 }

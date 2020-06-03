@@ -629,7 +629,7 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
                 the_time.repeatWeeks = mutableListOf(1)
             }
             else if(the_type == CalendarTimeType.SINGLE_HOUR) {
-                the_time.timeInHour!!.dayOfWeek = null
+                the_time.timeInHour!!.dayOfWeek = LocalDate.now().dayOfWeek
                 the_time.timeInHour!!.date = LocalDate.now()
                 the_time.repeatWeeks = mutableListOf()
             }
