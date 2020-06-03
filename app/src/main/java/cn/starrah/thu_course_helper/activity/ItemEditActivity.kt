@@ -102,6 +102,7 @@ class ItemEditActivity : AppCompatActivity(){
             //有考试周--非考试周的全false，有正常周的，考试周false
             var i = 1
             var week_list:MutableList<Int> = mutableListOf()
+            var whether_really_full = true
             var whether_full = true
             var whether_first_eight = true
             var whether_last_eight = true
@@ -125,6 +126,7 @@ class ItemEditActivity : AppCompatActivity(){
                     week_list.add(i)
                 }
                 else {
+                    whether_really_full = false
                     if(i <= normal_weeks) {
                         whether_full = false
                     }
@@ -149,8 +151,11 @@ class ItemEditActivity : AppCompatActivity(){
 
             //判断是否是几种特殊情况
             var result:String = ""
-            if(whether_full) {
-                result = "全周"
+            if(whether_really_full) {
+                result = "全学期（含考试周）"
+            }
+            else if(whether_full) {
+                result = "全学期（不含考试周）"
             }
             else if(whether_first_eight) {
                 result = "前半学期"

@@ -1,7 +1,6 @@
 package cn.starrah.thu_course_helper.activity
 
-//import butterknife.Bind
-//import butterknife.ButterKnife
+
 import android.R.id.text2
 import android.app.Activity
 import android.content.Intent

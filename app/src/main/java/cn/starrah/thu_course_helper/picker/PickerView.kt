@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.GridLayout
 import android.widget.LinearLayout
@@ -109,6 +110,36 @@ class PickerView : FrameLayout, View.OnClickListener {
             }
         }
 
+        //给每个button绑定onclick
+        var button_all:Button = findViewById<Button>(R.id.choose_all)
+        button_all.setOnClickListener({
+            selectAllWeeks()
+        })
+        var button_normal:Button = findViewById<Button>(R.id.choose_normal)
+        button_normal.setOnClickListener({
+            selectNormalWeeks()
+        })
+        var button_exam:Button = findViewById<Button>(R.id.choose_exam)
+        button_exam.setOnClickListener({
+            selectExamWeeks()
+        })
+        var button_first_half:Button = findViewById<Button>(R.id.choose_half_1)
+        button_first_half.setOnClickListener({
+            selectFirstHalfWeeks()
+        })
+        var button_second_half:Button = findViewById<Button>(R.id.choose_half_2)
+        button_second_half.setOnClickListener({
+            selectSecondHalfWeeks()
+        })
+        var button_odd:Button = findViewById<Button>(R.id.choose_odd)
+        button_odd.setOnClickListener({
+            selectOddWeeks()
+        })
+        var button_even:Button = findViewById<Button>(R.id.choose_even)
+        button_even.setOnClickListener({
+            selectEvenWeeks()
+        })
+
         //初始化显示
         setWeeksSelected(selectedWeeks)
     }
@@ -160,7 +191,116 @@ class PickerView : FrameLayout, View.OnClickListener {
             return selectedWeeks
         }
 
-    companion object {
-        private val LOG_TAG = PickerView::class.java.simpleName
+    //特殊选择相关函数
+    /**
+     * 描述：选择全部周（包括考试周）
+     * 参数：无
+     * 返回：无
+     */
+    fun selectAllWeeks() {
+        for (i in 1..examWeeks + normalWeeks) {
+            weekViews[i - 1]?.setSelected(true)
+        }
     }
+
+    /**
+     * 描述：选择全部正常周
+     * 参数：无
+     * 返回：无
+     */
+    fun selectNormalWeeks() {
+        for (i in 1..examWeeks + normalWeeks) {
+            if(i <= normalWeeks) {
+                weekViews[i - 1]?.setSelected(true)
+            }
+            else{
+                weekViews[i - 1]?.setSelected(false)
+
+            }
+        }
+    }
+
+    /**
+     * 描述：选择全部考试周
+     * 参数：无
+     * 返回：无
+     */
+    fun selectExamWeeks() {
+        for (i in 1..examWeeks + normalWeeks) {
+            if(i <= normalWeeks) {
+                weekViews[i - 1]?.setSelected(false)
+            }
+            else{
+                weekViews[i - 1]?.setSelected(true)
+
+            }
+        }
+    }
+
+    /**
+     * 描述：选择前半学期
+     * 参数：无
+     * 返回：无
+     */
+    fun selectFirstHalfWeeks() {
+        for (i in 1..examWeeks + normalWeeks) {
+            if(i <= normalWeeks / 2) {
+                weekViews[i - 1]?.setSelected(true)
+            }
+            else{
+                weekViews[i - 1]?.setSelected(false)
+
+            }
+        }
+    }
+
+    /**
+     * 描述：选择后半学期
+     * 参数：无
+     * 返回：无
+     */
+    fun selectSecondHalfWeeks() {
+        for (i in 1..examWeeks + normalWeeks) {
+            if(i > normalWeeks / 2 && i <= normalWeeks) {
+                weekViews[i - 1]?.setSelected(true)
+            }
+            else{
+                weekViews[i - 1]?.setSelected(false)
+            }
+        }
+    }
+
+    /**
+     * 描述：选择单周
+     * 参数：无
+     * 返回：无
+     */
+    fun selectOddWeeks() {
+        for (i in 1..examWeeks + normalWeeks) {
+            if(i <= normalWeeks && i % 2 == 1) {
+                weekViews[i - 1]?.setSelected(true)
+            }
+            else{
+                weekViews[i - 1]?.setSelected(false)
+            }
+        }
+    }
+
+    /**
+     * 描述：选择双周
+     * 参数：无
+     * 返回：无
+     */
+    fun selectEvenWeeks() {
+        for (i in 1..examWeeks + normalWeeks) {
+            if(i <= normalWeeks && i % 2 == 0) {
+                weekViews[i - 1]?.setSelected(true)
+            }
+            else{
+                weekViews[i - 1]?.setSelected(false)
+            }
+        }
+    }
+
+
 }

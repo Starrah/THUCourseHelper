@@ -58,4 +58,13 @@
     <string name="errmsg_open_sync_learnx">登录并保存密码后可用</string>
 
     <string name="picker_dialog_title">选择周</string>
+
+    <string name="choose_first_half">前半学期</string>
+    <string name="choose_second_half">后半学期</string>
+    <string name="choose_odd_weeks">单周</string>
+    <string name="choose_even_weeks">双周</string>
+    <string name="choose_normal_weeks">全学期（不含考试周）</string>
+    <string name="choose_all_weeks">全学期（含考试周）</string>
+    <string name="choose_exam_weeks">考试周</string>
+
 </resources>
