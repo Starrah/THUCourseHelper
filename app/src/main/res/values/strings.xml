@@ -51,6 +51,10 @@
     <string name="settings_course_show_days">课程表每周显示日数</string>
     <string name="settings_time_show_days">日程表每周显示日数</string>
     <string name="settings_stay_notice">常驻通知栏</string>
+    <string name="settings_course_show_type">课程表显示形式</string>
+
+    <string name="settings_course_show_type_course">大节</string>
+    <string name="settings_course_show_type_hour">小时</string>
 
     <string name="table_show_day_number_5d">5天</string>
     <string name="table_show_day_number_7d">7天</string>
