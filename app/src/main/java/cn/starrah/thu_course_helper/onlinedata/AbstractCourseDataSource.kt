@@ -16,10 +16,10 @@ abstract class AbstractCourseDataSource {
      * @param [extra] 其他信息
      * @return cookie，可能可以用于发回后端做进一步的身份鉴权。
      */
-    abstract fun login(activity: FragmentActivity, username: String, password: String, extra: Map<String, Any>? = null): String
+    abstract suspend fun login(activity: FragmentActivity, username: String, password: String, extra: Map<String, Any>? = null): String
 
     /**
      * 读取所有的课程
      */
-    abstract fun loadAllCourse(term: SchoolTerm): List<CalendarItemDataWithTimes>
+    abstract suspend fun loadAllCourse(term: SchoolTerm): List<CalendarItemDataWithTimes>
 }

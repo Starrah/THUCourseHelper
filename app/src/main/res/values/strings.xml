@@ -57,5 +57,7 @@
 
     <string name="errmsg_open_sync_learnx">登录并保存密码后可用</string>
 
+    <string name="remind_enter_captcha">请输入下方验证码</string>
+    <string name="remind_yanzhengma">验证码</string>
 
 </resources>
