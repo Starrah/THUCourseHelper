@@ -14,12 +14,19 @@ abstract class AbstractCourseDataSource {
      * @param [username] 用户名
      * @param [password] 密码
      * @param [extra] 其他信息
-     * @return cookie，可能可以用于发回后端做进一步的身份鉴权。
      */
-    abstract suspend fun login(activity: FragmentActivity, username: String, password: String, extra: Map<String, Any>? = null): String
+    abstract suspend fun login(activity: FragmentActivity, username: String, password: String, extra: Map<String, Any>? = null)
 
     /**
      * 读取所有的课程
      */
     abstract suspend fun loadAllCourse(term: SchoolTerm): List<CalendarItemDataWithTimes>
+
+    /**
+     * 获取cookie
+     * @param [username] 用户名
+     * @param [password] 密码
+     * @return cookie字符串，可发给后端用于鉴权
+     */
+    abstract suspend fun getCookie(username: String, password: String): String
 }

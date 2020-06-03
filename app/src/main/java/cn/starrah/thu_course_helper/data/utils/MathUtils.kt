@@ -57,3 +57,11 @@ fun invLerp(value: LocalTime, a: LocalTime? = null, b: LocalTime? = null, allowO
     val bb = b?.toSecondOfDay()?:86400
     return invLerp(value.toSecondOfDay(), aa, bb, allowOverflow).toFloat()
 }
+
+fun Float.isInt(): Boolean {
+    return this.toInt().toFloat() == this
+}
+
+fun Double.isInt(): Boolean {
+    return this.toInt().toDouble() == this
+}
