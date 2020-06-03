@@ -1,15 +1,27 @@
 package cn.starrah.thu_course_helper.data.utils
 
+import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.Response
 import java.util.regex.Pattern
+import com.github.kittinunf.fuel.core.interceptors.redirectResponseInterceptor
 
+val CookiedFuel = FuelManager().apply {
+    addRequestInterceptor { next -> {req ->
+        next(req.enableCookie())
+    } }
+    removeAllResponseInterceptors()
+    addResponseInterceptor { next -> {req, resp ->
+        next(req, resp.saveCookie())
+    } }
+    addResponseInterceptor(redirectResponseInterceptor(this))
+}
 
 private val SAVECOOKIE_KV_PATTERN = Pattern.compile("^(.+)=(.*)$")
-private val SAVECOOKIE_PATH_PATTERN = Pattern.compile("^Path=(.*)$")
+private val SAVECOOKIE_PATH_PATTERN = Pattern.compile("^Path=(.*)$", Pattern.CASE_INSENSITIVE)
 
-fun Response.saveCookie(): Response {
+private fun Response.saveCookie(): Response {
     val domain = this.url.host
 
     val SCs = this[Headers.SET_COOKIE]
@@ -19,7 +31,7 @@ fun Response.saveCookie(): Response {
         val remainItems = items.drop(1)
 
         val mainMatcher = SAVECOOKIE_KV_PATTERN.matcher(main)
-        if (mainMatcher.groupCount() != 2) continue
+        if (!mainMatcher.matches()) continue
         val name = mainMatcher.group(1)!!
         val cookieValue = mainMatcher.group(2)!!
 
@@ -35,19 +47,19 @@ fun Response.saveCookie(): Response {
     return this
 }
 
-fun Triple<*, Response, *>.saveCookie(): Triple<*, Response, *> {
+private fun Triple<*, Response, *>.saveCookie(): Triple<*, Response, *> {
     second.saveCookie()
     return this
 }
 
-fun Request.enableCookie(): Request {
+private fun Request.enableCookie(): Request {
     val domain = this.url.host
     val cookies = COOKIEJAR.cookieMap[domain]
-    if (cookies != null) {
-        for (cookie in cookies){
-            if (cookie.value.second?.let { request.url.path.startsWith(it) } == false) continue
-            request[cookie.key] = cookie.value.first
-        }
+    val cookieString = cookies?.filter {
+        it.value.second?.let { request.url.path?.ifEmpty { "/" }?.startsWith(it) } != false
+    } ?.map { "${it.key}=${it.value.first}" } ?.joinToString("; ")
+    if (cookieString != null) {
+        request[Headers.COOKIE] = cookieString
     }
     return this
 }
