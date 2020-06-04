@@ -16,6 +16,8 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.data.utils.chineseName
+import cn.starrah.thu_course_helper.picker.PickerDialog
+import cn.starrah.thu_course_helper.picker.PickerView
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.builder.TimePickerBuilder
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener
@@ -25,6 +27,7 @@ import com.bigkoo.pickerview.view.OptionsPickerView
 import com.bigkoo.pickerview.view.TimePickerView
 import java.time.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEditActivity) :
@@ -90,6 +93,8 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         public lateinit var pvTimeTypeOptions: OptionsPickerView<Any>
         //大节-小节选择器
         public lateinit var pvCourseOptions: OptionsPickerView<Any>
+        //周选择器
+        public lateinit var pvWeekOptions: PickerDialog.Builder
         //name监听器
         public lateinit var nameChanger:TextWatcher
         //place监听器
@@ -108,6 +113,7 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             initNameChanger()
             initPlaceChanger()
             initDetailChanger()
+            initWeekPickerDialog()
             timeDeleteButton.setOnClickListener(this)
         }
 
@@ -378,6 +384,8 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             pvCourseOptions.setPicker(bigCourseChoices as List<Any>?, smallCourseChoices as List<MutableList<Any>>?) //二级选择器
         }
 
+
+
         /**
          * 描述：初始化大节-小节选项数据
          * 参数：无
@@ -504,6 +512,7 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             pvTimeTypeOptions.setPicker(timeTypeChoices as List<Any>?) //一级选择器
         }
 
+
         /**
          * 描述：给删除按钮绑定事件处理函数
          * 参数：被删除的view
@@ -543,6 +552,36 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
                 .setNegativeButton("取消",
                     DialogInterface.OnClickListener { dialog, which ->  })
             dialog.show()
+        }
+
+        /**
+         * 描述：显示周选择器
+         * 参数：无
+         * 返回：无
+         */
+        private fun initWeekPickerDialog() {
+            var selected:ArrayList<Int> = arrayListOf()
+            pvWeekOptions = PickerDialog.Builder(mAdapter.theActivity)
+                .setWeeks(16, 2)
+                .setInitialSelectedWeeks(selected)
+                .setOnWeeksSelectedListener(object : PickerDialog.OnWeeksSelectedListener {
+                    override fun onWeeksSelected(
+                        pickerView: PickerView?,
+                        selectedWeeks: java.util.ArrayList<Int?>?
+                    ) {
+                        val position: Int = getAdapterPosition()
+                        var time: CalendarTimeData = mAdapter.mTimeList.get(position)
+                        time.repeatWeeks.clear()
+                        if (selectedWeeks != null) {
+                            for(item in selectedWeeks){
+                                if(item != null) {
+                                    time.repeatWeeks.add(item)
+                                }
+                            }
+                        }
+                        mAdapter.notifyDataSetChanged()
+                    }
+                })
         }
 
         /**
@@ -590,7 +629,7 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
                 the_time.repeatWeeks = mutableListOf(1)
             }
             else if(the_type == CalendarTimeType.SINGLE_HOUR) {
-                the_time.timeInHour!!.dayOfWeek = null
+                the_time.timeInHour!!.dayOfWeek = LocalDate.now().dayOfWeek
                 the_time.timeInHour!!.date = LocalDate.now()
                 the_time.repeatWeeks = mutableListOf()
             }
@@ -650,6 +689,16 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             //设置周，星期初值
             var week_show: String = ItemEditActivity.getWeeksString(time.repeatWeeks)
             holder.timeWeek.setText(week_show)
+            holder.timeWeek.setOnClickListener(View.OnClickListener() {
+                if (holder.pvWeekOptions != null) {
+                    var selected:ArrayList<Int> = arrayListOf()
+                    for(item in time.repeatWeeks) {
+                        selected.add(item)
+                    }
+                    holder.pvWeekOptions.initialSelectedWeeks = selected
+                    holder.pvWeekOptions.show();//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                }
+            })
 
             var day_in_week:String = ""
             if(time.timeInCourseSchedule != null) {

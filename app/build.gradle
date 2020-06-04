@@ -50,6 +50,7 @@ android {
                             'src/main/res/layout/calendar_item_edit',
                             'src/main/res/layout/calendar_item_show',
                             'src/main/res/layout/table',
+                            'src/main/res/layout/picker',
                             'src/main/res/layout',
                             'src/main/res'
                     ]
@@ -100,7 +101,9 @@ dependencies {
 
     implementation 'com.contrarywind:Android-PickerView:4.1.9'
 
-    //网络请求
+    implementation 'com.github.teambition:TbRepeatPicker:1.0.2'
+
+    //网络请求Fuel库
     implementation 'com.github.kittinunf.fuel:fuel:2.2.2'
     implementation 'com.github.kittinunf.fuel:fuel-coroutines:2.2.2'
 

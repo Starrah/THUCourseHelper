@@ -51,6 +51,10 @@
     <string name="settings_course_show_days">课程表每周显示日数</string>
     <string name="settings_time_show_days">日程表每周显示日数</string>
     <string name="settings_stay_notice">常驻通知栏</string>
+    <string name="settings_course_show_type">课程表显示形式</string>
+
+    <string name="settings_course_show_type_course">大节</string>
+    <string name="settings_course_show_type_hour">小时</string>
 
     <string name="settings_sync_XK">立即同步选课系统课程信息</string>
     <string name="errmsg_login_session_expired">重新输入密码后可用</string>
@@ -60,6 +64,16 @@
     <string name="table_show_day_number_7d">7天</string>
 
     <string name="errmsg_not_save_password">登录并保存密码后可用</string>
+
+    <string name="picker_dialog_title">选择周</string>
+
+    <string name="choose_first_half">前半学期</string>
+    <string name="choose_second_half">后半学期</string>
+    <string name="choose_odd_weeks">单周</string>
+    <string name="choose_even_weeks">双周</string>
+    <string name="choose_normal_weeks">全学期（不含考试周）</string>
+    <string name="choose_all_weeks">全学期（含考试周）</string>
+    <string name="choose_exam_weeks">考试周</string>
 
     <string name="remind_enter_captcha">请输入下方验证码</string>
     <string name="remind_yanzhengma">验证码</string>
