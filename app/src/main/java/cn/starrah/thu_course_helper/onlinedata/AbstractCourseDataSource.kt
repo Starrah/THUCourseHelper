@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.fragment.app.FragmentActivity
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
+import cn.starrah.thu_course_helper.data.utils.DataInvalidException
 
 abstract class AbstractCourseDataSource {
     abstract val schoolName: String
@@ -29,4 +30,6 @@ abstract class AbstractCourseDataSource {
      * @return cookie字符串，可发给后端用于鉴权
      */
     abstract suspend fun getCookie(username: String, password: String): String
+
+    class LoginStatusTimeoutException: DataInvalidException("登录状态已过期，请您重新输入密码登录！")
 }

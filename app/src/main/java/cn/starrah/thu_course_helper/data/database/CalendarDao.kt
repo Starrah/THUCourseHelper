@@ -279,4 +279,12 @@ abstract class CalendarDao {
 
     @Delete
     abstract fun deleteTimes(times: List<CalendarTimeData>)
+
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM CalendarItemData
+    """
+    )
+    abstract fun findAllItems(): List<CalendarItemDataWithTimes>
 }

@@ -9,9 +9,9 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.FragmentActivity
-import cn.starrah.thu_course_helper.data.SPRING2019TERMJSON
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.database.CREP
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
@@ -21,14 +21,19 @@ import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTermType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
-import cn.starrah.thu_course_helper.data.utils.*
+import cn.starrah.thu_course_helper.data.utils.COOKIEJAR
+import cn.starrah.thu_course_helper.data.utils.CookiedFuel
+import cn.starrah.thu_course_helper.data.utils.DataInvalidException
+import cn.starrah.thu_course_helper.data.utils.assertDataSystem
 import cn.starrah.thu_course_helper.fragment.CaptchaDialog
 import cn.starrah.thu_course_helper.onlinedata.AbstractCourseDataSource
-import com.alibaba.fastjson.JSON
 import com.github.kittinunf.fuel.coroutines.awaitByteArray
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.coroutines.awaitStringResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
 import java.time.DayOfWeek
 import java.time.LocalTime
@@ -39,7 +44,8 @@ import kotlin.math.roundToInt
 class THUCourseDataSouce : AbstractCourseDataSource() {
     private val CAPTCHA_PATTERN = Pattern.compile("<img id=\"captcha\" src=\"(.*?)\".*?>")
     private val XK_BASE_URL = "http://zhjwxk.cic.tsinghua.edu.cn"
-//    private val ACEGI_PATTERN =
+
+    //    private val ACEGI_PATTERN =
 //        Pattern.compile("src=\"(.*?/j_acegi_login\\.do\\?url=/jxmh\\.do&amp;m=bks_jxrl&amp;ticket=[a-zA-Z0-9]+)\"")
     override val schoolName: String = "清华大学"
 
@@ -75,18 +81,101 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
     }
 
     override suspend fun loadAllCourse(term: SchoolTerm): List<CalendarItemDataWithTimes> {
-        assertDataSystem(schoolName == term.schoolName, "学校名称错误！")
-        val termStrInXK = when (term.type) {
-            SchoolTermType.AUTUMN -> "${term.beginYear}-${term.beginYear + 1}-1"
-            SchoolTermType.SPRING -> "${term.beginYear}-${term.beginYear + 1}-2"
-            SchoolTermType.SUMMER -> "${term.beginYear}-${term.beginYear + 1}-3"
-            else                  -> return listOf() // 不可获取课表（如寒假）
-        }
-        val rawStr =
-            CookiedFuel.get("$XK_BASE_URL/syxk.vsyxkKcapb.do?m=ztkbSearch&p_xnxq=$termStrInXK&pathContent=整体课表")
-                .awaitString(Charset.forName("GBK"))
+        return withContext(Dispatchers.IO) {
+            assertDataSystem(schoolName == term.schoolName, "学校名称错误！")
+            val termStrInXK = when (term.type) {
+                SchoolTermType.AUTUMN -> "${term.beginYear}-${term.beginYear + 1}-1"
+                SchoolTermType.SPRING -> "${term.beginYear}-${term.beginYear + 1}-2"
+                SchoolTermType.SUMMER -> "${term.beginYear}-${term.beginYear + 1}-3"
+                else                  -> return@withContext listOf<CalendarItemDataWithTimes>() // 不可获取课表（如寒假）
+            }
+            val rawStr =
+                CookiedFuel.get("$XK_BASE_URL/syxk.vsyxkKcapb.do?m=ztkbSearch&p_xnxq=$termStrInXK&pathContent=整体课表")
+                    .awaitString(Charset.forName("GBK"))
 
-        return parseRawZTKB(rawStr, term)
+            if ("用户登陆超时或访问内容不存在。" in rawStr) throw LoginStatusTimeoutException()
+            if ("该学年学期的选课或退课不在选课进度表中" in rawStr) throw DataInvalidException("当前学期的课程无法从教务系统的数据库中获得。可能是所选学期是将来的学期，或过于久远的过去学期。")
+
+            parseRawZTKB(rawStr, term)
+        }
+    }
+
+
+
+    suspend fun mergeAllCourseFromSchoolSystem() = withContext(Dispatchers.IO) {
+        val oldDataDeferred = async { CREP.DAO.findAllItems() }
+        val newDataDeferred = async { loadAllCourse(CREP.term) }
+        val oldData = oldDataDeferred.await().filter { it.type == CalendarItemType.COURSE }
+        val newData = newDataDeferred.await()
+        val oldDataMap = oldData.associateBy { it.name }
+        val oldDataCourseIDMap =
+            oldData.associateBy { it.detail[CalendarItemLegalDetailKey.COURSEID] }
+        val newDataNames = newData.map { it.name }.toSet()
+        val newDataCourseIDs =
+            newData.mapNotNull { it.detail[CalendarItemLegalDetailKey.COURSEID] }.toSet()
+
+        val toDeleteOnes = oldData.filter {
+            it.detail[CalendarItemLegalDetailKey.FROM_WEB] == "y" &&
+                    it.name !in newDataNames &&
+                    it.detail[CalendarItemLegalDetailKey.COURSEID].let { it != null && it !in newDataCourseIDs }
+        }
+
+        val newDataMatchMap = newData.associate {
+            Pair(it, it.detail[CalendarItemLegalDetailKey.COURSEID]?.let { oldDataCourseIDMap[it] }
+                ?: oldDataMap[it.name])
+        }
+
+        val toAddOnes = newDataMatchMap.mapNotNull { if (it.value == null) it.key else null }
+        val toModifyOnes = newDataMatchMap.filter { it.value != null }
+
+        val realModifiedOnes = toModifyOnes.filter { (newItem, old) ->
+            applyWebModificationOntoOneItem(old!!, newItem)
+        }.map { it.value!! }
+
+        CREP.DAO.deleteItems(toDeleteOnes)
+        for (it in toAddOnes + realModifiedOnes) {
+            CREP.DAO.updateItemAndTimes(it, it.times)
+        }
+
+    }
+
+    /**
+     * @return 是否对old进行了修改（决定了要不要存回去）
+     */
+    private fun applyWebModificationOntoOneItem(
+        old: CalendarItemDataWithTimes,
+        newItem: CalendarItemDataWithTimes
+    ): Boolean {
+        var modifiedOld = false
+        val newTimeMatchMap = newItem.times.associate { n ->
+            Pair(n, old.times.find {
+                n.timeInCourseSchedule == it.timeInCourseSchedule && n.repeatWeeks == it.repeatWeeks &&
+                        n.type == it.type
+            })
+        }
+
+//        val toAddTimes =
+        newTimeMatchMap.filter { (n, o) ->
+            if (o != null && o.place.indexOf(n.place) == -1) {
+                //只修改地点
+                o.place = n.place
+                modifiedOld = true
+                false // 不增加新的
+            }
+            else true
+        }.map { it.key }
+
+        /* 考虑到实际情况，对时间段和合并策略如下：不处理任何新增或删除（因为很可能是老师的特殊处理
+        导致与选课系统不符）；
+        但是，仅对一种最常见的情况作出处理，即：能够建立新老时间段的映射关系，但是新的place字段不是
+        老的place字段的子字符串（在老place里indexOf找不到新place），
+        此时用新获取的place字段替代旧的，因为这对应着一种常见情况即由于扩容等原因，在学期初一门课程
+        更换上课教室的情况。 */
+        /* 下面两行代码是处理增加时间段的情况，暂不开启。 */
+//        if (toAddTimes.size != 0) modifiedOld = true
+//        old.times.plusAssign(toAddTimes)
+
+        return modifiedOld
     }
 
     private val PAT_C1_LINK =
@@ -232,7 +321,12 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
     }
 
     private fun getCreditCount(item: CalendarItemData): Int? {
-        return item.detail[CalendarItemLegalDetailKey.COURSEID]?.run { substring(length - 1, length) }
+        return item.detail[CalendarItemLegalDetailKey.COURSEID]?.run {
+            substring(
+                length - 1,
+                length
+            )
+        }
             ?.toInt()
     }
 
@@ -251,7 +345,8 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
         if (startMatched && endMatched) {
             time.timeInCourseSchedule = timeInHour.toTimeInCourseSchedule()
             time.timeInHour = null
-            time.type = if (time.type == CalendarTimeType.REPEAT_HOUR) CalendarTimeType.REPEAT_COURSE else CalendarTimeType.SINGLE_COURSE
+            time.type =
+                if (time.type == CalendarTimeType.REPEAT_HOUR) CalendarTimeType.REPEAT_COURSE else CalendarTimeType.SINGLE_COURSE
         }
         return time
     }
@@ -343,27 +438,28 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
                             })
                         }
                         val arrangeSmallResult = when (smallPerWeek) {
-                            3 -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
-                            4 -> listOf(2, 2)
-                            5 -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
-                            6 -> {
+                            3    -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
+                            4    -> listOf(2, 2)
+                            5    -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
+                            6    -> {
                                 if (ttsms[0] < 3) listOf(2, 4)
                                 else if (ttsms[1] < 3) listOf(4, 2)
                                 else listOf(3, 3)
                             }
-                            7 -> {
+                            7    -> {
                                 if (ttsms[0] >= 3 && ttsms[0] < ttsms[1]) listOf(3, 4)
-                                else if (ttsms[1] >= 3 && ttsms[0] > ttsms[1]) listOf(4,3)
+                                else if (ttsms[1] >= 3 && ttsms[0] > ttsms[1]) listOf(4, 3)
                                 else null
                             }
-                            8 -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
+                            8    -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
                             else -> null
                         }
 
                         if (arrangeSmallResult != null) {
                             normalDealed = true
                             for (i in 0..1) {
-                                toArrange[i].first.timeInCourseSchedule!!.lengthSmall = arrangeSmallResult[i].toFloat()
+                                toArrange[i].first.timeInCourseSchedule!!.lengthSmall =
+                                    arrangeSmallResult[i].toFloat()
                                 res.add(toArrange[i].first)
                             }
                         }
@@ -387,6 +483,7 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
             }
 
             item.times = res
+            item.detail[CalendarItemLegalDetailKey.FROM_WEB] = "y"
         }
 
         return itemList
@@ -527,16 +624,24 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
         return COOKIEJAR.cookieMap["info.tsinghua.edu.cn"]!!["UPORTALINFONEW"]!!.first
     }
 
+
+    @Suppress("UNUSED_PARAMETER")
     @SuppressLint("InflateParams", "SetJavaScriptEnabled")
-    suspend fun refreshHomework(activity: Activity, username: String, password: String, extra: Map<String, Any>? = null): String {
-        val webView = LayoutInflater.from(activity).inflate(R.layout.homework_webview,  null) as WebView
+    suspend fun refreshHomework(
+        activity: Activity,
+        username: String,
+        password: String,
+        extra: Map<String, Any>? = null
+    ): String {
+        val webView =
+            LayoutInflater.from(activity).inflate(R.layout.homework_webview, null) as WebView
         WebView.setWebContentsDebuggingEnabled(true)
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
         webView.settings.javaScriptEnabled = true
         webView.settings.allowUniversalAccessFromFileURLs = true
 
         var loadFirstSuccess = false
-        webView.webViewClient = object: WebViewClient() {
+        webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 if (!loadFirstSuccess) {

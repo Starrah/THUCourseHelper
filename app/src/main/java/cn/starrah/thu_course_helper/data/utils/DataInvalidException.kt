@@ -3,7 +3,7 @@ package cn.starrah.thu_course_helper.data.utils
 import java.lang.AssertionError
 import java.lang.RuntimeException
 
-class DataInvalidException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause)
+open class DataInvalidException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause)
 
 /**
  * 断言，如果失败抛出[DataInvalidException]并附带信息[message]

@@ -14,10 +14,18 @@ enum class CalendarItemLegalDetailKey(
     COMMENT("说明", CalendarItemType.values().asList()),
     COURSEID("课程号", listOf(CalendarItemType.COURSE)),
     TEACHER("教师", listOf(CalendarItemType.COURSE)),
-    ORGANIZATION("组织", listOf(
-        CalendarItemType.SOCIALWORK,
-        CalendarItemType.ASSOCIATION
-    )), ;
+    ORGANIZATION(
+        "组织", listOf(
+            CalendarItemType.SOCIALWORK,
+            CalendarItemType.ASSOCIATION
+        )
+    ),
+
+    /** 表示这个数据是不是从网络上获取的。对于网络获取数据与本地的合并策略有帮助。取值只有"y"一种，否则直接为null。
+     *
+     * **前端请不要显示这个字段的值！！** */
+    FROM_WEB("", CalendarItemType.values().asList()),
+    ;
 
     class TC {
         @TypeConverter
