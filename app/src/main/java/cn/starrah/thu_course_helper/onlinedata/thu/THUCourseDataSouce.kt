@@ -1,7 +1,15 @@
 package cn.starrah.thu_course_helper.onlinedata.thu
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.graphics.BitmapFactory
+import android.view.LayoutInflater
+import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.fragment.app.FragmentActivity
+import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.utils.COOKIEJAR
@@ -63,5 +71,41 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
 
     override suspend fun loadAllCourse(term: SchoolTerm): List<CalendarItemDataWithTimes> {
         TODO("Not yet implemented")
+    }
+
+
+
+    @SuppressLint("InflateParams", "SetJavaScriptEnabled")
+    suspend fun refreshHomework(activity: Activity, username: String, password: String, extra: Map<String, Any>? = null): String {
+        val webView = LayoutInflater.from(activity).inflate(R.layout.homework_webview,  null) as WebView
+        WebView.setWebContentsDebuggingEnabled(true)
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
+        webView.settings.javaScriptEnabled = true
+        webView.settings.allowUniversalAccessFromFileURLs = true
+
+        var loadFirstSuccess = false
+        webView.webViewClient = object: WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                if (!loadFirstSuccess) {
+                    loadFirstSuccess = true
+                    webView.evaluateJavascript("getHomework(\"$username\", \"$password\")", null)
+                }
+            }
+        }
+
+        val rawHomeworkData = suspendCancellableCoroutine<String> { continuation ->
+            val javaObj = object {
+                @JavascriptInterface
+                fun homeworkData(data: String) {
+                    continuation.resume(data)
+                }
+            }
+            webView.addJavascriptInterface(javaObj, "java")
+            webView.loadUrl("file:///android_asset/www/homework-index.html")
+        }
+
+        webView.destroy()
+        return rawHomeworkData
     }
 }
