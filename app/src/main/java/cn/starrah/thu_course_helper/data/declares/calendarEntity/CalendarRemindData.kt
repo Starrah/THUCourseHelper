@@ -21,8 +21,27 @@ data class CalendarRemindData(
 
     /** 闹钟铃声 */
     var alarmSound: String = ""
-): Verifiable {
+) : Verifiable {
     override fun assertValid() {}
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CalendarRemindData) return false
+
+        if (type != other.type) return false
+        if (aheadTime != other.aheadTime) return false
+        if (method != other.method) return false
+        if (alarmSound != other.alarmSound) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + aheadTime.hashCode()
+        result = 31 * result + method.hashCode()
+        result = 31 * result + alarmSound.hashCode()
+        return result
+    }
 
     class TC {
         @TypeConverter

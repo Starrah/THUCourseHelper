@@ -96,6 +96,26 @@ data class TimeInHour(
         )
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TimeInHour) return false
+
+        if (startTime != other.startTime) return false
+        if (endTime != other.endTime) return false
+        if (dayOfWeek != other.dayOfWeek) return false
+        if (date != other.date) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = startTime.hashCode()
+        result = 31 * result + endTime.hashCode()
+        result = 31 * result + (dayOfWeek?.hashCode() ?: 0)
+        result = 31 * result + (date?.hashCode() ?: 0)
+        return result
+    }
+
     class TC {
         @TypeConverter
         fun toDBDataType(value: TimeInHour?): String? {

@@ -144,12 +144,21 @@ open class CalendarTimeData(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other is CalendarTimeData) {
-            return id == other.id && name == other.name && type == other.type && timeInCourseSchedule == other.timeInCourseSchedule &&
-                    timeInHour == other.timeInHour && repeatWeeks == other.repeatWeeks && place == other.place &&
-                    comment == other.comment && remindData == other.remindData && item_id == other.item_id
-        }
-        return super.equals(other)
+        if (this === other) return true
+        if (other !is CalendarTimeData) return false
+
+        if (id != other.id) return false
+        if (name != other.name) return false
+        if (type != other.type) return false
+        if (timeInCourseSchedule != other.timeInCourseSchedule) return false
+        if (timeInHour != other.timeInHour) return false
+        if (repeatWeeks != other.repeatWeeks) return false
+        if (place != other.place) return false
+        if (comment != other.comment) return false
+        if (remindData != other.remindData) return false
+        if (item_id != other.item_id) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
@@ -165,5 +174,6 @@ open class CalendarTimeData(
         result = 31 * result + item_id
         return result
     }
+
 }
 

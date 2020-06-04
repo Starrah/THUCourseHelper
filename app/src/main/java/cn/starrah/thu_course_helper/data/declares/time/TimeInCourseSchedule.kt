@@ -129,6 +129,28 @@ data class TimeInCourseSchedule(
         return TimeInHour(startTime, endTime, dayOfWeek, date)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TimeInCourseSchedule) return false
+
+        if (dayOfWeek != other.dayOfWeek) return false
+        if (startBig != other.startBig) return false
+        if (startOffsetSmall != other.startOffsetSmall) return false
+        if (lengthSmall != other.lengthSmall) return false
+        if (date != other.date) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = dayOfWeek.hashCode()
+        result = 31 * result + startBig
+        result = 31 * result + startOffsetSmall.hashCode()
+        result = 31 * result + lengthSmall.hashCode()
+        result = 31 * result + (date?.hashCode() ?: 0)
+        return result
+    }
+
     class TC {
         @TypeConverter
         fun toDBDataType(value: TimeInCourseSchedule?): String? {
@@ -140,4 +162,5 @@ data class TimeInCourseSchedule(
             return value?.let { JSON.parseObject(it, TimeInCourseSchedule::class.java) }
         }
     }
+
 }

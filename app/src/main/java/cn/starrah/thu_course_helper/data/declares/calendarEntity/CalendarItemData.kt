@@ -73,10 +73,15 @@ open class CalendarItemData(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other is CalendarItemData) {
-            return id == other.id && name == other.name && type == other.type && detail == other.detail
-        }
-        return super.equals(other)
+        if (this === other) return true
+        if (other !is CalendarItemData) return false
+
+        if (id != other.id) return false
+        if (name != other.name) return false
+        if (type != other.type) return false
+        if (detail != other.detail) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
@@ -86,5 +91,6 @@ open class CalendarItemData(
         result = 31 * result + detail.hashCode()
         return result
     }
+
 }
 
