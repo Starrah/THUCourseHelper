@@ -2,13 +2,16 @@ package cn.starrah.thu_course_helper.onlinedata.thu
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.content.edit
 import androidx.fragment.app.FragmentActivity
+import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
@@ -41,7 +44,7 @@ import java.util.regex.Pattern
 import kotlin.coroutines.resume
 import kotlin.math.roundToInt
 
-class THUCourseDataSouce : AbstractCourseDataSource() {
+object THUCourseDataSouce : AbstractCourseDataSource() {
     private val CAPTCHA_PATTERN = Pattern.compile("<img id=\"captcha\" src=\"(.*?)\".*?>")
     private val XK_BASE_URL = "http://zhjwxk.cic.tsinghua.edu.cn"
 
@@ -77,7 +80,9 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
         ).awaitStringResponse(Charset.forName("GBK"))
         if ("login_error" in loginResp.url.toString()) {
             if ("code_error" in loginResp.url.toString()) throw DataInvalidException("验证码错误！")
+            else throw DataInvalidException("登录错误，可能是用户名或密码不正确！")
         }
+        isSessionValid = true
     }
 
     override suspend fun loadAllCourse(term: SchoolTerm): List<CalendarItemDataWithTimes> {
@@ -93,7 +98,10 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
                 CookiedFuel.get("$XK_BASE_URL/syxk.vsyxkKcapb.do?m=ztkbSearch&p_xnxq=$termStrInXK&pathContent=整体课表")
                     .awaitString(Charset.forName("GBK"))
 
-            if ("用户登陆超时或访问内容不存在。" in rawStr) throw LoginStatusTimeoutException()
+            if ("用户登陆超时或访问内容不存在。" in rawStr){
+                isSessionValid = false
+                throw LoginStatusTimeoutException()
+            }
             if ("该学年学期的选课或退课不在选课进度表中" in rawStr) throw DataInvalidException("当前学期的课程无法从教务系统的数据库中获得。可能是所选学期是将来的学期，或过于久远的过去学期。")
 
             parseRawZTKB(rawStr, term)
@@ -101,12 +109,23 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
     }
 
 
-
-    suspend fun mergeAllCourseFromSchoolSystem() = withContext(Dispatchers.IO) {
+    /**
+     * 从选课系统拉取本人课程数据，并按照既定的合并策略，同步到本地数据中
+     * @param [context] 请尽量给一个[Context]（[Activity]等都可以），以便发生Cookie过期时，
+     * 设置页能更好的提示用户。请尽量传此参数，但是传null也不是不可以。
+     */
+    suspend fun mergeAllCourseFromSchoolSystem(context: Context?) = withContext(Dispatchers.IO) {
         val oldDataDeferred = async { CREP.DAO.findAllItems() }
         val newDataDeferred = async { loadAllCourse(CREP.term) }
         val oldData = oldDataDeferred.await().filter { it.type == CalendarItemType.COURSE }
-        val newData = newDataDeferred.await()
+        val newData = try {
+            newDataDeferred.await()
+        }
+        catch (e: LoginStatusTimeoutException) {
+            PreferenceManager.getDefaultSharedPreferences(context)
+                .edit { putInt("login_status", 3) }
+            throw e
+        }
         val oldDataMap = oldData.associateBy { it.name }
         val oldDataCourseIDMap =
             oldData.associateBy { it.detail[CalendarItemLegalDetailKey.COURSEID] }
@@ -248,7 +267,7 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
                             }
                         }
                         time = CalendarTimeData(
-                            item_id = item.id, name = "上课",
+                            item_id = item.id,
                             timeInCourseSchedule = TimeInCourseSchedule()
                         )
                         curStatus = 2
@@ -560,7 +579,6 @@ class THUCourseDataSouce : AbstractCourseDataSource() {
                 startOffsetSmall = 0f,
                 lengthSmall = term.timeRule.getBigByNumber(big).smallsCount.toFloat()
             )
-            time.name = "上课"
             time.repeatWeeks = (1..16).toMutableList()
             time.type = CalendarTimeType.REPEAT_COURSE
         }

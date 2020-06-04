@@ -24,6 +24,12 @@ abstract class AbstractCourseDataSource {
     abstract suspend fun loadAllCourse(term: SchoolTerm): List<CalendarItemDataWithTimes>
 
     /**
+     * 登录态是否还有效
+     */
+    var isSessionValid = false
+        protected set
+
+    /**
      * 获取cookie
      * @param [username] 用户名
      * @param [password] 密码

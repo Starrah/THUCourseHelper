@@ -52,12 +52,19 @@
     <string name="settings_time_show_days">日程表每周显示日数</string>
     <string name="settings_stay_notice">常驻通知栏</string>
 
+    <string name="settings_sync_XK">立即同步选课系统课程信息</string>
+    <string name="errmsg_login_session_expired">重新输入密码后可用</string>
+    <string name="errmsg_not_login">登录后可用</string>
+
     <string name="table_show_day_number_5d">5天</string>
     <string name="table_show_day_number_7d">7天</string>
 
-    <string name="errmsg_open_sync_learnx">登录并保存密码后可用</string>
+    <string name="errmsg_not_save_password">登录并保存密码后可用</string>
 
     <string name="remind_enter_captcha">请输入下方验证码</string>
     <string name="remind_yanzhengma">验证码</string>
+
+    <string name="login_success">登录成功！</string>
+    <string name="sync_XK_success">同步选课系统课程数据成功！</string>
 
 </resources>

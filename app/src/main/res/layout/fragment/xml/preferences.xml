@@ -13,6 +13,10 @@
 之后可以用这个方法实现显示姓名、头像等等。
 -->
 
+    <Preference
+        app:key="sync_XK_btn"
+        app:summary=""
+        app:title="@string/settings_sync_XK" />
 
     <SwitchPreferenceCompat
         app:key="sync_learnx_homeworks"

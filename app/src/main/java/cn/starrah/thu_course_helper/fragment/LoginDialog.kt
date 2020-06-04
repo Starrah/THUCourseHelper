@@ -2,13 +2,16 @@ package cn.starrah.thu_course_helper.fragment
 
 import android.app.Dialog
 import android.content.Context
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.content.edit
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
 import kotlinx.coroutines.launch
@@ -22,6 +25,13 @@ class LoginDialog(context: Context) : Dialog(context) {
 
     private fun buildDialog() {
         val layout = LayoutInflater.from(theContext!!).inflate(R.layout.login, null)
+        PreferenceManager.getDefaultSharedPreferences(theContext).let {
+            if (it.getInt("login_status", 0) > 0) {
+                it.getString("login_name", null)?.let {
+                    layout.findViewById<EditText>(R.id.login_id).setText(it)
+                }
+            }
+        }
         layout.findViewById<Button>(R.id.login_ok).setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View?) {
                 (theContext as FragmentActivity).lifecycleScope.launch {
@@ -37,12 +47,16 @@ class LoginDialog(context: Context) : Dialog(context) {
                         Toast.makeText(theContext!!, "密码不能为空！", Toast.LENGTH_SHORT).show()
                     } else {
                         try {
-                            var show: String = "账号：" + login_id + "\n" + "密码：" + login_pass
-                            Toast.makeText(theContext!!, show, Toast.LENGTH_SHORT).show()
-                            THUCourseDataSouce().login(
+                            THUCourseDataSouce.login(
                                 theContext as FragmentActivity, login_id,
                                 login_pass
                             )
+                            PreferenceManager.getDefaultSharedPreferences(theContext).edit {
+                                putInt("login_status", 1)
+                                putString("login_name", login_id)
+                                putInt("login_force_update", (System.currentTimeMillis() / 1000).toInt())
+                            }
+                            Toast.makeText(theContext, R.string.login_success, Toast.LENGTH_SHORT).show()
                             dismiss()
                         } catch (e: Exception) {
                             e.printStackTrace()

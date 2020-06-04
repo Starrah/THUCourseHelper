@@ -40,7 +40,7 @@ class LoadingActivity : AppCompatActivity() {
         lifecycleScope.launch{
             val term = JSON.parseObject(SPRING2019TERMJSON, SchoolTerm::class.java)
             CREP.initializeTerm(this@LoadingActivity, term)
-            loadTestData()
+//            loadTestData()
 //            delay(8000);
 
 
