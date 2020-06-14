@@ -70,13 +70,88 @@
         <item name="android:textSize">20dp</item>
     </style>
 
-    <style name="input_show">
+
+    <!--以下用于课程/日程/考试/作业信息的显示-->
+    <!--大标题名称显示的layout格式-->
+    <style name="layout_title_item_show">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">140px</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <!--大标题名称显示的文本框格式-->
+    <style name="title_item_show">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginLeft">10dp</item>
-        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:textSize">25dp</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:gravity">center|left</item>
+    </style>
+
+    <!--上方具体信息的layout格式-->
+    <style name="layout_item_show">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">65px</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <!--上方textview的格式-->
+    <style name="input_item_show">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:textColor">@color/colorGreyText</item>
+        <item name="android:gravity">center|left</item>
+    </style>
+
+    <!--名称显示的layout格式-->
+    <style name="layout_title_time_show">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">110px</item>
+        <item name="android:layout_marginHorizontal">10dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <!--名称显示的文本框格式-->
+    <style name="title_time_show">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:textSize">20dp</item>
         <item name="android:textColor">@color/colorBlack</item>
         <item name="android:gravity">center|left</item>
     </style>
+
+
+    <!--具体信息的layout格式-->
+    <style name="layout_time_show">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">80px</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginHorizontal">10dp</item>
+    </style>
+
+
+    <!--左边图标的格式-->
+    <style name="icon_time_show" parent="@style/Widget.AppCompat.TextView">
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <!--<item name="android:textAlignment">center</item>-->
+        <item name="android:gravity">center|left</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:textSize">15dp</item>
+    </style>
+
+    <!--右边textview的格式-->
+    <style name="input_time_show">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:gravity">center|left</item>
+    </style>
+
+
+
 </resources>

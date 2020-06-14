@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -35,34 +36,36 @@ class ItemShowActivity : AppCompatActivity(){
     private var showItem: CalendarItemDataWithTimes? = null;
     private var showID:Int = -1;
 
+    protected var showTeacher: String = ""
+    protected var showCourseID: String = ""
+    protected var showAssociation: String = ""
+    protected var showComment: String = ""
 
     companion object {
         public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"
         public val EDIT_CODE = 1024
-    }
 
-    /**
-     * 描述：初始化
-     * @param savedInstanceState 存储的data，其实只有待显示活动的ID
-     */
-    protected override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.calendar_item_show)
-        //ButterKnife.bind(this)
-
-        val intent = intent
-        val message = intent.getIntExtra(TableFragment.EXTRA_MESSAGE, -1)
-        if(message < 0) {
-            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
-            finish()
+        /**
+         *描述：隐藏控件
+         *参数：自己
+         *返回：无
+         */
+        fun HideItem(item:LinearLayout) {
+            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0);
+            item.layoutParams = params
         }
-        showID = message
-        lifecycleScope.launch {
-            getData()
-            showData()
+
+        /**
+         *描述：显示控件
+         *参数：自己
+         *返回：无
+         */
+        fun ShowItem(item:LinearLayout) {
+            //和style一致
+            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 65);
+            item.layoutParams = params
         }
     }
-
 
 
     /**
@@ -87,6 +90,34 @@ class ItemShowActivity : AppCompatActivity(){
     }
 
     /**
+     * 描述：初始化
+     * @param savedInstanceState 存储的data，其实只有待显示活动的ID
+     */
+    protected override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.calendar_item_show)
+        //ButterKnife.bind(this)
+
+        showTeacher = resources.getString(R.string.item_teacher).toString();
+        showCourseID = resources.getString(R.string.item_course_id).toString();
+        showAssociation = resources.getString(R.string.item_association).toString();
+        showComment = resources.getString(R.string.item_comment).toString();
+
+
+        val intent = intent
+        val message = intent.getIntExtra(TableFragment.EXTRA_MESSAGE, -1)
+        if(message < 0) {
+            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
+            finish()
+        }
+        showID = message
+        lifecycleScope.launch {
+            getData()
+            showData()
+        }
+    }
+
+    /**
      * 描述：根据读取的数据showItem修改显示界面
      * 参数：无
      * 返回：无
@@ -103,20 +134,18 @@ class ItemShowActivity : AppCompatActivity(){
 
         //类别
         var item_type:CalendarItemType = showItem!!.type
-        var item_type_show:String = item_type.chineseName
-        var show_type:TextView = findViewById(R.id.item_show_type)
-        show_type.setText(item_type_show)
 
         //教师，课程号，detail
         var item_teacher:String? = showItem!!.detail[CalendarItemLegalDetailKey.TEACHER]
         var show_teacher_place:LinearLayout = findViewById(R.id.item_show_teacher_place)
         var show_teacher: TextView = findViewById(R.id.item_show_teacher)
         if(item_teacher == null) {
-            ItemEditActivity.HideItem(show_teacher_place)
+            HideItem(show_teacher_place)
         }
         else {
-            ItemEditActivity.ShowItem(show_teacher_place)
-            show_teacher.setText(item_teacher)
+            var show_item_teacher = showTeacher + ": " + item_teacher;
+            ShowItem(show_teacher_place)
+            show_teacher.setText(show_item_teacher)
         }
 
 
@@ -125,11 +154,12 @@ class ItemShowActivity : AppCompatActivity(){
         var show_course_id_place: LinearLayout = findViewById(R.id.item_show_course_id_place)
 
         if(item_course_id == null) {
-            ItemEditActivity.HideItem(show_course_id_place)
+            HideItem(show_course_id_place)
         }
         else {
-            ItemEditActivity.ShowItem(show_course_id_place)
-            show_course_id.setText(item_course_id)
+            var show_item_course_id = showCourseID + ": " + item_course_id;
+            ShowItem(show_course_id_place)
+            show_course_id.setText(show_item_course_id)
         }
 
         var item_association: String? =
@@ -138,11 +168,12 @@ class ItemShowActivity : AppCompatActivity(){
         var show_association_place: LinearLayout = findViewById(R.id.item_show_association_place)
 
         if (item_association == null) {
-            ItemEditActivity.HideItem(show_association_place)
+            HideItem(show_association_place)
         }
         else {
-            ItemEditActivity.ShowItem(show_association_place)
-            show_association.setText(item_association)
+            var show_item_association = showAssociation + ": " + item_association;
+            ShowItem(show_association_place)
+            show_association.setText(show_item_association)
         }
 
         //详情
@@ -151,7 +182,8 @@ class ItemShowActivity : AppCompatActivity(){
         if(item_comment == null) {
             item_comment = ""
         }
-        show_comment.setText(item_comment)
+        var show_item_comment = showComment + ": " + item_comment;
+        show_comment.setText(show_item_comment)
 
         //具体下面
         var parent_place = findViewById<LinearLayout>(R.id.new_time_place_show)
