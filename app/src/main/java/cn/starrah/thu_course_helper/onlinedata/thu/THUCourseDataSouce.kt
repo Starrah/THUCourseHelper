@@ -24,10 +24,7 @@ import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTermType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
-import cn.starrah.thu_course_helper.data.utils.COOKIEJAR
-import cn.starrah.thu_course_helper.data.utils.CookiedFuel
-import cn.starrah.thu_course_helper.data.utils.DataInvalidException
-import cn.starrah.thu_course_helper.data.utils.assertDataSystem
+import cn.starrah.thu_course_helper.data.utils.*
 import cn.starrah.thu_course_helper.fragment.CaptchaDialog
 import cn.starrah.thu_course_helper.onlinedata.AbstractCourseDataSource
 import com.github.kittinunf.fuel.coroutines.awaitByteArray
@@ -37,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import java.net.URI
 import java.nio.charset.Charset
 import java.time.DayOfWeek
 import java.time.LocalTime
@@ -60,7 +58,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
     ) {
         val resStr = CookiedFuel.get("$XK_BASE_URL/xklogin.do")
             .awaitString(Charset.forName("GBK"))
-        println(COOKIEJAR.cookieMap)
+        println(DEFAULT_COOKIEJAR.cookieMap)
         val captchaUrl = XK_BASE_URL + CAPTCHA_PATTERN.matcher(resStr).run { find(); group(1) }
         val captchaParam = captchaUrl.split("=")[1]
         val jpgBytes = CookiedFuel.get(captchaUrl).awaitByteArray()
@@ -637,9 +635,53 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 "y" to "4"
             )
         ).awaitStringResponse(Charset.forName("GBK"))
-        if (resp.url.toString().run { substring(length - 1..length) } != "1")
+        if (resp.url.toString().run { substring(length - 1) } != "1")
             throw DataInvalidException("登录失败，可能是用户名或密码错误")
-        return COOKIEJAR.cookieMap["info.tsinghua.edu.cn"]!!["UPORTALINFONEW"]!!.first
+        return DEFAULT_COOKIEJAR.cookieMap["info.tsinghua.edu.cn"]!!["UPORTALINFONEW"]!!.first
+    }
+
+    suspend fun getVPNCookiejar(
+        username: String,
+        password: String
+    ): CookieJar {
+        val GBKCharset = Charset.forName("GBK")
+        val J_ACEGI_PATTERN =
+            Pattern.compile("(?:src|href)=\"(.*?/j_acegi_login\\.do\\?url=/jxmh\\.do&amp;m=bks_jxrl&amp;ticket=[a-zA-Z0-9]+)\"")
+        val WEBVPN_SITE = "https://webvpn.tsinghua.edu.cn"
+        val INFO_VPN_PREFIX = "$WEBVPN_SITE/http/77726476706e69737468656265737421f9f9479369247b59700f81b9991b2631506205de"
+
+        val respStr = CookiedFuel.post(
+            "${WEBVPN_SITE}/do-login?local_login=true", listOf(
+                "auth_type" to "local",
+                "username" to username,
+                "password" to password,
+                "sms_code" to ""
+            )
+        ).awaitString(GBKCharset)
+        if ("验证码" in respStr) throw Exception("Web VPN要求验证码，请过一段时间再尝试。")
+        if ("密码错误" in respStr) throw Exception("登录失败，可能是用户名或密码错误")
+
+        val (_, resp, _) = CookiedFuel.post(
+            "${INFO_VPN_PREFIX}/Login", listOf(
+                "redirect" to "NO",
+                "userName" to username,
+                "password" to password,
+                "x" to "34",
+                "y" to "4"
+            )
+        ).awaitStringResponse(GBKCharset)
+        if (resp.url.toString().run { substring(length - 1) } != "1")
+            throw Exception("登录失败，可能是用户名或密码错误")
+
+        val rootNodeString = CookiedFuel.get(
+            "${INFO_VPN_PREFIX}/render.userLayoutRootNode.uP"
+        ).awaitString(GBKCharset)
+        val matcher = J_ACEGI_PATTERN.matcher(rootNodeString)
+        println(rootNodeString)
+        if (!matcher.find()) throw throw Exception("登录失败，可能是用户名或密码错误")
+
+        val webvpnHost = URI(WEBVPN_SITE).host
+        return CookieJar().apply { DEFAULT_COOKIEJAR.cookieMap[webvpnHost]?.let { cookieMap[webvpnHost] = it } }
     }
 
 

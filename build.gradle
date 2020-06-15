@@ -3,10 +3,10 @@
 buildscript {
     ext.kotlin_version = '1.3.71'
     repositories {
-        google()
+        maven{url 'https://maven.aliyun.com/repository/google/'}
         maven{url 'http://maven.aliyun.com/nexus/content/groups/public/'}
-        jcenter()
-        
+        google()
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.3'
@@ -20,9 +20,8 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
+        maven{url 'https://maven.aliyun.com/repository/google/'}
         maven{url 'http://maven.aliyun.com/nexus/content/groups/public/'}
-        jcenter()
         
     }
 }
@@ -34,5 +33,6 @@ task clean(type: Delete) {
 allprojects {
     repositories {
         maven { url "https://jitpack.io" }
+        google()
     }
 }
