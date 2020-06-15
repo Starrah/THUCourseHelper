@@ -45,74 +45,7 @@
                 android:onClick="handleSave"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/border"
-            android:layout_margin="30dp">
 
-            <!--名称-->
-            <LinearLayout style="@style/layout">
-                <TextView style="@style/define"
-                    android:drawableLeft="@drawable/icon_item"
-                    android:text ="@string/item_name"/>
-                <EditText style="@style/input"
-                    android:id="@+id/item_edit_name"/>
-            </LinearLayout>
-
-
-            <!--类别-->
-            <LinearLayout style="@style/layout">
-                <TextView style="@style/define"
-                    android:drawableLeft="@drawable/icon_type"
-                    android:text ="@string/item_type"/>
-                <TextView style="@style/input"
-                    android:id="@+id/item_edit_type" />
-            </LinearLayout>
-
-            <!--教师-->
-            <LinearLayout style="@style/layout"
-                android:id="@+id/item_edit_teacher_place">
-                <TextView style="@style/define"
-                    android:drawableLeft="@drawable/icon_item"
-                    android:text ="@string/item_teacher"/>
-                <EditText style="@style/input"
-                    android:id="@+id/item_edit_teacher"/>
-            </LinearLayout>
-
-            <!--课程号-->
-            <LinearLayout style="@style/layout"
-                android:id="@+id/item_edit_course_id_place">
-                <TextView style="@style/define"
-                    android:drawableLeft="@drawable/icon_item"
-                    android:text ="@string/item_course_id"/>
-                <EditText style="@style/input"
-                    android:id="@+id/item_edit_course_id"/>
-            </LinearLayout>
-
-            <!--组织-->
-            <LinearLayout style="@style/layout"
-                android:id="@+id/item_edit_association_place">
-                <TextView style="@style/define"
-                    android:drawableLeft="@drawable/icon_item"
-                    android:text ="@string/item_association"/>
-                <EditText style="@style/input"
-                    android:id="@+id/item_edit_association"/>
-            </LinearLayout>
-
-            <!--描述-->
-            <LinearLayout
-                android:layout_height="wrap_content"
-                style="@style/layout">
-                <TextView
-                    style="@style/define"
-                    android:drawableLeft="@drawable/icon_item"
-                    android:text ="@string/item_comment"/>
-                <EditText style="@style/input"
-                    android:id="@+id/item_edit_comment"/>
-            </LinearLayout>
-        </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
