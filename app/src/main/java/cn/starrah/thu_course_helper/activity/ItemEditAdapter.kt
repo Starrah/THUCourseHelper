@@ -42,14 +42,16 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
     RecyclerView.Adapter<ItemEditAdapter.ItemEditHolder>() {
     private var mCurrentItem: CalendarItemDataWithTimes = currentItem
     private var theActivity = activity
+    public var colorGrey: Int = activity.resources.getColor(R.color.colorGreyBG)
+    public var colorWhite: Int = activity.resources.getColor(R.color.colorWhite)
 
 
-
-    public class ItemEditHolder(
+        public class ItemEditHolder(
         view: View,
         adapter: cn.starrah.thu_course_helper.activity.ItemEditAdapter
     ) :
         RecyclerView.ViewHolder(view), View.OnClickListener {
+        public var theView: View = view
 
         public var itemName: EditText = view.findViewById<EditText>(R.id.item_edit_name)
         public var itemType: TextView = view.findViewById<TextView>(R.id.item_edit_type)
@@ -91,6 +93,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         public var timeEndHourPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_end_hour_place)
         public var timePointPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_point_place)
         public var timeCommentPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_comment_place)
+        public var timeDeleteButtonPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.delete_time_place)
 
         var mAdapter: cn.starrah.thu_course_helper.activity.ItemEditAdapter = adapter
 
@@ -1025,8 +1028,8 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         ItemEditActivity.HideItem(holder.timeStartHourPlace)
         ItemEditActivity.HideItem(holder.timeEndHourPlace)
         ItemEditActivity.HideItem(holder.timePointPlace)
-        holder.timeDeleteButton.visibility = View.INVISIBLE
-
+        ItemEditActivity.HideItem(holder.timeDeleteButtonPlace)
+        holder.theView.setBackgroundColor(colorWhite)
 
         //名称
         var item_name:String = mCurrentItem.name
@@ -1125,7 +1128,9 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         ItemEditActivity.ShowItem(holder.timeStartHourPlace)
         ItemEditActivity.ShowItem(holder.timeEndHourPlace)
         ItemEditActivity.ShowItem(holder.timePointPlace)
-        holder.timeDeleteButton.visibility = View.VISIBLE
+        ItemEditActivity.ShowItem(holder.timeDeleteButtonPlace)
+        holder.theView.setBackgroundColor(colorGrey)
+
 
         val time: CalendarTimeData = mCurrentItem.times[position]
         //名称

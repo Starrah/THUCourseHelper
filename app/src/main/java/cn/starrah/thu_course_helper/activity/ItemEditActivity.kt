@@ -202,7 +202,7 @@ class ItemEditActivity : AppCompatActivity(){
          */
         fun ShowItem(item:LinearLayout) {
             //和style一致
-            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 140);
+            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 100);
             item.layoutParams = params
         }
     }

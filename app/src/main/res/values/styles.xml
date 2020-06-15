@@ -22,7 +22,7 @@
         <!--<item name="android:textAlignment">center</item>-->
         <item name="android:gravity">center|left</item>
         <item name="android:textColor">@color/colorBlack</item>
-        <item name="android:textSize">20dp</item>
+        <item name="android:textSize">15dp</item>
     </style>
 
     <style name="input">
@@ -30,7 +30,7 @@
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_marginLeft">20dp</item>
         <item name="android:layout_marginRight">20dp</item>
-        <item name="android:textSize">20dp</item>
+        <item name="android:textSize">15dp</item>
         <item name="android:textColor">@color/colorBlack</item>
         <item name="android:gravity">center|left</item>
     </style>
@@ -40,19 +40,18 @@
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_marginLeft">20dp</item>
         <item name="android:layout_marginRight">20dp</item>
-        <item name="android:textSize">20dp</item>
+        <item name="android:textSize">15dp</item>
         <!--<item name="android:textColor">@color/colorBlack</item>-->
         <item name="android:gravity">center|left</item>
     </style>
 
     <style name="layout">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">140px</item>
+        <item name="android:layout_height">100px</item>
         <item name="android:orientation">horizontal</item>
     </style>
 
     <style name="table_text" parent="@style/Widget.AppCompat.TextView">
-        <!--<item name="android:layout_weight">1</item>-->
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_weight">1</item>
