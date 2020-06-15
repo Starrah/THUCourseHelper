@@ -43,8 +43,35 @@
             android:id="@+id/time_show_place"/>
     </LinearLayout>
 
-    <!--描述-->
+
+    <!--提醒信息-->
     <LinearLayout style="@style/layout_time_show">
+        <TextView
+            style="@style/icon_time_show"
+            android:drawableLeft="@drawable/icon_remind"
+            android:text =""/>
+        <TextView
+            style="@style/input_time_show"
+            android:id="@+id/time_show_remind"/>
+    </LinearLayout>
+
+    <!--下次提醒时间-->
+    <LinearLayout style="@style/layout_time_show"
+        android:id="@+id/time_show_remind_next_place">
+        <TextView
+            style="@style/icon_time_show"
+            android:drawableLeft="@drawable/icon_info"
+            android:text =""/>
+        <TextView
+            style="@style/input_time_show"
+            android:id="@+id/time_show_remind_next"
+            android:text ="下次提醒时间"/>
+    </LinearLayout>
+
+    <!--描述-->
+    <LinearLayout
+        android:layout_height="wrap_content"
+        style="@style/layout_time_show">
         <TextView
             style="@style/icon_time_show"
             android:drawableLeft="@drawable/icon_item"
@@ -52,4 +79,5 @@
         <TextView style="@style/input_time_show"
             android:id="@+id/time_show_comment"/>
     </LinearLayout>
+
 </LinearLayout>

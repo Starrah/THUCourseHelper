@@ -78,18 +78,6 @@
             android:id="@+id/item_edit_association"/>
     </LinearLayout>
 
-    <!--描述-->
-    <LinearLayout
-        style="@style/layout"
-        android:id="@+id/item_edit_comment_place">
-        <TextView
-            style="@style/define"
-            android:drawableLeft="@drawable/icon_item"
-            android:text ="@string/item_comment"/>
-        <EditText style="@style/input"
-            android:id="@+id/item_edit_comment"/>
-    </LinearLayout>
-
     <!--名称-->
     <LinearLayout style="@style/layout"
         android:id="@+id/time_edit_name_place">
@@ -201,8 +189,41 @@
             android:id="@+id/time_edit_point"/>
     </LinearLayout>
 
+
+
+    <!--提醒重复-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_remind_repeat_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_date"
+            android:text ="@string/time_remind_repeat"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_remind_repeat"/>
+    </LinearLayout>
+
+    <!--提醒提前时间-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_remind_time_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_day"
+            android:text ="@string/time_remind_time"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_remind_time"/>
+    </LinearLayout>
+
+    <!--提醒方式-->
+    <LinearLayout style="@style/layout"
+        android:id="@+id/time_edit_remind_type_place">
+        <TextView style="@style/define"
+            android:drawableLeft="@drawable/icon_date"
+            android:text ="@string/time_remind_type"/>
+        <TextView style="@style/input"
+            android:id="@+id/time_edit_remind_type"/>
+    </LinearLayout>
+
     <!--描述-->
     <LinearLayout
+        android:layout_height="wrap_content"
         style="@style/layout"
         android:id="@+id/time_edit_comment_place">
         <TextView
@@ -212,4 +233,5 @@
         <EditText style="@style/input"
             android:id="@+id/time_edit_comment" />
     </LinearLayout>
+
 </LinearLayout>

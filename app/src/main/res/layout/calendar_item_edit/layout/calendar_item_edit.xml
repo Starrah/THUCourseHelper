@@ -35,7 +35,7 @@
                 android:textColor="@color/colorBlack"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:textSize="30dp" />
+                android:textSize="20dp" />
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

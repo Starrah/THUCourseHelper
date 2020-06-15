@@ -22,6 +22,7 @@ import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDat
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
@@ -299,6 +300,31 @@ class ItemShowActivity : AppCompatActivity(){
         var show_comment:TextView = layout.findViewById(R.id.time_show_comment)
         show_comment.setText(time_comment)
 
+        //提醒
+        var time_remind:String = ""
+        var time_remind_type_string:String = "使用" + time.remindData.method.chineseName
+        var time_remind_time_string:String = "提前" + time.remindData.aheadTime.toMinutes() + "分钟提醒"
+        if(time.remindData.type == CalendarRemindType.NONE) {
+            time_remind = "未设置提醒"
+        }
+        else{
+            var time_remind_repeat_string:String = time.remindData.type.chineseName
+            time_remind = time_remind_time_string + "， "+ time_remind_type_string + "， " +  time_remind_repeat_string
+        }
+        var show_remind:TextView = layout.findViewById(R.id.time_show_remind)
+        show_remind.setText(time_remind)
+
+        //下次提醒时间
+        var show_next_remind_place = layout.findViewById<LinearLayout>(R.id.time_show_remind_next_place)
+        if(time.remindData.type == CalendarRemindType.NONE) {
+            HideItem(show_next_remind_place)
+        }
+        else {
+            //ShowItem(show_next_remind_place)
+            var show_next_remind:TextView = layout.findViewById(R.id.time_show_remind_next)
+            //TODO 下次提醒时间
+        }
+
         //添加
         parent_place.addView(layout)
     }
@@ -387,15 +413,6 @@ class ItemShowActivity : AppCompatActivity(){
         }
     }
 
-    /**
-     * 描述：处理提醒按钮的事件--跳转到提醒界面
-     * 参数：无
-     * 返回：无
-     * TODO
-     */
-    fun handleRemind(view: View) {
-
-    }
 
     /**
      * 描述：处理删除按钮的事件--删除当前内容，跳转回去

@@ -58,15 +58,6 @@
                 android:layout_gravity="right"
                 android:id="@+id/item_show_delete"
                 android:onClick="handleDelete"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="5dp"
-                android:background="@drawable/icon_remind"
-                android:layout_gravity="right"
-                android:id="@+id/item_show_remind"
-                android:onClick="handleRemind"
-                />
         </LinearLayout>
     </LinearLayout>
 
@@ -106,14 +97,16 @@
                 android:id="@+id/item_show_association"/>
         </LinearLayout>
 
-
         <!--描述-->
-        <LinearLayout style="@style/layout_item_show">
+        <LinearLayout
+            android:layout_height="wrap_content"
+            style="@style/layout_item_show">
             <TextView
                 style="@style/input_item_show"
                 android:id="@+id/item_show_comment"
-                android:text="ceddin deden!neslin baban!"/>
+                android:text="ceddin deden!neslin baban!kebabkebabbaiehhciejcliej"/>
         </LinearLayout>
+
     </LinearLayout>
 
 
