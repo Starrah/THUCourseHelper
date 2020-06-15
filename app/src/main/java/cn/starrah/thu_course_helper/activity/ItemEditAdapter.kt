@@ -183,6 +183,8 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             initRemindRepeatSinglePicker()
             initRemindTimePicker()
             initRemindTypePicker()
+
+
             timeDeleteButton.setOnClickListener(this)
 
 
@@ -596,14 +598,14 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 })
                 .setTitleText("时间选择（大节）")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -664,14 +666,14 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 })
                 .setTitleText("星期几选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -695,17 +697,16 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                         mAdapter.notifyDataSetChanged()
                     }
                 })
-                .setTitleText("星期几选择")
+                .setTitleText("小节个数选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
-                .setLabels("小节", "", "")
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -732,14 +733,14 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 })
                 .setTitleText("时间类别选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -763,16 +764,16 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                         mAdapter.notifyDataSetChanged()
                     }
                 })
-                .setTitleText("时间类别选择")
+                .setTitleText("日程类别选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -881,7 +882,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                     }
                 }
             })
-                .setTitleText("提醒提前时间选择")
+                .setTitleText("提醒时间选择")
                 .setType(booleanArrayOf(false, false, false, false, true, false))
                 .setLabel("年", "月", "日", "时", "分钟", "秒")
                 .isDialog(true) //默认设置false ，内部实现将DecorView 作为它的父控件。
@@ -938,14 +939,14 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 })
                 .setTitleText("提醒重复类别选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -979,14 +980,14 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 })
                 .setTitleText("提醒重复类别选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -1020,14 +1021,14 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 })
                 .setTitleText("提醒方法选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -1036,6 +1037,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 .build<Any>()
             pvRemindType.setPicker(remindTypeChoices as List<Any>?) //一级选择器
         }
+
 
         /**
          * 描述：根据修改的日程类别信息来修改数据

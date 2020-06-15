@@ -56,7 +56,9 @@
     </LinearLayout>
 
     <!--下次提醒时间-->
-    <LinearLayout style="@style/layout_time_show"
+    <LinearLayout
+        android:layout_height="wrap_content"
+        style="@style/layout_time_show"
         android:id="@+id/time_show_remind_next_place">
         <TextView
             style="@style/icon_time_show"

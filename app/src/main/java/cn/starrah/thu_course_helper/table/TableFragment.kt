@@ -70,6 +70,9 @@ abstract class TableFragment : Fragment(){
     /*周信息显示位置id*/
     protected var dateInfoShowPlace: Int = R.id.date_info
 
+    /*颜色*/
+    protected var colorGrey: Int = 0
+
     companion object {
         public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"
     }
@@ -252,6 +255,8 @@ abstract class TableFragment : Fragment(){
 
     override fun onStart() {
         super.onStart()
+        colorGrey = theActivity!!.resources.getColor(R.color.colorGreyBG)
+
         getWeekOptionData()
         initWeekOptionPicker()
 
@@ -594,14 +599,14 @@ abstract class TableFragment : Fragment(){
             })
             .setTitleText("周选择")
             .setContentTextSize(20) //设置滚轮文字大小
-            .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+            .setDividerColor(Color.DKGRAY) //设置分割线的颜色
             .setSelectOptions(0, 1) //默认选中项
-            .setBgColor(Color.BLACK)
-            .setTitleBgColor(Color.DKGRAY)
-            .setTitleColor(Color.LTGRAY)
-            .setCancelColor(Color.YELLOW)
-            .setSubmitColor(Color.YELLOW)
-            .setTextColorCenter(Color.LTGRAY)
+            .setBgColor(Color.WHITE)
+            .setTitleBgColor(colorGrey)
+            .setTitleColor(Color.BLACK)
+            .setCancelColor(Color.BLUE)
+            .setSubmitColor(Color.BLUE)
+            .setTextColorCenter(Color.BLACK)
             .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
             .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
             .setOutSideColor(0x00000000) //设置外部遮罩颜色
