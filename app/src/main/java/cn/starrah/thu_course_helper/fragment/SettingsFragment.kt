@@ -3,19 +3,31 @@ package cn.starrah.thu_course_helper.fragment
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.database.CREP
+import cn.starrah.thu_course_helper.data.declares.school.TermAPIResp
+import cn.starrah.thu_course_helper.data.declares.school.TermDescription
+import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
+import com.alibaba.fastjson.JSON
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.coroutines.awaitString
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var sp: SharedPreferences
     lateinit var pf_sync_learnx: SwitchPreferenceCompat
     lateinit var pf_login: Preference
     lateinit var pf_sync_xk: Preference
+    lateinit var pf_term: ListPreference
     val spListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
         if (key == "login_status" || key == "login_force_update") {
             val login_status = sp.getInt("login_status", 0)
@@ -37,6 +49,34 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 if (login_status != 0) R.string.errmsg_login_session_expired else R.string.errmsg_not_login
             ) else ""
 
+        }
+        if (key == "term_id") {
+            val value = sp.getString("term_id", "")
+            val currentTerm = if (CREP.initialized) CREP.term else null
+            if (value != currentTerm?.termId) {
+                lifecycleScope.launch {
+                    try {
+                        Toast.makeText(activity, R.string.info_change_term_process, Toast.LENGTH_SHORT).show()
+                        val resp = JSON.parseObject(
+                            Fuel.get("$BACKEND_SITE/term", listOf("id" to value)).awaitString(),
+                            TermAPIResp::class.java
+                        )
+                        CREP.initializeTerm(requireActivity(), resp.termData)
+                        sp.edit {
+                            putString("currentTerm", JSON.toJSONString(resp.termData))
+                            putString("lastHandChangeTermTime", LocalDate.now().format(
+                                DateTimeFormatter.ISO_DATE))
+                        }
+                        pf_term.title = (if (CREP.initialized) CREP.term else null)?.chineseName?:""
+                        Toast.makeText(activity, R.string.info_change_term_success, Toast.LENGTH_SHORT).show()
+                    }
+                    catch (e: Exception) {
+                        //操作失败，回滚修改操作
+                        sp.edit { putString("term_id", currentTerm?.termId) }
+                        Toast.makeText(activity, R.string.errmsg_change_term_fail, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 
@@ -63,6 +103,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         pf_sync_learnx = findPreference("sync_learnx_homeworks")!!
+
+        pf_term = findPreference("term_id")!!
+        pf_term.title = (if (CREP.initialized) CREP.term else null)?.chineseName?:""
+        val termsList = JSON.parseArray(sp.getString("available_terms", "[]"), TermDescription::class.java)
+        pf_term.entries = termsList.map { it.name }.toTypedArray()
+        pf_term.entryValues = termsList.map { it.id }.toTypedArray()
 
         spListener.onSharedPreferenceChanged(sp, "login_status")
 

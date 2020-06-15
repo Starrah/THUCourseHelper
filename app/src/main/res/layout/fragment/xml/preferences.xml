@@ -25,6 +25,11 @@
         app:enabled="false" />
 
     <ListPreference
+        app:key="term_id"
+        app:title=""
+        app:summary="@string/settings_term_remind" />
+
+    <ListPreference
         app:entries="@array/table_show_type"
         app:entryValues="@array/table_show_type"
         app:key="course_show_type"

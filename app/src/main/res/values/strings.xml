@@ -52,9 +52,16 @@
     <string name="settings_time_show_days">日程表每周显示日数</string>
     <string name="settings_stay_notice">常驻通知栏</string>
     <string name="settings_course_show_type">课程表显示形式</string>
+    <string name="settings_term_remind">点击切换学期</string>
 
     <string name="settings_course_show_type_course">大节</string>
     <string name="settings_course_show_type_hour">小时</string>
+
+    <string name="info_auto_term">已为您自动设置学期为：</string>
+    <string name="info_change_term_success">切换成功</string>
+    <string name="info_change_term_process">正在切换学期中，请稍候</string>
+    <string name="errmsg_change_term_fail">获取学期数据失败，请检查网络连接！</string>
+    <string name="errmsg_change_term_fail_exit">获取学期数据失败，请检查网络连接！由于没有有效的学期数据，程序即将退出！</string>
 
     <string name="settings_sync_XK">立即同步选课系统课程信息</string>
     <string name="errmsg_login_session_expired">重新输入密码后可用</string>

@@ -64,6 +64,10 @@ data class SchoolTerm(
         @JSONField(serialize = false)
         get() = "${beginYear % 100}-${(beginYear % 100) + 1}${type.oneCharChineseName}"
 
+    val termId: String
+        @JSONField(serialize = false)
+        get() = "${schoolName},${beginYear},${type}"
+
     /**
      * 数据库中使用的名称，形如"CAL19AUT"
      */

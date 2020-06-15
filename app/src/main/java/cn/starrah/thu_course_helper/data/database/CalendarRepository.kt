@@ -22,6 +22,10 @@ import java.time.LocalDate
  * 出于简便起见，可以通过别名[CREP]直接引用到全局唯一的[CalendarRepository]对象。
  */
 object CalendarRepository {
+    var initialized = false
+        get
+        private set
+
     lateinit var database: CalendarDatabase
         get
         private set
@@ -49,6 +53,7 @@ object CalendarRepository {
             this@CalendarRepository.term = term
             database = CalendarDatabase.getDatabaseInstance(context, term.dbName)
             DAO = database.Dao()
+            initialized = true
         }
     }
 

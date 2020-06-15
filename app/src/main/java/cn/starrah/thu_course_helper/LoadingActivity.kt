@@ -2,12 +2,11 @@ package cn.starrah.thu_course_helper;
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.data.SPRING2019TERMJSON
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
@@ -16,17 +15,21 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegal
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
+import cn.starrah.thu_course_helper.data.declares.school.TermAPIResp
+import cn.starrah.thu_course_helper.data.declares.school.TermDescription
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
+import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
 import com.alibaba.fastjson.JSON
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.coroutines.awaitString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.lang.Thread.sleep
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalTime
+import java.time.*
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.*
+import kotlin.system.exitProcess
 
 /**
  * 描述：显示一张图片，在这里完成各种加载，然后再跳转到主界面
@@ -36,19 +39,86 @@ class LoadingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.loading)
 
+        BACKEND_SITE = try {
+            Properties().apply { load(applicationContext.assets.open("backend.properties")) }
+                .getProperty("BACKEND_SITE")
+        } catch (e: Exception) { "" }
 
         lifecycleScope.launch{
-            val term = JSON.parseObject(SPRING2019TERMJSON, SchoolTerm::class.java)
-            CREP.initializeTerm(this@LoadingActivity, term)
-//            loadTestData()
-//            delay(8000);
+                val sp = PreferenceManager.getDefaultSharedPreferences(this@LoadingActivity)
+                val version = packageManager.getPackageInfo(packageName, 0).versionName
+                val lastStartVersion = sp.getString("lastStartVersion", null)
+                val lastSyncDataTime = sp.getString("lastSyncDataTime", null)
+                    ?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE) }
+                val lastSyncDataTimePassed = lastSyncDataTime?.let {
+                    Period.between(it, LocalDate.now()).get(ChronoUnit.DAYS).toInt()
+                }?: 100000
+                val lastHandChangeTermTime = sp.getString("lastHandChangeTermTime", null)
+                    ?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE) }
+                val lastHandChangeTermTimePassed = lastHandChangeTermTime?.let {
+                    Period.between(it, LocalDate.now()).get(ChronoUnit.DAYS).toInt()
+                }?: 100000
+                var currentTerm = sp.getString("currentTerm", null)
+                    ?.let { JSON.parseObject(it, SchoolTerm::class.java) }
+                val term_id = sp.getString("term_id", null)
 
+                val needRequestOnlineData: Int =
+                    // 请求学期数据，触发条件：
+                    if ((currentTerm == null || currentTerm.termId != term_id) || //本地无有效学期数据
+                        version != lastStartVersion || // 发生了版本更新
+                        (currentTerm.endInclusiveDate < LocalDate.now() && lastHandChangeTermTimePassed >= 7) || // 当前学期已结束，并且距离上一次手动修改学期的时间已经超过7天
+                        (lastSyncDataTimePassed >= 7 && lastHandChangeTermTimePassed >= 7) // 距离上次刷新数据和距离上次手动更改学期都过去了7天
+                    ) 2 // 应当更新学期列表和当前学期数据
+                    else if (lastSyncDataTimePassed >= 7 && lastHandChangeTermTimePassed < 7) 1 // 应当只更新学期列表、不更新学期数据
+                    else 0 // 不应当更新
 
-            var the_intent: Intent = Intent()
-            the_intent.setClass(this@LoadingActivity, MainActivity::class.java)
-            startActivity(the_intent);
-            finish();
-        }
+                if (BACKEND_SITE == "") {
+                    // 在开发状态下、没有后端服务器的情况，就读取本地字符串数据
+                    // TODO 正式版应当删掉此处
+                    sp.edit {
+                        putString("available_terms", JSON.toJSONString(listOf<TermDescription>()))
+                    }
+                    currentTerm = JSON.parseObject(SPRING2019TERMJSON, SchoolTerm::class.java)
+                }
+                else if (needRequestOnlineData > 0) {
+                    try {
+                        val s = Fuel.get("$BACKEND_SITE/term").awaitString()
+                        val resp = JSON.parseObject(s, TermAPIResp::class.java)
+                        sp.edit {
+                            // 任何needRequestOnlineData非0的情况下，均需要刷新available_terms列表
+                            putString("available_terms", JSON.toJSONString(resp.termList))
+                            // 只有在needRequestOnlineData值为2的情况下要根据网络数据更新当前学期选择
+                            if (needRequestOnlineData >= 2) {
+                                putString("term_id", resp.currentTermId)
+                                putString("currentTerm", JSON.toJSONString(resp.termData))
+                                currentTerm = resp.termData
+                            }
+                            putString("lastSyncDataTime", LocalDate.now().format(DateTimeFormatter.ISO_DATE))
+                        }
+                    }
+                    catch (e: Exception) {
+                        e.printStackTrace()
+                        //操作失败，显示错误提示；如果currentTerm为空，则应当同时退出程序。
+                        if (currentTerm != null) {
+                            Toast.makeText(this@LoadingActivity, R.string.errmsg_change_term_fail, Toast.LENGTH_SHORT).show()
+                        }
+                        else {
+                            Toast.makeText(this@LoadingActivity, R.string.errmsg_change_term_fail_exit, Toast.LENGTH_SHORT).show()
+                            delay(3000)
+                            exitProcess(0)
+                        }
+                    }
+                }
+
+                CREP.initializeTerm(this@LoadingActivity, currentTerm!!)
+
+                var the_intent: Intent = Intent()
+                the_intent.setClass(this@LoadingActivity, MainActivity::class.java)
+                if (currentTerm!!.termId != term_id) the_intent.putExtra("SHOW_TOAST",
+                    "${resources.getText(R.string.info_auto_term)}${currentTerm!!.chineseName}")
+                startActivity(the_intent);
+                finish();
+            }
 
     }
 
