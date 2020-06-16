@@ -4,6 +4,7 @@ import cn.starrah.thu_course_helper.data.utils.Verifiable
 import cn.starrah.thu_course_helper.data.utils.assertDataSystem
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import com.alibaba.fastjson.annotation.JSONField
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.Period
@@ -131,6 +132,15 @@ data class SchoolTerm(
         if (weekNumber !in 1..totalWeekCount) throw RuntimeException("周数不合法！")
         val range = if (onlyMONToFRI) 0 until 5 else 0 until 7
         return range.map { startDate.plusDays((((weekNumber - 1) * 7) + it).toLong()) }
+    }
+
+    /**
+     * 获取某一个周数某一星期对应的日期。
+     * @param [weekNumber] 周数 从1开始
+     * @param [dayOfWeek] 星期
+     */
+    fun dateOfWeekAndDay(weekNumber: Int, dayOfWeek: DayOfWeek): LocalDate {
+        return datesInAWeek(weekNumber)[dayOfWeek.value - 1]
     }
 
     /**
