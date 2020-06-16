@@ -9,11 +9,11 @@ import com.github.kittinunf.fuel.core.interceptors.redirectResponseInterceptor
 
 val CookiedFuel = FuelManager().apply {
     addRequestInterceptor { next -> {req ->
-        next(req.enableCookie())
+        next(req.enableCookie(DEFAULT_COOKIEJAR))
     } }
     removeAllResponseInterceptors()
     addResponseInterceptor { next -> {req, resp ->
-        next(req, resp.saveCookie())
+        next(req, resp.saveCookie(DEFAULT_COOKIEJAR))
     } }
     addResponseInterceptor(redirectResponseInterceptor(this))
 }
@@ -21,7 +21,7 @@ val CookiedFuel = FuelManager().apply {
 private val SAVECOOKIE_KV_PATTERN = Pattern.compile("^(.+)=(.*)$")
 private val SAVECOOKIE_PATH_PATTERN = Pattern.compile("^Path=(.*)$", Pattern.CASE_INSENSITIVE)
 
-private fun Response.saveCookie(): Response {
+fun Response.saveCookie(cookieJar: CookieJar): Response {
     val domain = this.url.host
 
     val SCs = this[Headers.SET_COOKIE]
@@ -41,20 +41,20 @@ private fun Response.saveCookie(): Response {
             if (subMatcher.matches()) path = subMatcher.group(1)
         }
 
-        if (domain !in COOKIEJAR.cookieMap) COOKIEJAR.cookieMap[domain] = mutableMapOf()
-        COOKIEJAR.cookieMap[domain]!![name] = Pair(cookieValue, path)
+        if (domain !in cookieJar.cookieMap) cookieJar.cookieMap[domain] = mutableMapOf()
+        cookieJar.cookieMap[domain]!![name] = Pair(cookieValue, path)
     }
     return this
 }
 
-private fun Triple<*, Response, *>.saveCookie(): Triple<*, Response, *> {
-    second.saveCookie()
+fun Triple<*, Response, *>.saveCookie(cookieJar: CookieJar): Triple<*, Response, *> {
+    second.saveCookie(cookieJar)
     return this
 }
 
-private fun Request.enableCookie(): Request {
+fun Request.enableCookie(cookieJar: CookieJar): Request {
     val domain = this.url.host
-    val cookies = COOKIEJAR.cookieMap[domain]
+    val cookies = cookieJar.cookieMap[domain]
     val cookieString = cookies?.filter {
         it.value.second?.let { request.url.path?.ifEmpty { "/" }?.startsWith(it) } != false
     } ?.map { "${it.key}=${it.value.first}" } ?.joinToString("; ")
@@ -64,12 +64,14 @@ private fun Request.enableCookie(): Request {
     return this
 }
 
-object COOKIEJAR{
+class CookieJar {
     /**
      * cookie的储存位置。
      * 结构是{ 域名: [{ cookie key: [ cookie value, path ] }] }
      * （path可能为空）
      */
     val cookieMap: MutableMap<String, MutableMap<String, Pair<String, String?>>> = mutableMapOf()
-
 }
+
+val DEFAULT_COOKIEJAR = CookieJar()
+

@@ -3,6 +3,7 @@ package cn.starrah.thu_course_helper
 import cn.starrah.thu_course_helper.R
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -74,6 +75,10 @@ class MainActivity : FragmentActivity() {
                 return false
             }
         })
+
+        if (intent.getStringExtra("SHOW_TOAST") != null)
+            Toast.makeText(this, intent.getStringExtra("SHOW_TOAST")!!, Toast.LENGTH_SHORT).show()
+
     }
 
 
