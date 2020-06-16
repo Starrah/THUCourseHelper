@@ -56,7 +56,7 @@ class TimeTable : TableFragment() {
         }
     }
 
-    /*
+    /**
     描述：按照设置初始化视图
     参数：无
     返回：无
@@ -79,7 +79,7 @@ class TimeTable : TableFragment() {
     }
 
 
-    /*
+    /**
     描述：显示某个日程时间段
     参数：这个时间段在周几，这个时间段的信息
     返回：无
@@ -89,6 +89,13 @@ class TimeTable : TableFragment() {
         v = showOneHour(theWeekDay, theItem)
     }
 
-
+    /**
+     * 描述：画所有横线
+     * 参数：无
+     * 返回：无
+     */
+    override fun drawStrokes() {
+        drawStrokesHour()
+    }
 
 }

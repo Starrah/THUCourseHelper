@@ -24,6 +24,11 @@
     <string name="time_type">时间类别</string>
     <string name="time_comment">说明</string>
     <string name="time_time">时间</string>
+    <!--提醒-->
+    <string name="time_remind_repeat">提醒类型</string>
+    <string name="time_remind_time">提醒时间</string>
+    <string name="time_remind_type">提醒方式</string>
+
     <!--定期-->
     <string name="time_week">周</string>
     <string name="time_day">星期</string>
@@ -32,12 +37,14 @@
     <!--小时表示-->
     <string name="time_start">开始时间</string>
     <string name="time_end">结束时间</string>
-
     <!--大节表示-->
     <string name="time_start_course">开始时间</string>
     <string name="time_length_course">时长/小节</string>
     <!--时间节点-->
     <string name="time_point">时间</string>
+
+
+
 
     <!--设置界面-->
     <string name="settings_dialog_top">使用清华info账号密码登录</string>

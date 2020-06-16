@@ -25,6 +25,8 @@ import cn.starrah.thu_course_helper.data.constants.LayoutConstants
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener
@@ -70,6 +72,9 @@ abstract class TableFragment : Fragment(){
     /*周信息显示位置id*/
     protected var dateInfoShowPlace: Int = R.id.date_info
 
+    /*颜色*/
+    protected var colorGrey: Int = 0
+
     companion object {
         public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"
     }
@@ -87,7 +92,7 @@ abstract class TableFragment : Fragment(){
         DayOfWeek.SUNDAY to LocalDate.parse("2020-05-10")
     )
 
-    /*所有在当前周有效的时间*/
+    /*所有在当前周有效的时间段*/
     protected val timeList = mutableMapOf<DayOfWeek, LiveData<List<CalendarTimeDataWithItem>>>()
 
     /*周一到周日显示r日期的视图*/
@@ -111,6 +116,8 @@ abstract class TableFragment : Fragment(){
         DayOfWeek.SATURDAY to R.id.saturday_place,
         DayOfWeek.SUNDAY to R.id.sunday_place
     )
+
+    protected var itemColors:ArrayList<Int> = ArrayList()
 
     /**
      * 描述：加载设置--显示方式和显示天数，在oncreateview调用
@@ -252,18 +259,23 @@ abstract class TableFragment : Fragment(){
 
     override fun onStart() {
         super.onStart()
+        colorGrey = theActivity!!.resources.getColor(R.color.colorGreyBG)
+
         getWeekOptionData()
         initWeekOptionPicker()
-
+        loadColors()
         setWeekToday()
         updateAllDates()
         showAllDates()
-
+        clearOriginalCourses()
+        drawStrokes()
         if(theActivity == null)
         {
             return
         }
         initializeLayout()
+
+
         lifecycleScope.launch {
             getValidTimes()
             showAllCourses()
@@ -364,7 +376,66 @@ abstract class TableFragment : Fragment(){
         }
     }
 
+    /**
+     * 描述：根据本周情况，获取本周的年月情况
+     * 参数：周号
+     * 返回：2020年6月 这种格式
+     */
+    fun getWeekInfo(week:Int) :String {
+        var day_list = CREP.term.datesInAWeek(week, false)
+        var year_list:ArrayList<Int> = ArrayList()
+        var month_list:ArrayList<Int> = ArrayList()
+        var current_year:Int = 0
+        var current_month:Int = 0
+        for(i in day_list.indices) {
+            year_list.add(day_list.get(i).year)
+            month_list.add(day_list.get(i).monthValue)
+        }
 
+        //更新年份信息
+        var start_year:Int = year_list.get(0)
+        var end_year:Int = year_list.get(6)
+        if(start_year == end_year) {
+            current_year = start_year
+        }
+        else{
+            var start_num:Int = 0
+            for(item in year_list) {
+                if(item == start_year) {
+                    start_num ++
+                }
+            }
+            if(start_num >= 4){
+                current_year = start_year
+            }
+            else {
+                current_year = end_year
+            }
+        }
+
+        //更新月份信息
+        var start_month:Int = month_list.get(0)
+        var end_month:Int = month_list.get(6)
+        if(start_month == end_month) {
+            current_month = start_month
+        }
+        else{
+            var start_num:Int = 0
+            for(item in month_list) {
+                if(item == start_month) {
+                    start_num ++
+                }
+            }
+            if(start_num >= 4){
+                current_month = start_month
+            }
+            else {
+                current_month = end_month
+            }
+        }
+        var return_string = "" + current_year + "年" + current_month + "月"
+        return return_string
+    }
 
 
     /**
@@ -431,7 +502,6 @@ abstract class TableFragment : Fragment(){
         {
             return
         }
-        clearOriginalCourses()
         for (day in DayOfWeek.values()) {
             for (course in timeList[day]!!.getNotNullValue()) {
                 showOneItem(day, course)
@@ -440,6 +510,38 @@ abstract class TableFragment : Fragment(){
     }
 
     abstract protected fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem);
+
+    abstract protected fun drawStrokes();
+
+
+    /**
+     * 描述：读取颜色数组，用于给单个课程上色
+     */
+    protected fun loadColors() {
+        itemColors.clear()
+        var color0 = theActivity!!.getColor(R.color.colorRed)
+        var color1 = theActivity!!.getColor(R.color.colorOrange)
+        var color2 = theActivity!!.getColor(R.color.colorYellow)
+        var color3 = theActivity!!.getColor(R.color.colorGreen)
+        var color4 = theActivity!!.getColor(R.color.colorTurquoise)
+        var color5 = theActivity!!.getColor(R.color.colorBlue)
+        var color6 = theActivity!!.getColor(R.color.colorViolet)
+        //var color7 = theActivity!!.getColor(R.color.colorPink)
+        var color8 = theActivity!!.getColor(R.color.colorSPQR1)
+        var color9 = theActivity!!.getColor(R.color.colorSPQR2)
+        var color10 = theActivity!!.getColor(R.color.colorPreussen)
+        itemColors.add(color0)
+        itemColors.add(color1)
+        itemColors.add(color2)
+        itemColors.add(color3)
+        itemColors.add(color4)
+        itemColors.add(color5)
+        itemColors.add(color6)
+        //itemColors.add(color7)
+        itemColors.add(color8)
+        itemColors.add(color9)
+        itemColors.add(color10)
+    }
 
     /**
      * 描述：清除之前显示的课程view
@@ -454,13 +556,81 @@ abstract class TableFragment : Fragment(){
         }
     }
 
+
+    /**
+     *描述：对于大节类型的显示，给每个小节添加横虚线
+     *参数：无
+     *返回：无
+     */
+    protected fun drawStrokesCourse(){
+        //遍历周几
+        for(theWeekDay in DayOfWeek.values()) {
+            var viewID: Int = showPlaceID[theWeekDay]!!
+            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+
+            //遍历大节
+            var i: Int = 1
+            while(i <= 6) {
+                var big:SchoolTimeRule.BigClass = CREP.timeRule.getBigByNumber(i)
+                var big_start_small: Float = CREP.timeRule.getStartSmallIndex(i) + 0.0f
+
+                //遍历小节
+                var j:Int = 1
+                var small_count:Int = big.smallsCount
+                while(j <= small_count) {
+                    var small_interval:Float = j + 0.0f
+                    var total_small = big_start_small + small_interval
+                    var place = LayoutConstants.HeightPerSmall * total_small
+                    var v:View = LayoutInflater.from(theActivity!!).inflate(R.layout.stroke_line, null);
+                    v.setY(place)
+                    var params: LinearLayout.LayoutParams =
+                        LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 5)
+                    v.setLayoutParams(params);
+                    dayView.addView(v)
+
+                    j ++
+                }
+                i ++
+            }
+        }
+    }
+
+
+    /**
+     *描述：对于小时类型的显示，给每个小时添加横虚线
+     *参数：无
+     *返回：无
+     */
+    protected fun drawStrokesHour(){
+        //遍历周几
+        for(theWeekDay in DayOfWeek.values()) {
+            var viewID: Int = showPlaceID[theWeekDay]!!
+            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+
+            //遍历大节
+            var i: Int = 1
+            while(i <= 24) {
+                var place:Float = LayoutConstants.HeightPerHour * i + 0.0f
+                var v:View = LayoutInflater.from(theActivity!!).inflate(R.layout.stroke_line, null);
+                v.setY(place)
+                var params: LinearLayout.LayoutParams =
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 5)
+                v.setLayoutParams(params);
+
+                dayView.addView(v)
+
+                i ++
+            }
+        }
+    }
+
+
     /**
     * 描述：显示某个日程时间段（大节）
     * 参数：这个时间段在周几，这个时间段的信息
     * 返回：绑定的view
     */
     protected fun showOneCourse(theWeekDay: DayOfWeek, theCourse: CalendarTimeDataWithItem): View {
-
 
         var viewID: Int = showPlaceID[theWeekDay]!!
         var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
@@ -484,6 +654,17 @@ abstract class TableFragment : Fragment(){
         var sub_name:String = theCourse.name
         var main_name:String = theCourse.calendarItem.name
         theTextView.setText(main_name + sub_name); //显示课程名        dayView.addView(v);
+
+        //设置v的颜色
+        var hash_value = theCourse.calendarItem.id % itemColors.size
+        if(hash_value < 0) {
+            hash_value += itemColors.size
+        }
+        if(hash_value < 0 || hash_value >= itemColors.size) {
+            hash_value = itemColors.size - 1
+        }
+        var color = itemColors.get(hash_value)
+        v.setBackgroundColor(color)
 
         //设置v的id和绑定时间处理函数
         v.tag = theCourse.calendarItem.id
@@ -526,6 +707,11 @@ abstract class TableFragment : Fragment(){
         }
         var startInteval: Duration = Duration.between(LocalTime.parse("00:00"), startTime)
         var intevalTime: Duration = Duration.between(startTime, endTime)
+        if(theItem.type == CalendarTimeType.POINT) {
+            var new_start_time = startTime.minusHours(1)
+            startInteval = Duration.between(LocalTime.parse("00:00"), new_start_time)
+            intevalTime = Duration.between(LocalTime.parse("00:00"), LocalTime.parse("01:00"))
+        }
         var startY:Float = GetPlaceByDuration(startInteval)
         var lengthY:Int = GetPlaceByDuration(intevalTime).toInt()
 
@@ -542,6 +728,18 @@ abstract class TableFragment : Fragment(){
         var sub_name:String = theItem.name
         var main_name:String = theItem.calendarItem.name
         theTextView.setText(main_name + sub_name); //显示课程名
+
+        //设置v的颜色
+        var hash_value = theItem.calendarItem.id % itemColors.size
+        if(hash_value < 0) {
+            hash_value += itemColors.size
+        }
+        if(hash_value < 0 || hash_value >= itemColors.size) {
+            hash_value = itemColors.size - 1
+        }
+        var color = itemColors.get(hash_value)
+        v.setBackgroundColor(color)
+
 
         //设置v的id和绑定时间处理函数
         v.tag = theItem.calendarItem.id
@@ -574,7 +772,7 @@ abstract class TableFragment : Fragment(){
     private lateinit var pvWeekOptions: OptionsPickerView<Any>
 
     /**
-     * 描述：加载大节-小节选择器，之前必须调用getCourseOptionData
+     * 描述：加载周选择器，之前必须调用getCourseOptionData
      * 参数：无
      * 返回：无
      */
@@ -594,14 +792,14 @@ abstract class TableFragment : Fragment(){
             })
             .setTitleText("周选择")
             .setContentTextSize(20) //设置滚轮文字大小
-            .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+            .setDividerColor(Color.DKGRAY) //设置分割线的颜色
             .setSelectOptions(0, 1) //默认选中项
-            .setBgColor(Color.BLACK)
-            .setTitleBgColor(Color.DKGRAY)
-            .setTitleColor(Color.LTGRAY)
-            .setCancelColor(Color.YELLOW)
-            .setSubmitColor(Color.YELLOW)
-            .setTextColorCenter(Color.LTGRAY)
+            .setBgColor(Color.WHITE)
+            .setTitleBgColor(colorGrey)
+            .setTitleColor(Color.BLACK)
+            .setCancelColor(Color.BLUE)
+            .setSubmitColor(Color.BLUE)
+            .setTextColorCenter(Color.BLACK)
             .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
             .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
             .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -614,7 +812,7 @@ abstract class TableFragment : Fragment(){
     }
 
     /**
-     * 描述：初始化大节-小节选项数据
+     * 描述：初始化周选项数据
      * 参数：无
      * 返回：无
      */
@@ -623,11 +821,15 @@ abstract class TableFragment : Fragment(){
         var normal_count:Int = CREP.term.normalWeekCount
         var exam_count:Int = CREP.term.examWeekCount
         for(i in 1..normal_count) {
-            var string:String = "第"+ i +"周"
+            var string_week:String = "第"+ i +"周"
+            var string_date:String = getWeekInfo(i)
+            var string = string_week + ", " + string_date
             weekChoices.add(string)
         }
         for(i in 1..exam_count) {
-            var string:String = "第"+ (i + normal_count) +"周（考试周）"
+            var string_week:String = "第"+ (i + normal_count) +"周（考试周）"
+            var string_date:String = getWeekInfo(i + normal_count)
+            var string = string_week + ", " + string_date
             weekChoices.add(string)
         }
     }

@@ -1,18 +1,24 @@
 package cn.starrah.thu_course_helper.activity
 
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.*
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.data.utils.chineseName
@@ -28,13 +34,17 @@ import com.bigkoo.pickerview.view.TimePickerView
 import java.time.*
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.minutes
 
 
-class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEditActivity) :
+class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEditActivity) :
     RecyclerView.Adapter<ItemEditAdapter.ItemEditHolder>() {
-    private var mTimeList: MutableList<CalendarTimeData> = timeList
+    private var mCurrentItem: CalendarItemDataWithTimes = currentItem
     private var theActivity = activity
-
+    public var colorGrey: Int = activity.resources.getColor(R.color.colorGreyBG)
+    public var colorWhite: Int = activity.resources.getColor(R.color.colorWhite)
 
 
     public class ItemEditHolder(
@@ -42,9 +52,17 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         adapter: cn.starrah.thu_course_helper.activity.ItemEditAdapter
     ) :
         RecyclerView.ViewHolder(view), View.OnClickListener {
+        public var theView: View = view
+
+        public var itemName: EditText = view.findViewById<EditText>(R.id.item_edit_name)
+        public var itemType: TextView = view.findViewById<TextView>(R.id.item_edit_type)
+        public var itemTeacher: EditText = view.findViewById<EditText>(R.id.item_edit_teacher)
+        public var itemCourseID: EditText = view.findViewById<EditText>(R.id.item_edit_course_id)
+        public var itemAssociation: EditText = view.findViewById<EditText>(R.id.item_edit_association)
+
         public var timeName: EditText = view.findViewById<EditText>(R.id.time_edit_name)
         public var timePlace: EditText = view.findViewById<EditText>(R.id.time_edit_place)
-        public var timeType: TextView = view.findViewById<EditText>(R.id.time_edit_time_type)
+        public var timeType: TextView = view.findViewById<TextView>(R.id.time_edit_time_type)
         public var timeWeek: TextView = view.findViewById<TextView>(R.id.time_edit_week)
         public var timeDayWeek: TextView = view.findViewById<TextView>(R.id.time_edit_day)
         public var timeDate: TextView = view.findViewById<TextView>(R.id.time_edit_date)
@@ -55,6 +73,20 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         public var timePoint: TextView = view.findViewById<TextView>(R.id.time_edit_point)
         public var timeComment: EditText = view.findViewById<EditText>(R.id.time_edit_comment)
 
+        public var timeRemindRepeat: TextView = view.findViewById<TextView>(R.id.time_edit_remind_repeat)
+        public var timeRemindTime: TextView = view.findViewById<TextView>(R.id.time_edit_remind_time)
+        public var timeRemindType: TextView = view.findViewById<TextView>(R.id.time_edit_remind_type)
+
+        public var itemNamePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_name_place)
+        public var itemTypePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_type_place)
+        public var itemTeacherPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_teacher_place)
+        public var itemCourseIDPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_course_id_place)
+        public var itemAssociationPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_association_place)
+
+
+        public var timeNamePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_name_place)
+        public var timePlacePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_place_place)
+        public var timeTypePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_type_place)
         public var timeWeekPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_week_place)
         public var timeDayWeekPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_day_place)
         public var timeDatePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_date_place)
@@ -63,6 +95,13 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         public var timeStartHourPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_start_hour_place)
         public var timeEndHourPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_end_hour_place)
         public var timePointPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_point_place)
+        public var timeCommentPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_comment_place)
+        public var timeDeleteButtonPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.delete_time_place)
+
+        public var timeRemindRepeatPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_remind_repeat_place)
+        public var timeRemindTimePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_remind_time_place)
+        public var timeRemindTypePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_remind_type_place)
+
         var mAdapter: cn.starrah.thu_course_helper.activity.ItemEditAdapter = adapter
 
         public var timeDeleteButton:ImageButton = view.findViewById(R.id.delete_time)
@@ -85,6 +124,8 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         private val lengthChoices:ArrayList<String>  = arrayListOf("1", "2", "3", "4", "5", "6")
         //时间类别选择，用于选择对应的时间类别
         private val timeTypeChoices:ArrayList<String>  = arrayListOf("单次（按大节）", "重复（按大节）", "单次（按时间）", "重复（按时间）", "时间节点")
+        //日程类别选择，用于选择对应的日程类别
+        private val itemTypeChoices: ArrayList<String> = arrayListOf("课程", "科研", "社工", "社团", "其他")
         //星期选择器
         lateinit var pvWeekDayOptions: OptionsPickerView<Any>
         //小节长度选择器
@@ -95,12 +136,38 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
         public lateinit var pvCourseOptions: OptionsPickerView<Any>
         //周选择器
         public lateinit var pvWeekOptions: PickerDialog.Builder
-        //name监听器
-        public lateinit var nameChanger:TextWatcher
-        //place监听器
-        public lateinit var placeChanger:TextWatcher
-        //comment监听器
-        public lateinit var detailChanger:TextWatcher
+        //日程类别选择器
+        public lateinit var pvItemTypeOptions: OptionsPickerView<Any>
+
+        //提醒重复选择(用于重复活动）
+        private val remindRepeatChoicesRegular: ArrayList<String> = arrayListOf("无", "仅这一次", "每次")
+        //提醒重复选择(用于单次活动）
+        private val remindRepeatChoicesSingle: ArrayList<String> = arrayListOf("无", "仅这一次")
+        //提醒方式选择
+        private val remindTypeChoices: ArrayList<String> = arrayListOf("通知栏", "闹钟")
+        //提醒重复选择器
+        public lateinit var pvRemindRepeatRegular: OptionsPickerView<Any>
+        public lateinit var pvRemindRepeatSingle: OptionsPickerView<Any>
+
+        //提醒类别选择器
+        public lateinit var pvRemindType: OptionsPickerView<Any>
+        //提醒提前时间选择
+        public lateinit var pvRemindTime: TimePickerView
+
+        //日程name监听器
+        public lateinit var itemNameChanger:TextWatcher
+        //日程teacher监听器
+        public lateinit var itemTeacherChanger:TextWatcher
+        //日程courseid监听器
+        public lateinit var itemCourseIDChanger:TextWatcher
+        //日程association监听器
+        public lateinit var itemAssociationChanger:TextWatcher
+        //时间段name监听器
+        public lateinit var timeNameChanger:TextWatcher
+        //时间段place监听器
+        public lateinit var timePlaceChanger:TextWatcher
+        //时间段comment监听器
+        public lateinit var timeDetailChanger:TextWatcher
 
         init {
             getCourseOptionData()
@@ -110,22 +177,35 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             initWeekDayOptionPicker()
             initLengthOptionPicker()
             initTimeTypeOptionPicker()
-            initNameChanger()
-            initPlaceChanger()
-            initDetailChanger()
             initWeekPickerDialog()
+            initItemTypeOptionPicker()
+            initRemindRepeatRegularPicker()
+            initRemindRepeatSinglePicker()
+            initRemindTimePicker()
+            initRemindTypePicker()
+
+
             timeDeleteButton.setOnClickListener(this)
+
+
+            initItemNameChanger()
+            initItemTeacherChanger()
+            initItemCourseIDChanger()
+            initItemAssociationChanger()
+            initTimeNameChanger()
+            initTimePlaceChanger()
+            initTimeDetailChanger()
         }
 
 
         //EditText监听初始化函数
         /**
-         * 描述：初始化名称监听器
+         * 描述：初始化日程名称监听器
          * 参数：无
          * 返回：无
          */
-        public fun initNameChanger() {
-            nameChanger = (object : TextWatcher {
+        private fun initItemNameChanger() {
+            itemNameChanger = (object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence,
                     start: Int,
@@ -144,19 +224,19 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
 
                 override fun afterTextChanged(editable: Editable) {
                     val position: Int = getAdapterPosition()
-                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    time.name = editable.toString()
-                    //mAdapter.notifyDataSetChanged()
+                    if(position == 0) {
+                        mAdapter.mCurrentItem.name = editable.toString()
+                    }
                 }
             })
         }
         /**
-         * 描述：初始化地点监听器
+         * 描述：初始化日程教师监听器
          * 参数：无
          * 返回：无
          */
-        public fun initPlaceChanger() {
-            placeChanger = (object : TextWatcher {
+        private fun initItemTeacherChanger() {
+            itemTeacherChanger = (object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence,
                     start: Int,
@@ -175,19 +255,128 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
 
                 override fun afterTextChanged(editable: Editable) {
                     val position: Int = getAdapterPosition()
-                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    time.place = editable.toString()
-                    //mAdapter.notifyDataSetChanged()
+                    if(position == 0) {
+                        if (mAdapter.mCurrentItem.type.equals(CalendarItemType.COURSE)) {
+                            mAdapter.mCurrentItem.detail[CalendarItemLegalDetailKey.TEACHER] =
+                                editable.toString()
+                        }
+                    }
+                }
+            })
+        }
+
+        /**
+         * 描述：初始化日程课程号监听器
+         * 参数：无
+         * 返回：无
+         */
+        private fun initItemCourseIDChanger() {
+            itemCourseIDChanger = (object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                }
+
+                override fun afterTextChanged(editable: Editable) {
+                    val position: Int = getAdapterPosition()
+                    if(position == 0) {
+                        if (mAdapter.mCurrentItem.type.equals(CalendarItemType.COURSE)) {
+                            mAdapter.mCurrentItem.detail[CalendarItemLegalDetailKey.COURSEID] =
+                                editable.toString()
+                        }
+                    }
+                }
+            })
+        }
+
+        /**
+         * 描述：初始化日程组织监听器
+         * 参数：无
+         * 返回：无
+         */
+        private fun initItemAssociationChanger() {
+            itemAssociationChanger = (object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                }
+
+                override fun afterTextChanged(editable: Editable) {
+                    val position: Int = getAdapterPosition()
+                    if(position == 0) {
+                        if (mAdapter.mCurrentItem.type.equals(CalendarItemType.SOCIALWORK) || mAdapter.mCurrentItem.type.equals(
+                                CalendarItemType.ASSOCIATION
+                            )) {
+                            mAdapter.mCurrentItem.detail[CalendarItemLegalDetailKey.ORGANIZATION] =
+                                editable.toString()
+                        }
+                    }
+                }
+            })
+        }
+
+
+        /**
+         * 描述：初始化时间段名称监听器
+         * 参数：无
+         * 返回：无
+         */
+        public fun initTimeNameChanger() {
+            timeNameChanger = (object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                }
+
+                override fun afterTextChanged(editable: Editable) {
+                    val position: Int = getAdapterPosition()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        time.name = editable.toString()
+                    }
                 }
             })
         }
         /**
-         * 描述：初始化详情监听器
+         * 描述：初始化时间段地点监听器
          * 参数：无
          * 返回：无
          */
-        public fun initDetailChanger() {
-            detailChanger = (object : TextWatcher {
+        public fun initTimePlaceChanger() {
+            timePlaceChanger = (object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence,
                     start: Int,
@@ -206,9 +395,45 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
 
                 override fun afterTextChanged(editable: Editable) {
                     val position: Int = getAdapterPosition()
-                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    time.comment = editable.toString()
-                    //mAdapter.notifyDataSetChanged()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        time.place = editable.toString()
+                    }
+                }
+            })
+        }
+        /**
+         * 描述：初始化时详情监听器
+         * 参数：无
+         * 返回：无
+         */
+        public fun initTimeDetailChanger() {
+            timeDetailChanger = (object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                }
+
+                override fun afterTextChanged(editable: Editable) {
+                    val position: Int = getAdapterPosition()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        time.comment = editable.toString()
+                    }
+                    else if(position == 0) {
+                        mAdapter.mCurrentItem.detail[CalendarItemLegalDetailKey.COMMENT] = editable.toString()
+                    }
                 }
             })
         }
@@ -231,17 +456,21 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
 
                     val position: Int = getAdapterPosition()
 
-                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    var tag_int = v!!.tag as Int
-                    if (tag_int == 1) {
-                        time.timeInHour!!.startTime = localTime
-                    } else if (tag_int == 2) {
-                        time.timeInHour!!.endTime = localTime
-                    } else if (tag_int == 3) {
-                        time.timeInHour!!.startTime = localTime
-                        time.timeInHour!!.endTime = localTime
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        var tag_int = v!!.tag as Int
+                        if (tag_int == 1) {
+                            time.timeInHour!!.startTime = localTime
+                        }
+                        else if (tag_int == 2) {
+                            time.timeInHour!!.endTime = localTime
+                        }
+                        else if (tag_int == 3) {
+                            time.timeInHour!!.startTime = localTime
+                            time.timeInHour!!.endTime = localTime
+                        }
+                        mAdapter.notifyDataSetChanged()
                     }
-                    mAdapter.notifyDataSetChanged()
                 }
             })
                 .setTimeSelectChangeListener(object : OnTimeSelectChangeListener {
@@ -298,16 +527,18 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
                     val localDate: LocalDate = localDateTime.toLocalDate()
 
                     val position: Int = getAdapterPosition()
-                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    if(time.timeInCourseSchedule != null) {
-                        time.timeInCourseSchedule!!.date = localDate
-                        time.timeInCourseSchedule!!.dayOfWeek = localDate.dayOfWeek
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        if (time.timeInCourseSchedule != null) {
+                            time.timeInCourseSchedule!!.date = localDate
+                            time.timeInCourseSchedule!!.dayOfWeek = localDate.dayOfWeek
+                        }
+                        else if (time.timeInHour != null) {
+                            time.timeInHour!!.date = localDate
+                            time.timeInHour!!.dayOfWeek = localDate.dayOfWeek
+                        }
+                        mAdapter.notifyDataSetChanged()
                     }
-                    else if(time.timeInHour != null) {
-                        time.timeInHour!!.date = localDate
-                        time.timeInHour!!.dayOfWeek = localDate.dayOfWeek
-                    }
-                    mAdapter.notifyDataSetChanged()
                 }
             })
                 .setTimeSelectChangeListener(object : OnTimeSelectChangeListener {
@@ -357,22 +588,24 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             pvCourseOptions = OptionsPickerBuilder(mAdapter.theActivity,
                 OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
                     val position: Int = getAdapterPosition()
-                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    time.timeInCourseSchedule!!.startBig = options1 + 1
-                    time.timeInCourseSchedule!!.startOffsetSmall = options2.toFloat()
-                    mAdapter.notifyDataSetChanged()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        time.timeInCourseSchedule!!.startBig = options1 + 1
+                        time.timeInCourseSchedule!!.startOffsetSmall = options2.toFloat()
+                        mAdapter.notifyDataSetChanged()
+                    }
 
                 })
                 .setTitleText("时间选择（大节）")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -419,26 +652,28 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
                 OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
 
                     val position: Int = getAdapterPosition()
-                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    if(time.timeInCourseSchedule != null) {
-                        time.timeInCourseSchedule!!.dayOfWeek = DayOfWeek.of(options1 + 1)
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        if (time.timeInCourseSchedule != null) {
+                            time.timeInCourseSchedule!!.dayOfWeek = DayOfWeek.of(options1 + 1)
+                        }
+                        else if (time.timeInHour != null) {
+                            time.timeInHour!!.dayOfWeek = DayOfWeek.of(options1 + 1)
+                        }
+                        mAdapter.notifyDataSetChanged()
                     }
-                    else if(time.timeInHour != null) {
-                        time.timeInHour!!.dayOfWeek = DayOfWeek.of(options1 + 1)
-                    }
-                    mAdapter.notifyDataSetChanged()
 
                 })
                 .setTitleText("星期几选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -456,21 +691,22 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             pvLengthOptions = OptionsPickerBuilder(mAdapter.theActivity,
                 OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
                     val position: Int = getAdapterPosition()
-                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    time.timeInCourseSchedule!!.lengthSmall = (options1 + 1).toFloat()
-                    mAdapter.notifyDataSetChanged()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        time.timeInCourseSchedule!!.lengthSmall = (options1 + 1).toFloat()
+                        mAdapter.notifyDataSetChanged()
+                    }
                 })
-                .setTitleText("星期几选择")
+                .setTitleText("小节个数选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
-                .setLabels("小节", "", "")
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -489,20 +725,22 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             pvTimeTypeOptions = OptionsPickerBuilder(mAdapter.theActivity,
                 OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
                     val position: Int = getAdapterPosition()
-                    var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                    handleTypeChange(time, options1)
-                    mAdapter.notifyDataSetChanged()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        handleTimeTypeChange(time, options1)
+                        mAdapter.notifyDataSetChanged()
+                    }
                 })
                 .setTitleText("时间类别选择")
                 .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.LTGRAY) //设置分割线的颜色
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
                 .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.BLACK)
-                .setTitleBgColor(Color.DKGRAY)
-                .setTitleColor(Color.LTGRAY)
-                .setCancelColor(Color.YELLOW)
-                .setSubmitColor(Color.YELLOW)
-                .setTextColorCenter(Color.LTGRAY)
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
                 .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
                 .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
                 .setOutSideColor(0x00000000) //设置外部遮罩颜色
@@ -510,6 +748,39 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
                 }
                 .build<Any>()
             pvTimeTypeOptions.setPicker(timeTypeChoices as List<Any>?) //一级选择器
+        }
+
+        /**
+         * 描述：加载时间类别选择器
+         * 参数：无
+         * 返回：无
+         */
+        private fun initItemTypeOptionPicker() {
+            pvItemTypeOptions = OptionsPickerBuilder(mAdapter.theActivity,
+                OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                    val position: Int = getAdapterPosition()
+                    if(position == 0) {
+                        handleItemTypeChange(options1)
+                        mAdapter.notifyDataSetChanged()
+                    }
+                })
+                .setTitleText("日程类别选择")
+                .setContentTextSize(20) //设置滚轮文字大小
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
+                .setSelectOptions(0, 1) //默认选中项
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
+                .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+                .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+                .setOutSideColor(0x00000000) //设置外部遮罩颜色
+                .setOptionsSelectChangeListener { options1, options2, options3 ->
+                }
+                .build<Any>()
+            pvItemTypeOptions.setPicker(itemTypeChoices as List<Any>?) //一级选择器
         }
 
 
@@ -547,8 +818,10 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
                 .setPositiveButton("确定",
                     DialogInterface.OnClickListener { dialog, which ->
                         val position: Int = getAdapterPosition()
-                        mAdapter.mTimeList.removeAt(position)
-                        mAdapter.notifyDataSetChanged() })
+                        if(position > 0) {
+                            mAdapter.mCurrentItem.times.removeAt(position - 1)
+                            mAdapter.notifyDataSetChanged()
+                        }})
                 .setNegativeButton("取消",
                     DialogInterface.OnClickListener { dialog, which ->  })
             dialog.show()
@@ -570,26 +843,254 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
                         selectedWeeks: java.util.ArrayList<Int?>?
                     ) {
                         val position: Int = getAdapterPosition()
-                        var time: CalendarTimeData = mAdapter.mTimeList.get(position)
-                        time.repeatWeeks.clear()
-                        if (selectedWeeks != null) {
-                            for(item in selectedWeeks){
-                                if(item != null) {
-                                    time.repeatWeeks.add(item)
+                        if(position > 0) {
+                            var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                            time.repeatWeeks.clear()
+                            if (selectedWeeks != null) {
+                                for (item in selectedWeeks) {
+                                    if (item != null) {
+                                        time.repeatWeeks.add(item)
+                                    }
                                 }
                             }
+                            mAdapter.notifyDataSetChanged()
                         }
-                        mAdapter.notifyDataSetChanged()
                     }
                 })
         }
 
         /**
-         * 描述：根据修改的类别信息来修改数据
+         * 描述：初始化提醒时间选择器
+         * 参数：无
+         * 返回：无
+         */
+        public fun initRemindTimePicker() { //Dialog 模式下，在底部弹出
+            pvRemindTime = TimePickerBuilder(mAdapter.theActivity, object : OnTimeSelectListener {
+                override fun onTimeSelect(date: Date?, v: View?) {
+                    val instant: Instant = date!!.toInstant()
+                    val zone: ZoneId = ZoneId.systemDefault()
+                    val localDateTime: LocalDateTime = LocalDateTime.ofInstant(instant, zone)
+                    val localTime: LocalTime = localDateTime.toLocalTime()
+
+                    val position: Int = getAdapterPosition()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        var minute: Int = localTime.minute
+                        var duration:java.time.Duration = java.time.Duration.ofMinutes(minute.toLong())
+                        time.remindData.aheadTime = duration
+                        mAdapter.notifyDataSetChanged()
+                    }
+                }
+            })
+                .setTitleText("提醒时间选择")
+                .setType(booleanArrayOf(false, false, false, false, true, false))
+                .setLabel("年", "月", "日", "时", "分钟", "秒")
+                .isDialog(true) //默认设置false ，内部实现将DecorView 作为它的父控件。
+                .addOnCancelClickListener(object : View.OnClickListener {
+                    override fun onClick(view: View?) {
+                        Log.i("pvTime", "onCancelClickListener")
+                    }
+                })
+
+                .setItemVisibleCount(5) //若设置偶数，实际值会加1（比如设置6，则最大可见条目为7）
+                .setLineSpacingMultiplier(2.0f)
+                .isAlphaGradient(true)
+                .build()
+            val mDialog: Dialog = pvRemindTime.getDialog()
+            if (mDialog != null) {
+                val params = FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Gravity.BOTTOM
+                )
+                params.leftMargin = 0
+                params.rightMargin = 0
+                pvTime.getDialogContainerLayout().setLayoutParams(params)
+                val dialogWindow: Window? = mDialog.getWindow()
+                if (dialogWindow != null) {
+                    dialogWindow.setWindowAnimations(com.bigkoo.pickerview.R.style.picker_view_slide_anim) //修改动画样式
+                    dialogWindow.setGravity(Gravity.BOTTOM) //改成Bottom,底部显示
+                    dialogWindow.setDimAmount(0.3f)
+                }
+            }
+        }
+
+        /**
+         * 描述：加载提醒重复类别选择器（重复活动）
+         * 参数：无
+         * 返回：无
+         */
+        private fun initRemindRepeatRegularPicker() {
+            pvRemindRepeatRegular = OptionsPickerBuilder(mAdapter.theActivity,
+                OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                    val position: Int = getAdapterPosition()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        var the_type: CalendarRemindType = CalendarRemindType.NONE
+                        for(type in CalendarRemindType.values()) {
+                            if(type.ordinal == options1) {
+                                the_type = type
+                                break
+                            }
+                        }
+                        time.remindData.type = the_type
+                        mAdapter.notifyDataSetChanged()
+                    }
+                })
+                .setTitleText("提醒重复类别选择")
+                .setContentTextSize(20) //设置滚轮文字大小
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
+                .setSelectOptions(0, 1) //默认选中项
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
+                .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+                .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+                .setOutSideColor(0x00000000) //设置外部遮罩颜色
+                .setOptionsSelectChangeListener { options1, options2, options3 ->
+                }
+                .build<Any>()
+            pvRemindRepeatRegular.setPicker(remindRepeatChoicesRegular as List<Any>?) //一级选择器
+        }
+
+        /**
+         * 描述：加载提醒重复类别选择器（单次活动）
+         * 参数：无
+         * 返回：无
+         */
+        private fun initRemindRepeatSinglePicker() {
+            pvRemindRepeatSingle = OptionsPickerBuilder(mAdapter.theActivity,
+                OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                    val position: Int = getAdapterPosition()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        var the_type: CalendarRemindType = CalendarRemindType.NONE
+                        for(type in CalendarRemindType.values()) {
+                            if(type.ordinal == options1) {
+                                the_type = type
+                                break
+                            }
+                        }
+                        time.remindData.type = the_type
+                        mAdapter.notifyDataSetChanged()
+                    }
+                })
+                .setTitleText("提醒重复类别选择")
+                .setContentTextSize(20) //设置滚轮文字大小
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
+                .setSelectOptions(0, 1) //默认选中项
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
+                .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+                .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+                .setOutSideColor(0x00000000) //设置外部遮罩颜色
+                .setOptionsSelectChangeListener { options1, options2, options3 ->
+                }
+                .build<Any>()
+            pvRemindRepeatSingle.setPicker(remindRepeatChoicesSingle as List<Any>?) //一级选择器
+        }
+
+        /**
+         * 描述：加载提醒类别选择器
+         * 参数：无
+         * 返回：无
+         */
+        private fun initRemindTypePicker() {
+            pvRemindType = OptionsPickerBuilder(mAdapter.theActivity,
+                OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
+                    val position: Int = getAdapterPosition()
+                    if(position > 0) {
+                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        var the_type: CalendarRemindMethodType = CalendarRemindMethodType.ALARM
+                        for(type in CalendarRemindMethodType.values()) {
+                            if(type.ordinal == options1) {
+                                the_type = type
+                                break
+                            }
+                        }
+                        time.remindData.method = the_type
+                        mAdapter.notifyDataSetChanged()
+                    }
+                })
+                .setTitleText("提醒方法选择")
+                .setContentTextSize(20) //设置滚轮文字大小
+                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
+                .setSelectOptions(0, 1) //默认选中项
+                .setBgColor(Color.WHITE)
+                .setTitleBgColor(mAdapter.colorGrey)
+                .setTitleColor(Color.BLACK)
+                .setCancelColor(Color.BLUE)
+                .setSubmitColor(Color.BLUE)
+                .setTextColorCenter(Color.BLACK)
+                .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
+                .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+                .setOutSideColor(0x00000000) //设置外部遮罩颜色
+                .setOptionsSelectChangeListener { options1, options2, options3 ->
+                }
+                .build<Any>()
+            pvRemindType.setPicker(remindTypeChoices as List<Any>?) //一级选择器
+        }
+
+
+        /**
+         * 描述：根据修改的日程类别信息来修改数据
+         * 参数：一个int，从0开始，对应修改后当前日程的类型在枚举里对应的数值
+         * 返回：无
+         */
+        fun handleItemTypeChange(new_type_int:Int) {
+            var the_type:CalendarItemType = CalendarItemType.COURSE
+            for(type in CalendarItemType.values()) {
+                if(type.ordinal == new_type_int) {
+                    the_type = type
+                    break
+                }
+            }
+            mAdapter.mCurrentItem.type = the_type
+
+            if(the_type == CalendarItemType.COURSE) {
+                var the_teacher = mAdapter.mCurrentItem.detail.get(CalendarItemLegalDetailKey.TEACHER)
+                if(the_teacher == null) {
+                    mAdapter.mCurrentItem.detail.replace(CalendarItemLegalDetailKey.TEACHER, "")
+                }
+                var the_course_id = mAdapter.mCurrentItem.detail.get(CalendarItemLegalDetailKey.COURSEID)
+                if(the_course_id == null) {
+                    mAdapter.mCurrentItem.detail.replace(CalendarItemLegalDetailKey.COURSEID, "")
+                }
+                mAdapter.mCurrentItem.detail.remove(CalendarItemLegalDetailKey.ORGANIZATION)
+
+            }
+            else if(the_type == CalendarItemType.ASSOCIATION || the_type == CalendarItemType.SOCIALWORK) {
+                //修改数据
+                mAdapter.mCurrentItem.detail.remove(CalendarItemLegalDetailKey.TEACHER)
+                mAdapter.mCurrentItem.detail.remove(CalendarItemLegalDetailKey.COURSEID)
+                var the_org_id = mAdapter.mCurrentItem.detail.get(CalendarItemLegalDetailKey.ORGANIZATION)
+                if(the_org_id == null) {
+                    mAdapter.mCurrentItem.detail.replace(CalendarItemLegalDetailKey.ORGANIZATION, "")
+                }
+
+            }
+            else {
+                //修改数据
+                mAdapter.mCurrentItem.detail.remove(CalendarItemLegalDetailKey.ORGANIZATION)
+                mAdapter.mCurrentItem.detail.remove(CalendarItemLegalDetailKey.TEACHER)
+                mAdapter.mCurrentItem.detail.remove(CalendarItemLegalDetailKey.COURSEID)
+
+            }
+        }
+
+        /**
+         * 描述：根据修改的时间类别信息来修改数据
          * 参数：第一个是待修改的时间数据，第二个是一个int，从0开始，对应修改后当前日程的类型在枚举里对应的数值
          * 返回：无
          */
-        fun handleTypeChange(the_time:CalendarTimeData, new_type_int:Int) {
+        fun handleTimeTypeChange(the_time:CalendarTimeData, new_type_int:Int) {
             var the_type: CalendarTimeType = CalendarTimeType.REPEAT_COURSE
             for(type in CalendarTimeType.values()) {
                 if(type.ordinal == new_type_int) {
@@ -603,14 +1104,14 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
                 the_time.timeInHour = null
                 if(the_time.timeInCourseSchedule == null) {
                     the_time.timeInCourseSchedule = TimeInCourseSchedule(dayOfWeek = LocalDate.now().dayOfWeek,
-                    startBig = 1, lengthSmall = 1.0f, date = LocalDate.now())
+                        startBig = 1, lengthSmall = 1.0f, date = LocalDate.now())
                 }
             }
             else{
                 the_time.timeInCourseSchedule = null
                 if(the_time.timeInHour == null) {
                     the_time.timeInHour = TimeInHour(startTime = LocalTime.now(), endTime = LocalTime.now(),
-                    dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now())
+                        dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now())
                 }
             }
 
@@ -635,7 +1136,7 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
             }
             else if(the_type == CalendarTimeType.POINT) {
                 the_time.timeInHour!!.endTime = the_time.timeInHour!!.startTime
-                the_time.timeInHour!!.dayOfWeek = null
+                the_time.timeInHour!!.dayOfWeek = LocalDate.now().dayOfWeek
                 the_time.timeInHour!!.date = LocalDate.now()
                 the_time.repeatWeeks = mutableListOf()
             }
@@ -658,18 +1159,162 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
 
     /**
      * 描述：绑定viewholder函数，其实就是显示一个time对应的信息
-     * 参数：对应的holder，和数据对应positiom
+     * 参数：对应的holder，和数据对应position（在recyclerview的数据）
      * 返回：无
      */
     override fun onBindViewHolder(holder: ItemEditHolder, position: Int) {
-        val time: CalendarTimeData = mTimeList[position]
+        if(position < 0) {
+            return
+        }
+        else if(position == 0) {
+            showDataItem(holder)
+        }
+        else {
+            showDataTime(holder, position - 1)
+        }
+    }
+
+    /**
+     * 描述：onbindholder中使用，用于设置头部数据
+     * 参数：holder
+     * 返回：无
+     */
+    fun showDataItem(holder: ItemEditHolder) {
+        //显示全部上方item信息，隐藏下方time信息
+        ItemEditActivity.ShowItem(holder.itemNamePlace)
+        ItemEditActivity.ShowItem(holder.itemTypePlace)
+        ItemEditActivity.ShowItem(holder.itemTeacherPlace)
+        ItemEditActivity.ShowItem(holder.itemCourseIDPlace)
+        ItemEditActivity.ShowItem(holder.itemAssociationPlace)
+        ItemEditActivity.ShowItem(holder.timeCommentPlace)
+        ItemEditActivity.HideItem(holder.timeNamePlace)
+        ItemEditActivity.HideItem(holder.timePlacePlace)
+        ItemEditActivity.HideItem(holder.timeTypePlace)
+        ItemEditActivity.HideItem(holder.timeWeekPlace)
+        ItemEditActivity.HideItem(holder.timeDayWeekPlace)
+        ItemEditActivity.HideItem(holder.timeDatePlace)
+        ItemEditActivity.HideItem(holder.timeStartCoursePlace)
+        ItemEditActivity.HideItem(holder.timeLengthCoursePlace)
+        ItemEditActivity.HideItem(holder.timeStartHourPlace)
+        ItemEditActivity.HideItem(holder.timeEndHourPlace)
+        ItemEditActivity.HideItem(holder.timePointPlace)
+        ItemEditActivity.HideItem(holder.timeDeleteButtonPlace)
+        ItemEditActivity.HideItem(holder.timeRemindRepeatPlace)
+        ItemEditActivity.HideItem(holder.timeRemindTimePlace)
+        ItemEditActivity.HideItem(holder.timeRemindTypePlace)
+        holder.theView.setBackgroundColor(colorWhite)
+
+        //名称
+        var item_name:String = mCurrentItem.name
+        holder.itemName.setText(item_name)
+        holder.itemName.addTextChangedListener(holder.itemNameChanger)
+
+        //类别
+        var item_type: CalendarItemType = mCurrentItem.type
+        var item_type_string: String = item_type.chineseName
+        holder.itemType.setText(item_type_string)
+        holder.itemType.setOnClickListener(View.OnClickListener() {
+            if (holder.pvItemTypeOptions != null) {
+                holder.pvItemTypeOptions.show(holder.itemType);
+            }
+        })
+
+
+        //教师，课程号，detail
+        if(item_type == CalendarItemType.COURSE) {
+            //教师，课程号显示，其余隐藏
+            ItemEditActivity.ShowItem(holder.itemTeacherPlace)
+            ItemEditActivity.ShowItem(holder.itemCourseIDPlace)
+            ItemEditActivity.HideItem(holder.itemAssociationPlace)
+
+            //设置教师，课程号初值
+            var item_teacher:String? = mCurrentItem.detail[CalendarItemLegalDetailKey.TEACHER]
+            if(item_teacher == null) {
+                item_teacher = ""
+            }
+
+            holder.itemTeacher.setText(item_teacher)
+            holder.itemTeacher.addTextChangedListener(holder.itemTeacherChanger)
+
+
+            var item_course_id:String? = mCurrentItem.detail[CalendarItemLegalDetailKey.COURSEID]
+            if(item_course_id == null) {
+                item_course_id = ""
+            }
+
+            holder.itemCourseID.setText(item_course_id)
+            holder.itemCourseID.addTextChangedListener(holder.itemCourseIDChanger)
+        }
+        else if(item_type == CalendarItemType.SOCIALWORK || item_type == CalendarItemType.ASSOCIATION) {
+            //组织显示，其余隐藏
+            ItemEditActivity.HideItem(holder.itemTeacherPlace)
+            ItemEditActivity.HideItem(holder.itemCourseIDPlace)
+            ItemEditActivity.ShowItem(holder.itemAssociationPlace)
+
+
+            //设置组织初值
+            var item_association: String? = mCurrentItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION]
+            if (item_association == null) {
+                item_association = ""
+            }
+            holder.itemAssociation.setText(item_association)
+            holder.itemAssociation.addTextChangedListener(holder.itemAssociationChanger)
+        }
+        else {
+            //全隐藏
+            ItemEditActivity.HideItem(holder.itemTeacherPlace)
+            ItemEditActivity.HideItem(holder.itemCourseIDPlace)
+            ItemEditActivity.HideItem(holder.itemAssociationPlace)
+        }
+
+        //详情
+        var item_comment:String? = mCurrentItem!!.detail[CalendarItemLegalDetailKey.COMMENT]
+        if(item_comment == null) {
+            item_comment = ""
+        }
+        holder.timeComment.setText(item_comment)
+        holder.timeComment.addTextChangedListener(holder.timeDetailChanger)
+    }
+
+    /**
+     * 描述：onbindholder中使用，用于设置一个time对应的信息
+     * 参数：对应的holder，和数据对应position（在timelist的数据）
+     * 返回：无
+     */
+    fun showDataTime(holder: ItemEditHolder, position: Int) {
+        //隐藏全部上方item信息，显示下方time信息
+        ItemEditActivity.HideItem(holder.itemNamePlace)
+        ItemEditActivity.HideItem(holder.itemTypePlace)
+        ItemEditActivity.HideItem(holder.itemTeacherPlace)
+        ItemEditActivity.HideItem(holder.itemCourseIDPlace)
+        ItemEditActivity.HideItem(holder.itemAssociationPlace)
+        ItemEditActivity.ShowItem(holder.timeNamePlace)
+        ItemEditActivity.ShowItem(holder.timePlacePlace)
+        ItemEditActivity.ShowItem(holder.timeTypePlace)
+        ItemEditActivity.ShowItem(holder.timeWeekPlace)
+        ItemEditActivity.ShowItem(holder.timeDayWeekPlace)
+        ItemEditActivity.ShowItem(holder.timeDatePlace)
+        ItemEditActivity.ShowItem(holder.timeStartCoursePlace)
+        ItemEditActivity.ShowItem(holder.timeLengthCoursePlace)
+        ItemEditActivity.ShowItem(holder.timeStartHourPlace)
+        ItemEditActivity.ShowItem(holder.timeEndHourPlace)
+        ItemEditActivity.ShowItem(holder.timePointPlace)
+        ItemEditActivity.ShowItem(holder.timeDeleteButtonPlace)
+        ItemEditActivity.ShowItem(holder.timeRemindRepeatPlace)
+        ItemEditActivity.ShowItem(holder.timeRemindTimePlace)
+        ItemEditActivity.ShowItem(holder.timeRemindTypePlace)
+        ItemEditActivity.ShowItem(holder.timeCommentPlace)
+        holder.theView.setBackgroundColor(colorGrey)
+
+
+        val time: CalendarTimeData = mCurrentItem.times[position]
         //名称
         holder.timeName.setText(time.name)
-        holder.timeName.addTextChangedListener(holder.nameChanger)
+        holder.timeName.addTextChangedListener(holder.timeNameChanger)
 
         //地点
         holder.timePlace.setText(time.place)
-        holder.timePlace.addTextChangedListener(holder.placeChanger)
+        holder.timePlace.addTextChangedListener(holder.timePlaceChanger)
 
         //类别
         holder.timeType.setText(time.type.chineseName)
@@ -829,8 +1474,56 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
 
         //说明
         holder.timeComment.setText(time.comment)
-        holder.timeComment.addTextChangedListener(holder.detailChanger)
+        holder.timeComment.addTextChangedListener(holder.timeDetailChanger)
 
+        //重复活动才能设置每次，其余没有
+        if(time.type == CalendarTimeType.REPEAT_COURSE || time.type == CalendarTimeType.REPEAT_HOUR) {
+            holder.timeRemindRepeat.setText(time.remindData.type.chineseName)
+            holder.timeRemindRepeat.setOnClickListener(View.OnClickListener() {
+                if (holder.pvRemindRepeatRegular != null) {
+                    holder.pvRemindRepeatRegular.show(holder.timeRemindRepeat);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                }
+            })
+        }
+        else {
+            if(time.remindData.type == CalendarRemindType.REPEAT) {
+                time.remindData.type = CalendarRemindType.SINGAL
+            }
+            holder.timeRemindRepeat.setText(time.remindData.type.chineseName)
+            holder.timeRemindRepeat.setOnClickListener(View.OnClickListener() {
+                if (holder.pvRemindRepeatSingle != null) {
+                    holder.pvRemindRepeatSingle.show(holder.timeRemindRepeat);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                }
+            })
+        }
+
+        //显示提前时间和提醒类型
+        if(time.remindData.type != CalendarRemindType.NONE) {
+            ItemEditActivity.ShowItem(holder.timeRemindTimePlace)
+            ItemEditActivity.ShowItem(holder.timeRemindTypePlace)
+
+
+            holder.timeRemindTime.setText("提前" + time.remindData.aheadTime.toMinutes() + "分钟提醒")
+            holder.timeRemindTime.setOnClickListener() {
+                if (holder.pvRemindTime != null) {
+                    var calendar:Calendar = Calendar.getInstance()
+                    calendar.set(Calendar.MINUTE, 5)
+                    holder.pvRemindTime.setDate(calendar);
+                    holder.pvRemindTime.show(holder.timeRemindTime);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                }
+            }
+
+            holder.timeRemindType.setText(time.remindData.method.chineseName)
+            holder.timeRemindType.setOnClickListener(View.OnClickListener() {
+                    if (holder.pvRemindType != null) {
+                        holder.pvRemindType.show(holder.timeRemindType);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                    }
+                })
+        }
+        else {
+            ItemEditActivity.HideItem(holder.timeRemindTimePlace)
+            ItemEditActivity.HideItem(holder.timeRemindTypePlace)
+        }
     }
 
     /**
@@ -839,7 +1532,7 @@ class ItemEditAdapter(timeList: MutableList<CalendarTimeData>, activity: ItemEdi
      * 返回：长度
      */
     override fun getItemCount(): Int {
-        return mTimeList.size
+        return mCurrentItem.times.size + 1
     }
 
 

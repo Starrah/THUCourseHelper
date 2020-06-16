@@ -6,54 +6,80 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/border"
-    android:layout_marginVertical="30dp">
+    android:background="@color/colorGreyBG"
+    android:layout_marginVertical="20dp">
 
 
     <!--名称-->
-    <LinearLayout style="@style/layout">
-        <TextView style="@style/define_show"
-            android:drawableLeft="@drawable/icon_item"
-            android:text ="@string/time_name"/>
-        <TextView style="@style/input_show"
+    <LinearLayout style="@style/layout_title_time_show">
+        <TextView style="@style/title_time_show"
             android:id="@+id/time_show_name"/>
     </LinearLayout>
 
     <!--日期，类似第14周周五（5月22日）或者前八周 周五这种-->
-    <LinearLayout style="@style/layout">
-        <TextView style="@style/define_show"
-            android:drawableLeft="@drawable/icon_day"
-            android:text ="@string/time_date"/>
-        <TextView style="@style/input_show"
+    <LinearLayout style="@style/layout_time_show">
+        <TextView style="@style/icon_time_show"
+            android:drawableLeft="@drawable/icon_date"
+            android:text =""/>
+        <TextView style="@style/input_time_show"
             android:id="@+id/time_show_date"/>
     </LinearLayout>
 
     <!--时间，类似8:00-9:30-->
-    <LinearLayout style="@style/layout">
-        <TextView style="@style/define_show"
+    <LinearLayout style="@style/layout_time_show">
+        <TextView style="@style/icon_time_show"
             android:drawableLeft="@drawable/icon_item"
-            android:text ="@string/time_time"/>
-        <TextView style="@style/input_show"
+            android:text =""/>
+        <TextView style="@style/input_time_show"
             android:id="@+id/time_show_time"/>
     </LinearLayout>
 
     <!--地点-->
-    <LinearLayout style="@style/layout">
-        <TextView style="@style/define_show"
+    <LinearLayout style="@style/layout_time_show">
+        <TextView style="@style/icon_time_show"
             android:drawableLeft="@drawable/icon_place"
-            android:text ="@string/time_place"/>
-        <TextView style="@style/input_show"
+            android:text =""/>
+        <TextView style="@style/input_time_show"
             android:id="@+id/time_show_place"/>
+    </LinearLayout>
+
+
+    <!--提醒信息-->
+    <LinearLayout style="@style/layout_time_show">
+        <TextView
+            style="@style/icon_time_show"
+            android:drawableLeft="@drawable/icon_remind"
+            android:text =""/>
+        <TextView
+            style="@style/input_time_show"
+            android:id="@+id/time_show_remind"/>
+    </LinearLayout>
+
+    <!--下次提醒时间-->
+    <LinearLayout
+        android:layout_height="wrap_content"
+        style="@style/layout_time_show"
+        android:id="@+id/time_show_remind_next_place">
+        <TextView
+            style="@style/icon_time_show"
+            android:drawableLeft="@drawable/icon_info"
+            android:text =""/>
+        <TextView
+            style="@style/input_time_show"
+            android:id="@+id/time_show_remind_next"
+            android:text ="下次提醒时间"/>
     </LinearLayout>
 
     <!--描述-->
     <LinearLayout
-        style="@style/layout">
+        android:layout_height="wrap_content"
+        style="@style/layout_time_show">
         <TextView
-            style="@style/define_show"
+            style="@style/icon_time_show"
             android:drawableLeft="@drawable/icon_item"
-            android:text ="@string/time_comment"/>
-        <TextView style="@style/input_show"
+            android:text =""/>
+        <TextView style="@style/input_time_show"
             android:id="@+id/time_show_comment"/>
     </LinearLayout>
+
 </LinearLayout>
