@@ -38,8 +38,7 @@
     <string name="time_start">开始时间</string>
     <string name="time_end">结束时间</string>
     <!--大节表示-->
-    <string name="time_start_course">开始时间</string>
-    <string name="time_length_course">时长/小节</string>
+    <string name="time_start_course">时间（大节）</string>
     <!--时间节点-->
     <string name="time_point">时间</string>
 

@@ -14,7 +14,7 @@
     <GridLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:columnCount="4"
+        android:columnCount="6"
         android:orientation="horizontal"
         android:layout_gravity="center"
         android:id="@+id/week_select_place">
