@@ -67,7 +67,6 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         public var timeDayWeek: TextView = view.findViewById<TextView>(R.id.time_edit_day)
         public var timeDate: TextView = view.findViewById<TextView>(R.id.time_edit_date)
         public var timeStartCourse: TextView = view.findViewById<TextView>(R.id.time_edit_start_course)
-        public var timeLengthCourse: TextView = view.findViewById<TextView>(R.id.time_edit_length_course)
         public var timeStartHour: TextView = view.findViewById<TextView>(R.id.time_edit_start_hour)
         public var timeEndHour: TextView = view.findViewById<TextView>(R.id.time_edit_end_hour)
         public var timePoint: TextView = view.findViewById<TextView>(R.id.time_edit_point)
@@ -91,7 +90,6 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         public var timeDayWeekPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_day_place)
         public var timeDatePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_date_place)
         public var timeStartCoursePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_start_course_place)
-        public var timeLengthCoursePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_length_course_place)
         public var timeStartHourPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_start_hour_place)
         public var timeEndHourPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_end_hour_place)
         public var timePointPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_point_place)
@@ -112,6 +110,9 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         public val bigCourseChoices = ArrayList<String>()
         //大节对应的小节选择，用于选择开始时间
         public val smallCourseChoices = ArrayList<ArrayList<String>>()
+
+        public val lengthCourseChoices = ArrayList<ArrayList<ArrayList<String>>>()
+
         //时间选择器（滚轮），用来选择时间
         public lateinit var pvTime: TimePickerView
 
@@ -121,15 +122,13 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         //星期选择，用于选择对应的星期
         private val weekDayChoices:ArrayList<String>  = arrayListOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
         //小节个数选择，用于选择对应的小节长度
-        private val lengthChoices:ArrayList<String>  = arrayListOf("1", "2", "3", "4", "5", "6")
+        private val lengthChoices:ArrayList<String>  = arrayListOf("时长：1小节", "时长：2小节", "时长：3小节", "时长：4小节", "时长：5小节", "时长：6小节")
         //时间类别选择，用于选择对应的时间类别
         private val timeTypeChoices:ArrayList<String>  = arrayListOf("单次（按大节）", "重复（按大节）", "单次（按时间）", "重复（按时间）", "时间节点")
         //日程类别选择，用于选择对应的日程类别
         private val itemTypeChoices: ArrayList<String> = arrayListOf("课程", "科研", "社工", "社团", "其他")
         //星期选择器
         lateinit var pvWeekDayOptions: OptionsPickerView<Any>
-        //小节长度选择器
-        lateinit var pvLengthOptions: OptionsPickerView<Any>
         //时间类别选择器
         public lateinit var pvTimeTypeOptions: OptionsPickerView<Any>
         //大节-小节选择器
@@ -175,7 +174,6 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             initDatePicker()
             initCourseOptionPicker()
             initWeekDayOptionPicker()
-            initLengthOptionPicker()
             initTimeTypeOptionPicker()
             initWeekPickerDialog()
             initItemTypeOptionPicker()
@@ -592,6 +590,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                         var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         time.timeInCourseSchedule!!.startBig = options1 + 1
                         time.timeInCourseSchedule!!.startOffsetSmall = options2.toFloat()
+                        time.timeInCourseSchedule!!.lengthSmall = (options3 + 1).toFloat()
                         mAdapter.notifyDataSetChanged()
                     }
 
@@ -614,7 +613,8 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 }
                 .build<Any>()
 
-            pvCourseOptions.setPicker(bigCourseChoices as List<Any>?, smallCourseChoices as List<MutableList<Any>>?) //二级选择器
+            pvCourseOptions.setPicker(bigCourseChoices as List<Any>?, smallCourseChoices as List<MutableList<Any>>?,
+                lengthCourseChoices as List<MutableList<MutableList<Any>>>?) //3级选择器
         }
 
 
@@ -640,6 +640,22 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             smallCourseChoices.add(smallCourseTwo)
             smallCourseChoices.add(smallCourseTwo)
             smallCourseChoices.add(smallCourseThree)
+
+            var length_choices_2:ArrayList<ArrayList<String>> = arrayListOf()
+            length_choices_2.add(lengthChoices)
+            length_choices_2.add(lengthChoices)
+            var length_choices_3:ArrayList<ArrayList<String>> = arrayListOf()
+            length_choices_3.add(lengthChoices)
+            length_choices_3.add(lengthChoices)
+            length_choices_3.add(lengthChoices)
+
+            lengthCourseChoices.add(length_choices_2)
+            lengthCourseChoices.add(length_choices_3)
+            lengthCourseChoices.add(length_choices_2)
+            lengthCourseChoices.add(length_choices_2)
+            lengthCourseChoices.add(length_choices_2)
+            lengthCourseChoices.add(length_choices_3)
+
         }
 
         /**
@@ -682,39 +698,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 .build<Any>()
             pvWeekDayOptions.setPicker(weekDayChoices as List<Any>?) //一级选择器
         }
-        /**
-         * 描述：加载小节长度选择器
-         * 参数：无
-         * 返回：无
-         */
-        private fun initLengthOptionPicker() {
-            pvLengthOptions = OptionsPickerBuilder(mAdapter.theActivity,
-                OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
-                    val position: Int = getAdapterPosition()
-                    if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
-                        time.timeInCourseSchedule!!.lengthSmall = (options1 + 1).toFloat()
-                        mAdapter.notifyDataSetChanged()
-                    }
-                })
-                .setTitleText("小节个数选择")
-                .setContentTextSize(20) //设置滚轮文字大小
-                .setDividerColor(Color.DKGRAY) //设置分割线的颜色
-                .setSelectOptions(0, 1) //默认选中项
-                .setBgColor(Color.WHITE)
-                .setTitleBgColor(mAdapter.colorGrey)
-                .setTitleColor(Color.BLACK)
-                .setCancelColor(Color.BLUE)
-                .setSubmitColor(Color.BLUE)
-                .setTextColorCenter(Color.BLACK)
-                .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
-                .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
-                .setOutSideColor(0x00000000) //设置外部遮罩颜色
-                .setOptionsSelectChangeListener { options1, options2, options3 ->
-                }
-                .build<Any>()
-            pvLengthOptions.setPicker(lengthChoices as List<Any>?) //一级选择器
-        }
+
 
         /**
          * 描述：加载时间类别选择器
@@ -1194,7 +1178,6 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         ItemEditActivity.HideItem(holder.timeDayWeekPlace)
         ItemEditActivity.HideItem(holder.timeDatePlace)
         ItemEditActivity.HideItem(holder.timeStartCoursePlace)
-        ItemEditActivity.HideItem(holder.timeLengthCoursePlace)
         ItemEditActivity.HideItem(holder.timeStartHourPlace)
         ItemEditActivity.HideItem(holder.timeEndHourPlace)
         ItemEditActivity.HideItem(holder.timePointPlace)
@@ -1295,7 +1278,6 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         ItemEditActivity.ShowItem(holder.timeDayWeekPlace)
         ItemEditActivity.ShowItem(holder.timeDatePlace)
         ItemEditActivity.ShowItem(holder.timeStartCoursePlace)
-        ItemEditActivity.ShowItem(holder.timeLengthCoursePlace)
         ItemEditActivity.ShowItem(holder.timeStartHourPlace)
         ItemEditActivity.ShowItem(holder.timeEndHourPlace)
         ItemEditActivity.ShowItem(holder.timePointPlace)
@@ -1391,7 +1373,6 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         if(time.type == CalendarTimeType.REPEAT_COURSE || time.type == CalendarTimeType.SINGLE_COURSE) {
             //开始大节，时长显示，开始时间，结束时间，时间隐藏
             ItemEditActivity.ShowItem(holder.timeStartCoursePlace)
-            ItemEditActivity.ShowItem(holder.timeLengthCoursePlace)
             ItemEditActivity.HideItem(holder.timeStartHourPlace)
             ItemEditActivity.HideItem(holder.timeEndHourPlace)
             ItemEditActivity.HideItem(holder.timePointPlace)
@@ -1403,19 +1384,11 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             if(start_small != 0) {
                 start_string = start_string +"第" + (start_small + 1) + "小节"
             }
-            holder.timeStartCourse.setText(start_string)
+            var class_string = start_string + "开始，持续" + time.timeInCourseSchedule!!.lengthSmall.toInt() + "小节"
+            holder.timeStartCourse.setText(class_string)
             holder.timeStartCourse.setOnClickListener(View.OnClickListener() {
                 if (holder.pvCourseOptions != null) {
                     holder.pvCourseOptions.show(holder.timeStartCourse);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-                }
-            })
-
-
-            var length_string:String = "" + time.timeInCourseSchedule!!.lengthSmall.toInt()
-            holder.timeLengthCourse.setText(length_string)
-            holder.timeLengthCourse.setOnClickListener(View.OnClickListener() {
-                if (holder.pvLengthOptions != null) {
-                    holder.pvLengthOptions.show(holder.timeLengthCourse);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
                 }
             })
 
@@ -1423,7 +1396,6 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         else if(time.type == CalendarTimeType.REPEAT_HOUR || time.type == CalendarTimeType.SINGLE_HOUR){
             //开始时间，结束时间显示，开始大节，结束大节，时间隐藏
             ItemEditActivity.HideItem(holder.timeStartCoursePlace)
-            ItemEditActivity.HideItem(holder.timeLengthCoursePlace)
             ItemEditActivity.ShowItem(holder.timeStartHourPlace)
             ItemEditActivity.ShowItem(holder.timeEndHourPlace)
             ItemEditActivity.HideItem(holder.timePointPlace)
@@ -1455,7 +1427,6 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         else {
             //时间显示，其余隐藏
             ItemEditActivity.HideItem(holder.timeStartCoursePlace)
-            ItemEditActivity.HideItem(holder.timeLengthCoursePlace)
             ItemEditActivity.HideItem(holder.timeStartHourPlace)
             ItemEditActivity.HideItem(holder.timeEndHourPlace)
             ItemEditActivity.ShowItem(holder.timePointPlace)

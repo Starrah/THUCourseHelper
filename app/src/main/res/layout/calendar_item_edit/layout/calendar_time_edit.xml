@@ -149,15 +149,6 @@
             android:id="@+id/time_edit_start_course"/>
     </LinearLayout>
 
-    <!--小节个数（大节）-->
-    <LinearLayout style="@style/layout"
-        android:id="@+id/time_edit_length_course_place">
-        <TextView style="@style/define"
-            android:drawableLeft="@drawable/icon_time"
-            android:text ="@string/time_length_course"/>
-        <TextView style="@style/input"
-            android:id="@+id/time_edit_length_course"/>
-    </LinearLayout>
 
     <!--开始时间(小时）-->
     <LinearLayout style="@style/layout"
