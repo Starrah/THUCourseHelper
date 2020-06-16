@@ -25,6 +25,8 @@ import cn.starrah.thu_course_helper.data.constants.LayoutConstants
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener
@@ -263,7 +265,8 @@ abstract class TableFragment : Fragment(){
         setWeekToday()
         updateAllDates()
         showAllDates()
-
+        clearOriginalCourses()
+        drawStrokes()
         if(theActivity == null)
         {
             return
@@ -436,7 +439,6 @@ abstract class TableFragment : Fragment(){
         {
             return
         }
-        clearOriginalCourses()
         for (day in DayOfWeek.values()) {
             for (course in timeList[day]!!.getNotNullValue()) {
                 showOneItem(day, course)
@@ -445,6 +447,9 @@ abstract class TableFragment : Fragment(){
     }
 
     abstract protected fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem);
+
+    abstract protected fun drawStrokes();
+
 
     /**
      * 描述：清除之前显示的课程view
@@ -459,13 +464,81 @@ abstract class TableFragment : Fragment(){
         }
     }
 
+
+    /**
+     *描述：对于大节类型的显示，给每个小节添加横虚线
+     *参数：无
+     *返回：无
+     */
+    protected fun drawStrokesCourse(){
+        //遍历周几
+        for(theWeekDay in DayOfWeek.values()) {
+            var viewID: Int = showPlaceID[theWeekDay]!!
+            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+
+            //遍历大节
+            var i: Int = 1
+            while(i <= 6) {
+                var big:SchoolTimeRule.BigClass = CREP.timeRule.getBigByNumber(i)
+                var big_start_small: Float = CREP.timeRule.getStartSmallIndex(i) + 0.0f
+
+                //遍历小节
+                var j:Int = 1
+                var small_count:Int = big.smallsCount
+                while(j <= small_count) {
+                    var small_interval:Float = j + 0.0f
+                    var total_small = big_start_small + small_interval
+                    var place = LayoutConstants.HeightPerSmall * total_small
+                    var v:View = LayoutInflater.from(theActivity!!).inflate(R.layout.stroke_line, null);
+                    v.setY(place)
+                    var params: LinearLayout.LayoutParams =
+                        LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 5)
+                    v.setLayoutParams(params);
+                    dayView.addView(v)
+
+                    j ++
+                }
+                i ++
+            }
+        }
+    }
+
+
+    /**
+     *描述：对于小时类型的显示，给每个小时添加横虚线
+     *参数：无
+     *返回：无
+     */
+    protected fun drawStrokesHour(){
+        //遍历周几
+        for(theWeekDay in DayOfWeek.values()) {
+            var viewID: Int = showPlaceID[theWeekDay]!!
+            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+
+            //遍历大节
+            var i: Int = 1
+            while(i <= 24) {
+                var place:Float = LayoutConstants.HeightPerHour * i + 0.0f
+                var v:View = LayoutInflater.from(theActivity!!).inflate(R.layout.stroke_line, null);
+                v.setY(place)
+                var params: LinearLayout.LayoutParams =
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 5)
+                v.setLayoutParams(params);
+
+                dayView.addView(v)
+
+                i ++
+            }
+        }
+    }
+
+
     /**
     * 描述：显示某个日程时间段（大节）
     * 参数：这个时间段在周几，这个时间段的信息
     * 返回：绑定的view
     */
     protected fun showOneCourse(theWeekDay: DayOfWeek, theCourse: CalendarTimeDataWithItem): View {
-
 
         var viewID: Int = showPlaceID[theWeekDay]!!
         var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
@@ -531,6 +604,11 @@ abstract class TableFragment : Fragment(){
         }
         var startInteval: Duration = Duration.between(LocalTime.parse("00:00"), startTime)
         var intevalTime: Duration = Duration.between(startTime, endTime)
+        if(theItem.type == CalendarTimeType.POINT) {
+            var new_start_time = startTime.minusHours(1)
+            startInteval = Duration.between(LocalTime.parse("00:00"), new_start_time)
+            intevalTime = Duration.between(LocalTime.parse("00:00"), LocalTime.parse("01:00"))
+        }
         var startY:Float = GetPlaceByDuration(startInteval)
         var lengthY:Int = GetPlaceByDuration(intevalTime).toInt()
 
@@ -579,7 +657,7 @@ abstract class TableFragment : Fragment(){
     private lateinit var pvWeekOptions: OptionsPickerView<Any>
 
     /**
-     * 描述：加载大节-小节选择器，之前必须调用getCourseOptionData
+     * 描述：加载周选择器，之前必须调用getCourseOptionData
      * 参数：无
      * 返回：无
      */
@@ -619,7 +697,7 @@ abstract class TableFragment : Fragment(){
     }
 
     /**
-     * 描述：初始化大节-小节选项数据
+     * 描述：初始化周选项数据
      * 参数：无
      * 返回：无
      */

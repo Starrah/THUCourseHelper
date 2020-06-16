@@ -27,6 +27,8 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 /**
@@ -320,9 +322,18 @@ class ItemShowActivity : AppCompatActivity(){
             HideItem(show_next_remind_place)
         }
         else {
-            //ShowItem(show_next_remind_place)
             var show_next_remind:TextView = layout.findViewById(R.id.time_show_remind_next)
-            //TODO 下次提醒时间
+            var new_remind_time = time.nextRemindTime
+            var new_remind_time_string = ""
+            if(new_remind_time == null) {
+                new_remind_time_string = "提醒已关闭"
+            }
+            else {
+                var df: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                var time_string:String = df.format(new_remind_time);
+                new_remind_time_string = "下次提醒时间： " + time_string
+            }
+            show_next_remind.setText(new_remind_time_string)
         }
 
         //添加

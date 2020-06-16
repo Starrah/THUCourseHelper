@@ -56,7 +56,7 @@
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">center</item>
-        <item name="background">@drawable/border_table</item>
+        <item name="background">@drawable/border_title</item>
     </style>
 
     <!--用于显示日程，提醒具体信息-->

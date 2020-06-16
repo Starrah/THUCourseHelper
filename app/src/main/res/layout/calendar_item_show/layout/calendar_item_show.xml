@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@drawable/border">
+        android:background="@drawable/border_main">
 
         <!--返回按钮-->
         <ImageButton
@@ -41,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:background="@drawable/border">
+            android:background="@drawable/border_main">
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
