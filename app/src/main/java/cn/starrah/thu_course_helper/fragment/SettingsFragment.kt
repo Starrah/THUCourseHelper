@@ -1,10 +1,8 @@
 package cn.starrah.thu_course_helper.fragment
 
-import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
-import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +19,6 @@ import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
 import cn.starrah.thu_course_helper.utils.startDownloadIntent
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.launch
-import java.net.URL
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -37,12 +34,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         if (key == "login_status" || key == "login_force_update") {
             val login_status = sp.getInt("login_status", 0)
             pf_login.title =
-                if (login_status == 0) resources.getString(R.string.settings_not_login)
+                if (login_status == 0) resources.getString(R.string.status_not_login)
                 else sp.getString("login_name", "")
             pf_login.summary = when (login_status) {
-                1 -> "已登录"
-                2 -> "已登录，已保存密码"
-                3 -> "登录态过期，请重新登录"
+                1 -> resources.getString(R.string.status_login)
+                2 -> resources.getString(R.string.status_login_save)
+                3 -> resources.getString(R.string.status_login_session_expire)
                 else -> ""
             }
             pf_sync_learnx.isEnabled = login_status == 2
@@ -50,8 +47,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 resources.getString(R.string.errmsg_not_save_password)
             else ""
 
-            pf_sync_xk.isEnabled =
-                ((login_status == 1 && THUCourseDataSouce.isSessionValid) || login_status == 2)
+            pf_sync_xk.isEnabled = ((login_status == 1 && CREP.onlineCourseDataSource?.isSessionValid == true) || login_status == 2)
             pf_sync_xk.summary = if (!pf_sync_xk.isEnabled) resources.getString(
                 if (login_status != 0) R.string.errmsg_login_session_expired else R.string.errmsg_not_login
             )
@@ -117,7 +113,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 if (sp.getInt("login_status", 0) == 2) {
                     TODO("读取保存的密码，然后先login。")
                 }
-                THUCourseDataSouce.mergeAllCourseFromSchoolSystem(requireActivity())
+                val onlineData = CREP.onlineCourseDataSource?.loadAllCourses(CREP.term, mapOf("context" to requireActivity()))
+                onlineData?.let { CREP.onlineCourseDataSource?.applyLoadedCourses(onlineData) }
                 Toast.makeText(activity, R.string.sync_XK_success, Toast.LENGTH_SHORT).show()
             }
             true

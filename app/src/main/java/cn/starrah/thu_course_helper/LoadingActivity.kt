@@ -74,8 +74,7 @@ class LoadingActivity : AppCompatActivity() {
                 else 0 // 不应当更新
 
             if (BACKEND_SITE == "") {
-                // 在开发状态下、没有后端服务器的情况，就读取本地字符串数据
-                // TODO 正式版应当删掉此处
+                // TODO 在开发状态下、没有后端服务器的情况，就读取本地字符串数据.正式版应当删掉此处
                 sp.edit {
                     putString("available_terms", JSON.toJSONString(listOf<TermDescription>()))
                 }

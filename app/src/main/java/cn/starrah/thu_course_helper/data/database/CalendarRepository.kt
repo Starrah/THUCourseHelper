@@ -2,11 +2,20 @@ package cn.starrah.thu_course_helper.data.database
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.room.Query
+import androidx.room.Transaction
 import cn.starrah.thu_course_helper.data.database.CalendarRepository.initializeTerm
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.*
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
+import cn.starrah.thu_course_helper.data.utils.AttachedListedLiveData
+import cn.starrah.thu_course_helper.data.utils.AttachedLiveData
+import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
+import cn.starrah.thu_course_helper.onlinedata.AbstractCourseDataSource
+import cn.starrah.thu_course_helper.onlinedata.CourseDataSourceRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -38,6 +47,10 @@ object CalendarRepository {
         get
         private set
 
+    var onlineCourseDataSource: AbstractCourseDataSource? = null
+        get
+        private set
+
     val timeRule: SchoolTimeRule
         get() = term.timeRule
 
@@ -51,6 +64,7 @@ object CalendarRepository {
         withContext(Dispatchers.IO) {
             term.assertValidResetMsg { "内置的学期数据不合法：$it" }
             this@CalendarRepository.term = term
+            this@CalendarRepository.onlineCourseDataSource = CourseDataSourceRegistry[term.schoolName]
             database = CalendarDatabase.getDatabaseInstance(context, term.dbName)
             DAO = database.Dao()
             initialized = true
@@ -189,7 +203,7 @@ object CalendarRepository {
      * @return 对应的含Item时间段（[CalendarTimeDataWithItem]）的列表
      */
     suspend fun findTimesByIds(timeIds: List<Int>): LiveData<List<CalendarTimeDataWithItem>> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.findTimesByIds(timeIds)
         }
     }
@@ -202,7 +216,7 @@ object CalendarRepository {
      * @return 对应的含Times日程项（[CalendarItemDataWithTimes]）的列表
      */
     suspend fun findItemsByIds(itemIds: List<Int>): LiveData<List<CalendarItemDataWithTimes>> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.findItemsByIds(itemIds)
         }
     }
@@ -217,7 +231,7 @@ object CalendarRepository {
      * @return 该日程下所有含时间段（[CalendarTimeData]）的列表
      */
     suspend fun findTimesByItem(item: CalendarItemData): LiveData<List<CalendarTimeData>> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.findTimesByItem(item.id)
         }
     }
@@ -232,7 +246,7 @@ object CalendarRepository {
      * @return 该时间段对应的日程项[CalendarItemDataWithTimes]
      */
     suspend fun findItemByTime(time: CalendarTimeData): LiveData<CalendarItemDataWithTimes> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.findItemByTime(time.id)
         }
     }
@@ -252,7 +266,7 @@ object CalendarRepository {
      * @param [items] 要删除的日程项
      */
     suspend fun deleteItems(items: List<CalendarItemData>) {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.deleteItems(items)
         }
     }
@@ -264,9 +278,11 @@ object CalendarRepository {
      * @param [times] 要删除的时间段
      */
     suspend fun deleteTimes(times: List<CalendarTimeData>) {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.deleteTimes(times)
         }
     }
+
+
 
 }

@@ -46,7 +46,10 @@
     <string name="settings_ok">确认</string>
     <string name="settings_no">取消</string>
 
-    <string name="settings_not_login">未登录</string>
+    <string name="status_not_login">未登录</string>
+    <string name="status_login">已登录</string>
+    <string name="status_login_save">已登录，已保存密码</string>
+    <string name="status_login_session_expire">登录态过期，请重新登录</string>
     <string name="settings_sync_learnx">从网络学堂同步课程作业</string>
     <string name="settings_course_show_days">课程表每周显示日数</string>
     <string name="settings_time_show_days">日程表每周显示日数</string>

@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
 import kotlinx.coroutines.launch
 
@@ -47,9 +48,11 @@ class LoginDialog(context: Context) : Dialog(context) {
                         Toast.makeText(theContext!!, "密码不能为空！", Toast.LENGTH_SHORT).show()
                     } else {
                         try {
-                            THUCourseDataSouce.login(
-                                theContext as FragmentActivity, login_id,
-                                login_pass
+                            CREP.onlineCourseDataSource?.doSomething(theContext as FragmentActivity)
+                            CREP.onlineCourseDataSource?.login(
+                                login_id,
+                                login_pass,
+                                mapOf("old" to true)
                             )
                             PreferenceManager.getDefaultSharedPreferences(theContext).edit {
                                 putInt("login_status", 1)
