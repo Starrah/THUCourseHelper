@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="200px"
         android:orientation="vertical"
-        android:background="@color/colorGreyText"
+        android:background="@color/colorGrey"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/AlertDialog.AppCompat.Light">
         <TextView

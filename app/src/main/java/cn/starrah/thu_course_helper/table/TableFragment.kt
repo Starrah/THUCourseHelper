@@ -92,7 +92,7 @@ abstract class TableFragment : Fragment(){
         DayOfWeek.SUNDAY to LocalDate.parse("2020-05-10")
     )
 
-    /*所有在当前周有效的时间*/
+    /*所有在当前周有效的时间段*/
     protected val timeList = mutableMapOf<DayOfWeek, LiveData<List<CalendarTimeDataWithItem>>>()
 
     /*周一到周日显示r日期的视图*/
@@ -376,7 +376,66 @@ abstract class TableFragment : Fragment(){
         }
     }
 
+    /**
+     * 描述：根据本周情况，获取本周的年月情况
+     * 参数：周号
+     * 返回：2020年6月 这种格式
+     */
+    fun getWeekInfo(week:Int) :String {
+        var day_list = CREP.term.datesInAWeek(week, false)
+        var year_list:ArrayList<Int> = ArrayList()
+        var month_list:ArrayList<Int> = ArrayList()
+        var current_year:Int = 0
+        var current_month:Int = 0
+        for(i in day_list.indices) {
+            year_list.add(day_list.get(i).year)
+            month_list.add(day_list.get(i).monthValue)
+        }
 
+        //更新年份信息
+        var start_year:Int = year_list.get(0)
+        var end_year:Int = year_list.get(6)
+        if(start_year == end_year) {
+            current_year = start_year
+        }
+        else{
+            var start_num:Int = 0
+            for(item in year_list) {
+                if(item == start_year) {
+                    start_num ++
+                }
+            }
+            if(start_num >= 4){
+                current_year = start_year
+            }
+            else {
+                current_year = end_year
+            }
+        }
+
+        //更新月份信息
+        var start_month:Int = month_list.get(0)
+        var end_month:Int = month_list.get(6)
+        if(start_month == end_month) {
+            current_month = start_month
+        }
+        else{
+            var start_num:Int = 0
+            for(item in month_list) {
+                if(item == start_month) {
+                    start_num ++
+                }
+            }
+            if(start_num >= 4){
+                current_month = start_month
+            }
+            else {
+                current_month = end_month
+            }
+        }
+        var return_string = "" + current_year + "年" + current_month + "月"
+        return return_string
+    }
 
 
     /**
@@ -762,11 +821,15 @@ abstract class TableFragment : Fragment(){
         var normal_count:Int = CREP.term.normalWeekCount
         var exam_count:Int = CREP.term.examWeekCount
         for(i in 1..normal_count) {
-            var string:String = "第"+ i +"周"
+            var string_week:String = "第"+ i +"周"
+            var string_date:String = getWeekInfo(i)
+            var string = string_week + ", " + string_date
             weekChoices.add(string)
         }
         for(i in 1..exam_count) {
-            var string:String = "第"+ (i + normal_count) +"周（考试周）"
+            var string_week:String = "第"+ (i + normal_count) +"周（考试周）"
+            var string_date:String = getWeekInfo(i + normal_count)
+            var string = string_week + ", " + string_date
             weekChoices.add(string)
         }
     }
