@@ -117,6 +117,8 @@ abstract class TableFragment : Fragment(){
         DayOfWeek.SUNDAY to R.id.sunday_place
     )
 
+    protected var itemColors:ArrayList<Int> = ArrayList()
+
     /**
      * 描述：加载设置--显示方式和显示天数，在oncreateview调用
      * 参数：无
@@ -261,7 +263,7 @@ abstract class TableFragment : Fragment(){
 
         getWeekOptionData()
         initWeekOptionPicker()
-
+        loadColors()
         setWeekToday()
         updateAllDates()
         showAllDates()
@@ -272,6 +274,8 @@ abstract class TableFragment : Fragment(){
             return
         }
         initializeLayout()
+
+
         lifecycleScope.launch {
             getValidTimes()
             showAllCourses()
@@ -452,6 +456,35 @@ abstract class TableFragment : Fragment(){
 
 
     /**
+     * 描述：读取颜色数组，用于给单个课程上色
+     */
+    protected fun loadColors() {
+        itemColors.clear()
+        var color0 = theActivity!!.getColor(R.color.colorRed)
+        var color1 = theActivity!!.getColor(R.color.colorOrange)
+        var color2 = theActivity!!.getColor(R.color.colorYellow)
+        var color3 = theActivity!!.getColor(R.color.colorGreen)
+        var color4 = theActivity!!.getColor(R.color.colorTurquoise)
+        var color5 = theActivity!!.getColor(R.color.colorBlue)
+        var color6 = theActivity!!.getColor(R.color.colorViolet)
+        //var color7 = theActivity!!.getColor(R.color.colorPink)
+        var color8 = theActivity!!.getColor(R.color.colorSPQR1)
+        var color9 = theActivity!!.getColor(R.color.colorSPQR2)
+        var color10 = theActivity!!.getColor(R.color.colorPreussen)
+        itemColors.add(color0)
+        itemColors.add(color1)
+        itemColors.add(color2)
+        itemColors.add(color3)
+        itemColors.add(color4)
+        itemColors.add(color5)
+        itemColors.add(color6)
+        //itemColors.add(color7)
+        itemColors.add(color8)
+        itemColors.add(color9)
+        itemColors.add(color10)
+    }
+
+    /**
      * 描述：清除之前显示的课程view
      * 参数：无
      * 返回：无
@@ -563,6 +596,17 @@ abstract class TableFragment : Fragment(){
         var main_name:String = theCourse.calendarItem.name
         theTextView.setText(main_name + sub_name); //显示课程名        dayView.addView(v);
 
+        //设置v的颜色
+        var hash_value = theCourse.calendarItem.id % itemColors.size
+        if(hash_value < 0) {
+            hash_value += itemColors.size
+        }
+        if(hash_value < 0 || hash_value >= itemColors.size) {
+            hash_value = itemColors.size - 1
+        }
+        var color = itemColors.get(hash_value)
+        v.setBackgroundColor(color)
+
         //设置v的id和绑定时间处理函数
         v.tag = theCourse.calendarItem.id
         v.setOnClickListener(View.OnClickListener() {
@@ -625,6 +669,18 @@ abstract class TableFragment : Fragment(){
         var sub_name:String = theItem.name
         var main_name:String = theItem.calendarItem.name
         theTextView.setText(main_name + sub_name); //显示课程名
+
+        //设置v的颜色
+        var hash_value = theItem.calendarItem.id % itemColors.size
+        if(hash_value < 0) {
+            hash_value += itemColors.size
+        }
+        if(hash_value < 0 || hash_value >= itemColors.size) {
+            hash_value = itemColors.size - 1
+        }
+        var color = itemColors.get(hash_value)
+        v.setBackgroundColor(color)
+
 
         //设置v的id和绑定时间处理函数
         v.tag = theItem.calendarItem.id
