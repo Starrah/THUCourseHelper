@@ -53,6 +53,10 @@
     <string name="settings_stay_notice">常驻通知栏</string>
     <string name="settings_course_show_type">课程表显示形式</string>
     <string name="settings_term_remind">点击切换学期</string>
+    <string name="settings_check_version">检查更新</string>
+    <string name="settings_found_new_version_1">发现新版本(</string>
+    <string name="settings_found_new_version_2">)，点击下载</string>
+    <string name="settings_no_found_new_version">已是最新版本</string>
 
     <string name="settings_course_show_type_course">大节</string>
     <string name="settings_course_show_type_hour">小时</string>

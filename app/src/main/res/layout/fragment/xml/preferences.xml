@@ -58,4 +58,9 @@
         app:title="@string/settings_stay_notice"
         app:defaultValue="false" />
 
+    <Preference
+        app:key="check_version"
+        app:summary=""
+        app:title="@string/settings_check_version" />
+
 </PreferenceScreen>
