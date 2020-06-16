@@ -1384,7 +1384,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             if(start_small != 0) {
                 start_string = start_string +"第" + (start_small + 1) + "小节"
             }
-            var class_string = start_string + "， 持续" + time.timeInCourseSchedule!!.lengthSmall.toInt() + "小节"
+            var class_string = start_string + "开始， 持续" + time.timeInCourseSchedule!!.lengthSmall.toInt() + "小节"
             holder.timeStartCourse.setText(class_string)
             holder.timeStartCourse.setOnClickListener(View.OnClickListener() {
                 if (holder.pvCourseOptions != null) {
