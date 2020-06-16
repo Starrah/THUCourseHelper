@@ -47,9 +47,8 @@
         android:layout_width="200px"
         android:gravity="center"
         android:layout_height="match_parent"
-        android:background="@drawable/border_title"
+        style="@style/table_title_text"
         android:text="节/周"
-        android:textColor="@color/colorBlack"
         />
     <cn.starrah.thu_course_helper.BindableScrollView
         android:layout_width="match_parent"
@@ -68,19 +67,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/border_title"
                 android:gravity="center"
-                android:textColor="@color/colorBlack"
+                style="@style/table_title_text"
                 android:text="一"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:background="@drawable/border_title"
-                    style="@style/table_text"
+                    style="@style/table_title_text"
                     android:id = "@+id/monday_date"
-                    android:textColor="@color/colorBlack"
                     android:text="18"/>
             </LinearLayout>
             <LinearLayout
@@ -93,16 +91,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:text="二"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:id = "@+id/tuesday_date"
                     android:text="19"/>
             </LinearLayout>
@@ -117,16 +113,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:text="三"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:id = "@+id/wednesday_date"
                     android:text="20"/>
             </LinearLayout>
@@ -140,16 +134,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:gravity="center"
                     android:text="四"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:gravity="center"
                     android:id = "@+id/thursday_date"
                     android:text="21"/>
@@ -165,16 +157,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:text="五"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:id = "@+id/friday_date"
                     android:text="22"/>
             </LinearLayout>
@@ -188,17 +178,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
-
+                    style="@style/table_title_text"
                     android:text="六"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:id = "@+id/saturday_date"
                     android:text="23"/>
             </LinearLayout>
@@ -211,8 +198,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:gravity="center"
                     android:text="日"/>
                 <TextView
@@ -220,8 +206,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:background="@drawable/border_title"
-                    android:textColor="@color/colorBlack"
+                    style="@style/table_title_text"
                     android:id = "@+id/sunday_date"
                     android:text="24"/>
             </LinearLayout>
@@ -252,9 +237,8 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:background="@drawable/border_title"
                         android:id="@+id/class_1_text"
-                        android:textColor="@color/colorBlack"
+                        style="@style/table_title_text"
                         android:text="第一\n大节\n08:00-\n09:35"/>
                 </LinearLayout>
 
@@ -265,11 +249,10 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        style="@style/table_title_text"
                         android:layout_weight="1"
-                        android:background="@drawable/border_title"
                         android:gravity="center"
                         android:id="@+id/class_2_text"
-                        android:textColor="@color/colorBlack"
                         android:text="第二\n大节\n09:50-\n12:15"/>
                 </LinearLayout>
                 <LinearLayout
@@ -280,10 +263,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
+                        style="@style/table_title_text"
                         android:gravity="center"
-                        android:background="@drawable/border_title"
                         android:id="@+id/class_3_text"
-                        android:textColor="@color/colorBlack"
                         android:text="第三\n大节\n13:30-\n15:05"/>
                 </LinearLayout>
                 <LinearLayout
@@ -294,10 +276,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
+                        style="@style/table_title_text"
                         android:gravity="center"
-                        android:background="@drawable/border_title"
                         android:id="@+id/class_4_text"
-                        android:textColor="@color/colorBlack"
                         android:text="第四\n大节\n15:20-\n16:55"/>
                 </LinearLayout>
                 <LinearLayout
@@ -308,10 +289,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
+                        style="@style/table_title_text"
                         android:gravity="center"
-                        android:background="@drawable/border_title"
                         android:id="@+id/class_5_text"
-                        android:textColor="@color/colorBlack"
                         android:text="第五\n大节\n17:10-\n18:45"/>
                 </LinearLayout>
                 <LinearLayout
@@ -322,10 +302,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
+                        style="@style/table_title_text"
                         android:gravity="center"
-                        android:background="@drawable/border_title"
                         android:id="@+id/class_6_text"
-                        android:textColor="@color/colorBlack"
                         android:text="第六\n大节\n19:20-\n21:45"/>
                 </LinearLayout>
             </LinearLayout>

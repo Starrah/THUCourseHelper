@@ -1136,7 +1136,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             }
             else if(the_type == CalendarTimeType.POINT) {
                 the_time.timeInHour!!.endTime = the_time.timeInHour!!.startTime
-                the_time.timeInHour!!.dayOfWeek = null
+                the_time.timeInHour!!.dayOfWeek = LocalDate.now().dayOfWeek
                 the_time.timeInHour!!.date = LocalDate.now()
                 the_time.repeatWeeks = mutableListOf()
             }

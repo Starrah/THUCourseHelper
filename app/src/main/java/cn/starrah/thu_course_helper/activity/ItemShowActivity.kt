@@ -264,6 +264,9 @@ class ItemShowActivity : AppCompatActivity(){
             var start_time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
             var end_time:String = ItemEditActivity.getTimeString(schedule!!.endTime)
             var week_day = schedule!!.dayOfWeek
+            if(week_day == null) {
+                week_day = schedule!!.date!!.dayOfWeek
+            }
             var week_day_string:String = week_day!!.chineseName
             var day_time:String = week_day_string + start_time  + "-" + end_time
             show_time.setText(day_time)
@@ -280,6 +283,9 @@ class ItemShowActivity : AppCompatActivity(){
             var schedule = time.timeInHour
             var time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
             var week_day = schedule!!.dayOfWeek
+            if(week_day == null) {
+                week_day = schedule!!.date!!.dayOfWeek
+            }
             var week_day_string:String = week_day!!.chineseName
             var day_time:String = week_day_string + time
             show_time.setText(day_time)
