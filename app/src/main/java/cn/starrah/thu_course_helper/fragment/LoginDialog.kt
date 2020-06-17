@@ -2,7 +2,9 @@ package cn.starrah.thu_course_helper.fragment
 
 import android.app.Dialog
 import android.content.Context
-import android.text.Editable
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.os.Looper
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.view.LayoutInflater
@@ -17,26 +19,32 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class LoginDialog(context: Context) : Dialog(context){
     private var theContext: Context? = null
     private lateinit var idPlace: EditText
     private lateinit var passPlace:EditText
+    private lateinit var captchaPlace:EditText
+    private lateinit var captchaView:ImageView
     private lateinit var loginBar:ProgressBar
     private lateinit var loginBarPlace:LinearLayout
     private lateinit var savePassCheck:CheckBox
+
 
     private fun initDialog(context: Context) {
         theContext = context
         buildDialog()
     }
 
-    private fun buildDialog() {
+    private fun buildDialog(){
         val layout = LayoutInflater.from(theContext!!).inflate(R.layout.login, null)
 
         idPlace = layout.findViewById(R.id.login_id)
         passPlace = layout.findViewById(R.id.login_password)
+        captchaPlace = layout.findViewById(R.id.login_captcha)
+        captchaView = layout.findViewById(R.id.captcha_view)
         loginBar = layout.findViewById(R.id.login_bar)
         loginBarPlace = layout.findViewById(R.id.login_bar_place)
         savePassCheck = layout.findViewById(R.id.login_save_pass)
@@ -60,12 +68,27 @@ class LoginDialog(context: Context) : Dialog(context){
             }
         }
 
-
         //隐藏progressbar
         var params_hide: LinearLayout.LayoutParams =
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
-        loginBarPlace.setLayoutParams(params_hide);
+        loginBarPlace.setLayoutParams(params_hide)
         loginBar.isVisible = false
+
+        //加载验证码
+        (theContext as FragmentActivity).lifecycleScope.launch {
+            try {
+                var map_captcha = mapOf<String, Any>("requireCaptcha" to true)
+                var captcha_bitmap: Bitmap? = THUCourseDataSouce.login("", "", map_captcha)
+                assert(captcha_bitmap != null)
+                captchaView.setImageBitmap(captcha_bitmap)
+            }
+            catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(theContext!! as FragmentActivity, "网络异常，加载验证码失败！", Toast.LENGTH_LONG)
+                    .show()
+
+            }
+        }
 
         layout.findViewById<Button>(R.id.login_ok)
             .setOnClickListener(object : View.OnClickListener {
@@ -75,25 +98,31 @@ class LoginDialog(context: Context) : Dialog(context){
 
                         var login_id: String = idPlace.text.toString()
                         var login_pass: String = passPlace.text.toString()
-
+                        var login_captcha: String = captchaPlace.text.toString()
                         if (login_id.isEmpty()) {
                             Toast.makeText(theContext!!, "账号不能为空！", Toast.LENGTH_SHORT).show()
                         }
                         else if (login_pass.isEmpty()) {
                             Toast.makeText(theContext!!, "密码不能为空！", Toast.LENGTH_SHORT).show()
                         }
+                        else if(login_captcha.isEmpty()) {
+                            Toast.makeText(theContext!!, "验证码不能为空！", Toast.LENGTH_SHORT).show()
+                        }
                         else {
                             try {
+
                                 //显示progressbar
                                 var params_show: LinearLayout.LayoutParams =
                                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                                 loginBarPlace.setLayoutParams(params_show);
                                 loginBar.isVisible = true
 
+                                var map_captcha = mapOf<String, Any>("captcha" to login_captcha)
                                 //登录
                                 THUCourseDataSouce.login(
-                                    theContext as FragmentActivity, login_id,
-                                    login_pass
+                                    login_id,
+                                    login_pass,
+                                    map_captcha
                                 )
 
                                 //登录成功后保存账号，如果选择了保存密码就保存密码，否则保存密码为空串
@@ -134,7 +163,7 @@ class LoginDialog(context: Context) : Dialog(context){
                                 loginBarPlace.setLayoutParams(params_hide);
                                 loginBar.isVisible = false
 
-                                Toast.makeText(theContext!!, "登陆失败！", Toast.LENGTH_SHORT)
+                                Toast.makeText(theContext!!, e.message, Toast.LENGTH_SHORT)
                                     .show()
                             }
                         }
@@ -162,8 +191,6 @@ class LoginDialog(context: Context) : Dialog(context){
             }
             return@OnTouchListener true
         })
-
-
 
         setContentView(layout)
     }

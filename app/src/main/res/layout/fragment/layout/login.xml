@@ -63,6 +63,29 @@
             android:background="@drawable/icon_hide_pass" />
     </LinearLayout>
 
+    <!--验证码-->
+    <LinearLayout
+        android:layout_marginVertical="5dp"
+        style="@style/layout">
+        <TextView
+            android:layout_width="70dp"
+            style="@style/define"
+            android:drawableLeft="@drawable/icon_password"
+            android:text ="@string/settings_captcha"/>
+        <EditText style="@style/input_login"
+            android:id="@+id/login_captcha"
+            />
+    </LinearLayout>
+
+
+    <!--验证码显示-->
+    <ImageView
+        android:id="@+id/captcha_view"
+        android:layout_width="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:layout_height="100dp" />
+
     <!--记住密码-->
     <LinearLayout
         android:layout_marginVertical="5dp"
