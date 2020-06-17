@@ -37,19 +37,23 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 if (login_status == 0) resources.getString(R.string.status_not_login)
                 else sp.getString("login_name", "")
             pf_login.summary = when (login_status) {
-                1 -> resources.getString(R.string.status_login)
-                2 -> resources.getString(R.string.status_login_save)
-                3 -> resources.getString(R.string.status_login_session_expire)
+                1    -> resources.getString(R.string.status_login)
+                2    -> resources.getString(R.string.status_login_save)
+                4    -> resources.getString(R.string.status_login_session_expire)
                 else -> ""
             }
             pf_sync_learnx.isEnabled = login_status == 2
-            pf_sync_learnx.summary = if (!pf_sync_learnx.isEnabled)
-                resources.getString(R.string.errmsg_not_save_password)
-            else ""
+            pf_sync_learnx.summary =
+                if (!pf_sync_learnx.isEnabled) resources.getString(R.string.errmsg_not_save_password) else ""
 
-            pf_sync_xk.isEnabled = ((login_status == 1 && CREP.onlineCourseDataSource?.isSessionValid == true) || login_status == 2)
+            pf_sync_xk.isEnabled =
+                ((login_status == 1 || login_status == 2) && CREP.onlineCourseDataSource?.isSessionValid == true)
             pf_sync_xk.summary = if (!pf_sync_xk.isEnabled) resources.getString(
-                if (login_status != 0) R.string.errmsg_login_session_expired else R.string.errmsg_not_login
+                when (login_status) {
+                    1    -> R.string.errmsg_login_no_saved_password
+                    2, 4 -> R.string.errmsg_login_session_expired
+                    else -> R.string.errmsg_not_login
+                }
             )
             else ""
 
@@ -112,10 +116,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         pf_sync_xk = findPreference("sync_XK_btn")!!
         pf_sync_xk.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             lifecycleScope.launch {
-                if (sp.getInt("login_status", 0) == 2) {
-                    TODO("读取保存的密码，然后先login。")
-                }
-                val onlineData = CREP.onlineCourseDataSource?.loadAllCourses(CREP.term, mapOf("context" to requireActivity()))
+                val onlineData = CREP.onlineCourseDataSource?.loadAllCourses(
+                    CREP.term,
+                    mapOf("context" to requireActivity())
+                )
                 onlineData?.let { CREP.onlineCourseDataSource?.applyLoadedCourses(onlineData) }
                 Toast.makeText(activity, R.string.sync_XK_success, Toast.LENGTH_SHORT).show()
             }

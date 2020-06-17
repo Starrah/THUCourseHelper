@@ -84,7 +84,7 @@ class LoginDialog(context: Context) : Dialog(context){
             }
             catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(theContext!! as FragmentActivity, "网络异常，加载验证码失败！", Toast.LENGTH_LONG)
+                Toast.makeText(theContext!! as FragmentActivity, e.message, Toast.LENGTH_LONG)
                     .show()
                 dismiss()
             }

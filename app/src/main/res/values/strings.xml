@@ -80,7 +80,8 @@
     <string name="errmsg_change_term_fail_exit">获取学期数据失败，请检查网络连接！由于没有有效的学期数据，程序即将退出！</string>
 
     <string name="settings_sync_XK">立即同步选课系统课程信息</string>
-    <string name="errmsg_login_session_expired">重新输入密码后可用</string>
+    <string name="errmsg_login_no_saved_password">点击上方按钮并输入密码后可用</string>
+    <string name="errmsg_login_session_expired">点击上方按钮并输入验证码后可用</string>
     <string name="errmsg_not_login">登录后可用</string>
 
     <string name="table_show_day_number_5d">5天</string>

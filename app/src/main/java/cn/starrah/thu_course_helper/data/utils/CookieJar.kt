@@ -16,6 +16,10 @@ val CookiedFuel = FuelManager().apply {
         next(req, resp.saveCookie(DEFAULT_COOKIEJAR))
     } }
     addResponseInterceptor(redirectResponseInterceptor(this))
+
+    // 设置超时
+    timeoutInMillisecond = 5000
+    FuelManager.instance.timeoutInMillisecond = 5000
 }
 
 private val SAVECOOKIE_KV_PATTERN = Pattern.compile("^(.+)=(.*)$")

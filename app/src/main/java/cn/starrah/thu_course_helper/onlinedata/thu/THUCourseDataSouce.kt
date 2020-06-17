@@ -173,7 +173,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             if ("用户登陆超时或访问内容不存在。" in rawStr) {
                 isSessionValid = false
                 PreferenceManager.getDefaultSharedPreferences(extra["context"] as Context)
-                    .edit { putInt("login_status", 3) }
+                    .edit { putInt("login_status", 4) }
                 throw LoginStatusTimeoutException()
             }
             if ("该学年学期的选课或退课不在选课进度表中" in rawStr) throw DataInvalidException("当前学期的课程无法从教务系统的数据库中获得。可能是所选学期是将来的学期，或过于久远的过去学期。")
