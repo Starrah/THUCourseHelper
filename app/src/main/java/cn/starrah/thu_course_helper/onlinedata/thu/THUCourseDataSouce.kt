@@ -28,6 +28,7 @@ import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.data.utils.*
 import cn.starrah.thu_course_helper.fragment.CaptchaDialog
 import cn.starrah.thu_course_helper.onlinedata.AbstractCourseDataSource
+import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.coroutines.awaitByteArray
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.coroutines.awaitStringResponse
@@ -50,12 +51,24 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
 //        Pattern.compile("src=\"(.*?/j_acegi_login\\.do\\?url=/jxmh\\.do&amp;m=bks_jxrl&amp;ticket=[a-zA-Z0-9]+)\"")
     override val schoolName: String = "清华大学"
 
+    private suspend fun checkInTUNET(): Boolean {
+        val notInTUNET = Fuel.get("http://info.tsinghua.edu.cn/")
+            .awaitStringResponse(Charset.forName("GBK")).second.url.toString()
+            .contains(Regex("[oO]ut"))
+        return !notInTUNET
+    }
+
+    private suspend fun assertInTUNET() {
+        if (!checkInTUNET()) throw DataInvalidException("您当前不在校园网环境，因此无法登录；请您连接到清华大学校园网，或者使用sslvpn后重试。\n若要了解使用sslvpn的方法，请访问https://sslvpn.tsinghua.edu.cn/ 。")
+    }
+
     suspend fun oldLogin(
         activity: FragmentActivity,
         username: String,
         password: String,
         extra: Map<String, Any>
     ) {
+        assertInTUNET()
         val resStr = CookiedFuel.get("$XK_BASE_URL/xklogin.do")
             .awaitString(Charset.forName("GBK"))
         println(DEFAULT_COOKIEJAR.cookieMap)
@@ -104,6 +117,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             oldLogin(activity!!, username, password, extra)
             return null
         }
+        assertInTUNET()
         if (extra["requireCaptcha"] == true) {
             val resStr = CookiedFuel.get("$XK_BASE_URL/xklogin.do")
                 .awaitString(Charset.forName("GBK"))
@@ -144,6 +158,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         extra: Map<String, Any>
     ): List<CalendarItemDataWithTimes> {
         return withContext(Dispatchers.IO) {
+            assertInTUNET()
             assertDataSystem(schoolName == term.schoolName, "学校名称错误！")
             val termStrInXK = when (term.type) {
                 SchoolTermType.AUTUMN -> "${term.beginYear}-${term.beginYear + 1}-1"
@@ -216,6 +231,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         username: String,
         password: String
     ): String {
+        assertInTUNET()
         // 登录info
         val (_, resp, _) = CookiedFuel.post(
             "https://info.tsinghua.edu.cn/Login", listOf(
@@ -644,20 +660,20 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                             })
                         }
                         val arrangeSmallResult = when (smallPerWeek) {
-                            3 -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
-                            4 -> listOf(2, 2)
-                            5 -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
-                            6 -> {
+                            3    -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
+                            4    -> listOf(2, 2)
+                            5    -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
+                            6    -> {
                                 if (ttsms[0] < 3) listOf(2, 4)
                                 else if (ttsms[1] < 3) listOf(4, 2)
                                 else listOf(3, 3)
                             }
-                            7 -> {
+                            7    -> {
                                 if (ttsms[0] >= 3 && ttsms[0] < ttsms[1]) listOf(3, 4)
                                 else if (ttsms[1] >= 3 && ttsms[0] > ttsms[1]) listOf(4, 3)
                                 else null
                             }
-                            8 -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
+                            8    -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
                             else -> null
                         }
 

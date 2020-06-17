@@ -285,7 +285,7 @@ abstract class CalendarDao {
     }
 
     protected open fun _deleteItems(items: List<CalendarItemData>) {
-        val times = _findTimesByItems(items.map { it.id })
+        val times = if (items.isNotEmpty()) _findTimesByItems(items.map { it.id }) else listOf()
         _deleteItemsWithoutCascade(items)
         _deleteTimes(times)
     }
