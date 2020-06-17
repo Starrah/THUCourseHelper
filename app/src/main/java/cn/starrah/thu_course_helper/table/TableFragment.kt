@@ -259,12 +259,13 @@ abstract class TableFragment : Fragment(){
 
     override fun onStart() {
         super.onStart()
-        colorGrey = theActivity!!.resources.getColor(R.color.colorGreyBG)
 
+        //setWeekToday()
+
+        colorGrey = theActivity!!.resources.getColor(R.color.colorGreyBG)
         getWeekOptionData()
         initWeekOptionPicker()
         loadColors()
-        setWeekToday()
         updateAllDates()
         showAllDates()
         clearOriginalCourses()
@@ -280,7 +281,6 @@ abstract class TableFragment : Fragment(){
             getValidTimes()
             showAllCourses()
         }
-
 
     }
 
@@ -771,6 +771,9 @@ abstract class TableFragment : Fragment(){
     //周选择器
     private lateinit var pvWeekOptions: OptionsPickerView<Any>
 
+
+    protected abstract fun changeCurrentWeek(week: Int)
+
     /**
      * 描述：加载周选择器，之前必须调用getCourseOptionData
      * 参数：无
@@ -779,10 +782,11 @@ abstract class TableFragment : Fragment(){
     private fun initWeekOptionPicker() {
         pvWeekOptions = OptionsPickerBuilder(theActivity,
             OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
-                currentWeek = options1 + 1
+                changeCurrentWeek(options1 + 1)
                 updateAllDates()
                 showAllDates()
-
+                clearOriginalCourses()
+                drawStrokes()
                 //initializeLayout()
                 lifecycleScope.launch {
                     getValidTimes()
