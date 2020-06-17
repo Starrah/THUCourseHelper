@@ -86,7 +86,7 @@ class LoginDialog(context: Context) : Dialog(context){
                 e.printStackTrace()
                 Toast.makeText(theContext!! as FragmentActivity, "网络异常，加载验证码失败！", Toast.LENGTH_LONG)
                     .show()
-
+                dismiss()
             }
         }
 
@@ -127,12 +127,15 @@ class LoginDialog(context: Context) : Dialog(context){
 
                                 //登录成功后保存账号，如果选择了保存密码就保存密码，否则保存密码为空串
                                 var saved_password: String = login_pass
+                                var login_status:Int = 2
+
                                 if(savePassCheck.isChecked == false) {
                                     saved_password = ""
+                                    login_status = 1
                                 }
 
                                 PreferenceManager.getDefaultSharedPreferences(theContext).edit {
-                                    putInt("login_status", 1)
+                                    putInt("login_status", login_status)
                                     putString("login_name", login_id)
                                     putString("login_pass", saved_password)
                                     putInt(
@@ -165,6 +168,7 @@ class LoginDialog(context: Context) : Dialog(context){
 
                                 Toast.makeText(theContext!!, e.message, Toast.LENGTH_SHORT)
                                     .show()
+                                dismiss()
                             }
                         }
                     }
