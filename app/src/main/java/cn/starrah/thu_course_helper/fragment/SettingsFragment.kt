@@ -103,7 +103,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         pf_login = findPreference<Preference>("login_status")!!
         pf_login.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            LoginDialog(requireActivity()).show()
+            var the_dialog = LoginDialog(requireActivity())
+            the_dialog.show()
+
             true
         }
 
