@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.TableFragment
@@ -16,6 +17,7 @@ import cn.starrah.thu_course_helper.activity.ItemEditActivity
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
+import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.DayOfWeek
 
@@ -161,7 +163,9 @@ class CourseTable : TableFragment() {
         }
         if (showType == showTypeCourse) {
             if (theItem.timeInCourseSchedule == null) {
-                return
+                var time: TimeInCourseSchedule = theItem.timeInHour!!.toTimeInCourseSchedule()
+                theItem.timeInCourseSchedule = time
+                v = showOneCourse(theWeekDay, theItem)
             }
             else
             {
@@ -173,6 +177,37 @@ class CourseTable : TableFragment() {
             v = showOneHour(theWeekDay, theItem)
         }
 
+    }
+
+    /**
+     * 描述：修改当前周并且存到shared preference里
+     * 参数：当前周
+     * 返回：无
+     */
+    protected override fun changeCurrentWeek(week: Int) {
+        val sp = PreferenceManager.getDefaultSharedPreferences(theActivity!!)
+        if(week <= 0 || week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
+            setWeekToday()
+        }
+        else {
+            currentWeek = week
+        }
+        sp.edit {
+            putInt("currentWeekCourseTable", currentWeek)
+        }
+    }
+
+    override fun onStart() {
+        val sp = PreferenceManager.getDefaultSharedPreferences(theActivity!!)
+        var current_week = sp.getInt("currentWeekCourseTable", 0)
+        if(current_week <= 0 || current_week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
+            setWeekToday()
+        }
+        else {
+            currentWeek = current_week
+        }
+
+        super.onStart()
     }
 
 
