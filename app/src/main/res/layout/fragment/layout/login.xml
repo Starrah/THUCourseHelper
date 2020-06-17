@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/border_main"
     android:layout_margin="30dp">
 
     <!--top-->
@@ -33,11 +32,11 @@
             android:layout_width="70dp"
             android:drawableLeft="@drawable/icon_id"
             android:text ="@string/settings_id"/>
-        <EditText style="@style/input"
+        <EditText style="@style/input_login"
             android:id="@+id/login_id"/>
     </LinearLayout>
 
-    <!--地点-->
+    <!--密码-->
     <LinearLayout
         android:layout_marginVertical="5dp"
         style="@style/layout">
@@ -46,12 +45,50 @@
             style="@style/define"
             android:drawableLeft="@drawable/icon_password"
             android:text ="@string/settings_pass"/>
-        <EditText style="@style/input"
+        <EditText style="@style/input_login"
             android:inputType="textPassword"
-            android:id="@+id/login_password"/>
+            android:id="@+id/login_password"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+        <ImageButton
+            android:id="@+id/show_hide_button"
+            android:layout_gravity="right"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="10dp"
+            android:background="@drawable/icon_hide_pass" />
     </LinearLayout>
 
-    <!--地点-->
+    <!--记住密码-->
+    <LinearLayout
+        android:layout_marginVertical="5dp"
+        style="@style/layout">
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text ="@string/settings_save_pass"
+            android:layout_weight="1"
+            android:id="@+id/login_save_pass"
+            android:layout_marginHorizontal="0dp"/>
+    </LinearLayout>
+    <!--登录进度条-->
+    <LinearLayout
+        android:id="@+id/login_bar_place"
+        android:layout_marginVertical="5dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+    <ProgressBar
+        android:id="@+id/login_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        />
+    </LinearLayout>
+    <!--按钮-->
     <LinearLayout
         android:layout_marginVertical="5dp"
         style="@style/layout">
