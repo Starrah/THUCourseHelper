@@ -73,8 +73,10 @@
             android:text ="@string/settings_save_pass"
             android:layout_weight="1"
             android:id="@+id/login_save_pass"
-            android:layout_marginHorizontal="0dp"/>
+            android:layout_marginHorizontal="0dp"
+            android:checked="false"/>
     </LinearLayout>
+
     <!--登录进度条-->
     <LinearLayout
         android:id="@+id/login_bar_place"

@@ -25,6 +25,8 @@ class LoginDialog(context: Context) : Dialog(context){
     private lateinit var passPlace:EditText
     private lateinit var loginBar:ProgressBar
     private lateinit var loginBarPlace:LinearLayout
+    private lateinit var savePassCheck:CheckBox
+
     private fun initDialog(context: Context) {
         theContext = context
         buildDialog()
@@ -33,18 +35,31 @@ class LoginDialog(context: Context) : Dialog(context){
     private fun buildDialog() {
         val layout = LayoutInflater.from(theContext!!).inflate(R.layout.login, null)
 
-        PreferenceManager.getDefaultSharedPreferences(theContext).let {
-            if (it.getInt("login_status", 0) > 0) {
-                it.getString("login_name", null)?.let {
-                    layout.findViewById<EditText>(R.id.login_id).setText(it)
-                }
-            }
-        }
-
         idPlace = layout.findViewById(R.id.login_id)
         passPlace = layout.findViewById(R.id.login_password)
         loginBar = layout.findViewById(R.id.login_bar)
         loginBarPlace = layout.findViewById(R.id.login_bar_place)
+        savePassCheck = layout.findViewById(R.id.login_save_pass)
+
+        PreferenceManager.getDefaultSharedPreferences(theContext).let {
+            //加载账号
+
+            it.getString("login_name", "")?.let {
+                idPlace.setText(it)
+            }
+
+            //如果登录状态为2,3，加载密码
+            if (it.getInt("login_status", 0) >= 2) {
+                it.getString("login_pass", "")?.let {
+                    if(it != null&& it.isEmpty() == false) {
+                        //设置保存密码选项为true
+                        savePassCheck.isChecked = true
+                    }
+                    passPlace.setText(it)
+                }
+            }
+        }
+
 
         //隐藏progressbar
         var params_hide: LinearLayout.LayoutParams =
@@ -75,13 +90,22 @@ class LoginDialog(context: Context) : Dialog(context){
                                 loginBarPlace.setLayoutParams(params_show);
                                 loginBar.isVisible = true
 
+                                //登录
                                 THUCourseDataSouce.login(
                                     theContext as FragmentActivity, login_id,
                                     login_pass
                                 )
+
+                                //登录成功后保存账号，如果选择了保存密码就保存密码，否则保存密码为空串
+                                var saved_password: String = login_pass
+                                if(savePassCheck.isChecked == false) {
+                                    saved_password = ""
+                                }
+
                                 PreferenceManager.getDefaultSharedPreferences(theContext).edit {
                                     putInt("login_status", 1)
                                     putString("login_name", login_id)
+                                    putString("login_pass", saved_password)
                                     putInt(
                                         "login_force_update",
                                         (System.currentTimeMillis() / 1000).toInt()
