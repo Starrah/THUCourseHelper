@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -21,10 +22,13 @@ import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDat
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 /**
@@ -35,34 +39,36 @@ class ItemShowActivity : AppCompatActivity(){
     private var showItem: CalendarItemDataWithTimes? = null;
     private var showID:Int = -1;
 
+    protected var showTeacher: String = ""
+    protected var showCourseID: String = ""
+    protected var showAssociation: String = ""
+    protected var showComment: String = ""
 
     companion object {
         public val EXTRA_MESSAGE = "cn.starrah.thu_course_helper.extra.MESSAGE"
         public val EDIT_CODE = 1024
-    }
 
-    /**
-     * 描述：初始化
-     * @param savedInstanceState 存储的data，其实只有待显示活动的ID
-     */
-    protected override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.calendar_item_show)
-        //ButterKnife.bind(this)
-
-        val intent = intent
-        val message = intent.getIntExtra(TableFragment.EXTRA_MESSAGE, -1)
-        if(message < 0) {
-            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
-            finish()
+        /**
+         *描述：隐藏控件
+         *参数：自己
+         *返回：无
+         */
+        fun HideItem(item:LinearLayout) {
+            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0);
+            item.layoutParams = params
         }
-        showID = message
-        lifecycleScope.launch {
-            getData()
-            showData()
+
+        /**
+         *描述：显示控件
+         *参数：自己
+         *返回：无
+         */
+        fun ShowItem(item:LinearLayout) {
+            //和style一致
+            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 65);
+            item.layoutParams = params
         }
     }
-
 
 
     /**
@@ -87,6 +93,34 @@ class ItemShowActivity : AppCompatActivity(){
     }
 
     /**
+     * 描述：初始化
+     * @param savedInstanceState 存储的data，其实只有待显示活动的ID
+     */
+    protected override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.calendar_item_show)
+        //ButterKnife.bind(this)
+
+        showTeacher = resources.getString(R.string.item_teacher).toString();
+        showCourseID = resources.getString(R.string.item_course_id).toString();
+        showAssociation = resources.getString(R.string.item_association).toString();
+        showComment = resources.getString(R.string.item_comment).toString();
+
+
+        val intent = intent
+        val message = intent.getIntExtra(TableFragment.EXTRA_MESSAGE, -1)
+        if(message < 0) {
+            Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
+            finish()
+        }
+        showID = message
+        lifecycleScope.launch {
+            getData()
+            showData()
+        }
+    }
+
+    /**
      * 描述：根据读取的数据showItem修改显示界面
      * 参数：无
      * 返回：无
@@ -103,20 +137,18 @@ class ItemShowActivity : AppCompatActivity(){
 
         //类别
         var item_type:CalendarItemType = showItem!!.type
-        var item_type_show:String = item_type.chineseName
-        var show_type:TextView = findViewById(R.id.item_show_type)
-        show_type.setText(item_type_show)
 
         //教师，课程号，detail
         var item_teacher:String? = showItem!!.detail[CalendarItemLegalDetailKey.TEACHER]
         var show_teacher_place:LinearLayout = findViewById(R.id.item_show_teacher_place)
         var show_teacher: TextView = findViewById(R.id.item_show_teacher)
         if(item_teacher == null) {
-            ItemEditActivity.HideItem(show_teacher_place)
+            HideItem(show_teacher_place)
         }
         else {
-            ItemEditActivity.ShowItem(show_teacher_place)
-            show_teacher.setText(item_teacher)
+            var show_item_teacher = showTeacher + ": " + item_teacher;
+            ShowItem(show_teacher_place)
+            show_teacher.setText(show_item_teacher)
         }
 
 
@@ -125,11 +157,12 @@ class ItemShowActivity : AppCompatActivity(){
         var show_course_id_place: LinearLayout = findViewById(R.id.item_show_course_id_place)
 
         if(item_course_id == null) {
-            ItemEditActivity.HideItem(show_course_id_place)
+            HideItem(show_course_id_place)
         }
         else {
-            ItemEditActivity.ShowItem(show_course_id_place)
-            show_course_id.setText(item_course_id)
+            var show_item_course_id = showCourseID + ": " + item_course_id;
+            ShowItem(show_course_id_place)
+            show_course_id.setText(show_item_course_id)
         }
 
         var item_association: String? =
@@ -138,11 +171,12 @@ class ItemShowActivity : AppCompatActivity(){
         var show_association_place: LinearLayout = findViewById(R.id.item_show_association_place)
 
         if (item_association == null) {
-            ItemEditActivity.HideItem(show_association_place)
+            HideItem(show_association_place)
         }
         else {
-            ItemEditActivity.ShowItem(show_association_place)
-            show_association.setText(item_association)
+            var show_item_association = showAssociation + ": " + item_association;
+            ShowItem(show_association_place)
+            show_association.setText(show_item_association)
         }
 
         //详情
@@ -151,7 +185,8 @@ class ItemShowActivity : AppCompatActivity(){
         if(item_comment == null) {
             item_comment = ""
         }
-        show_comment.setText(item_comment)
+        var show_item_comment = showComment + ": " + item_comment;
+        show_comment.setText(show_item_comment)
 
         //具体下面
         var parent_place = findViewById<LinearLayout>(R.id.new_time_place_show)
@@ -229,6 +264,9 @@ class ItemShowActivity : AppCompatActivity(){
             var start_time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
             var end_time:String = ItemEditActivity.getTimeString(schedule!!.endTime)
             var week_day = schedule!!.dayOfWeek
+            if(week_day == null) {
+                week_day = schedule!!.date!!.dayOfWeek
+            }
             var week_day_string:String = week_day!!.chineseName
             var day_time:String = week_day_string + start_time  + "-" + end_time
             show_time.setText(day_time)
@@ -245,6 +283,9 @@ class ItemShowActivity : AppCompatActivity(){
             var schedule = time.timeInHour
             var time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
             var week_day = schedule!!.dayOfWeek
+            if(week_day == null) {
+                week_day = schedule!!.date!!.dayOfWeek
+            }
             var week_day_string:String = week_day!!.chineseName
             var day_time:String = week_day_string + time
             show_time.setText(day_time)
@@ -266,6 +307,40 @@ class ItemShowActivity : AppCompatActivity(){
         var time_comment:String = time.comment
         var show_comment:TextView = layout.findViewById(R.id.time_show_comment)
         show_comment.setText(time_comment)
+
+        //提醒
+        var time_remind:String = ""
+        var time_remind_type_string:String = "使用" + time.remindData.method.chineseName
+        var time_remind_time_string:String = "提前" + time.remindData.aheadTime.toMinutes() + "分钟提醒"
+        if(time.remindData.type == CalendarRemindType.NONE) {
+            time_remind = "未设置提醒"
+        }
+        else{
+            var time_remind_repeat_string:String = time.remindData.type.chineseName
+            time_remind = time_remind_time_string + "， "+ time_remind_type_string + "， " +  time_remind_repeat_string
+        }
+        var show_remind:TextView = layout.findViewById(R.id.time_show_remind)
+        show_remind.setText(time_remind)
+
+        //下次提醒时间
+        var show_next_remind_place = layout.findViewById<LinearLayout>(R.id.time_show_remind_next_place)
+        if(time.remindData.type == CalendarRemindType.NONE) {
+            HideItem(show_next_remind_place)
+        }
+        else {
+            var show_next_remind:TextView = layout.findViewById(R.id.time_show_remind_next)
+            var new_remind_time = time.nextRemindTime
+            var new_remind_time_string = ""
+            if(new_remind_time == null) {
+                new_remind_time_string = "提醒已关闭"
+            }
+            else {
+                var df: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                var time_string:String = df.format(new_remind_time);
+                new_remind_time_string = "下次提醒时间： " + time_string
+            }
+            show_next_remind.setText(new_remind_time_string)
+        }
 
         //添加
         parent_place.addView(layout)
@@ -355,15 +430,6 @@ class ItemShowActivity : AppCompatActivity(){
         }
     }
 
-    /**
-     * 描述：处理提醒按钮的事件--跳转到提醒界面
-     * 参数：无
-     * 返回：无
-     * TODO
-     */
-    fun handleRemind(view: View) {
-
-    }
 
     /**
      * 描述：处理删除按钮的事件--删除当前内容，跳转回去

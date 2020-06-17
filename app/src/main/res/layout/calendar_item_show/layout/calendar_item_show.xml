@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@drawable/border">
+        android:background="@drawable/border_main">
 
         <!--返回按钮-->
         <ImageButton
@@ -41,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:background="@drawable/border">
+            android:background="@drawable/border_main">
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -58,15 +58,6 @@
                 android:layout_gravity="right"
                 android:id="@+id/item_show_delete"
                 android:onClick="handleDelete"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="5dp"
-                android:background="@drawable/icon_remind"
-                android:layout_gravity="right"
-                android:id="@+id/item_show_remind"
-                android:onClick="handleRemind"
-                />
         </LinearLayout>
     </LinearLayout>
 
@@ -74,75 +65,48 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/border"
-        android:layout_margin="30dp">
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginVertical="15dp">
 
         <!--名称-->
-        <LinearLayout style="@style/layout">
-            <TextView style="@style/define_show"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_name"/>
-            <TextView style="@style/input_show"
+        <LinearLayout style="@style/layout_title_item_show">
+            <TextView style="@style/title_item_show"
                 android:id="@+id/item_show_name"
                 android:text="1453"/>
         </LinearLayout>
 
 
-        <!--类别-->
-        <LinearLayout style="@style/layout">
-            <TextView style="@style/define_show"
-                android:drawableLeft="@drawable/icon_type"
-                android:text ="@string/item_type"/>
-            <TextView style="@style/input_show"
-                android:id="@+id/item_show_type"
-                android:text="0529"/>
-        </LinearLayout>
-
         <!--教师-->
-        <LinearLayout style="@style/layout"
+        <LinearLayout style="@style/layout_item_show"
             android:id="@+id/item_show_teacher_place">
-            <TextView style="@style/define_show"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_teacher"/>
-            <TextView style="@style/input"
+            <TextView style="@style/input_item_show"
                 android:id="@+id/item_show_teacher"/>
         </LinearLayout>
 
         <!--课程号-->
-        <LinearLayout style="@style/layout"
+        <LinearLayout style="@style/layout_item_show"
             android:id="@+id/item_show_course_id_place">
-            <TextView style="@style/define_show"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_course_id"/>
-            <TextView style="@style/input"
+            <TextView style="@style/input_item_show"
                 android:id="@+id/item_show_course_id"/>
         </LinearLayout>
 
         <!--组织-->
-        <LinearLayout style="@style/layout"
+        <LinearLayout style="@style/layout_item_show"
             android:id="@+id/item_show_association_place">
-            <TextView style="@style/define_show"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_association"/>
-            <TextView style="@style/input_show"
+            <TextView style="@style/input_item_show"
                 android:id="@+id/item_show_association"/>
         </LinearLayout>
-
 
         <!--描述-->
         <LinearLayout
             android:layout_height="wrap_content"
-            style="@style/layout">
+            style="@style/layout_item_show">
             <TextView
-                style="@style/define_show"
-                android:drawableLeft="@drawable/icon_item"
-                android:text ="@string/item_comment"/>
-            <TextView
-                android:layout_height="wrap_content"
-                style="@style/input_show"
+                style="@style/input_item_show"
                 android:id="@+id/item_show_comment"
-                android:text="ceddin deden!neslin baban!"/>
+                android:text="ceddin deden!neslin baban!kebabkebabbaiehhciejcliej"/>
         </LinearLayout>
+
     </LinearLayout>
 
 

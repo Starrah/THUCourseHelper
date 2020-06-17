@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorPrimary">#03DAC5</color>
+    <color name="colorPrimaryDark">#00868B</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="colorWhite">#FFFFFF</color>
+    <color name="colorGrey">#BEBEBE</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorGreyBG">#F5F5F5</color>
+    <color name="colorGreyText">#808A87</color>
     <color name="colorControlHighlight">?android:attr/colorControlHighlight</color>
+
+    <!--课程可选颜色-->
+    <color name="colorBlue">#4169E1</color>
+    <color name="colorTurquoise">#00868B</color>
+    <color name="colorGreen">#228B22</color>
+    <color name="colorYellow">#FFFF00</color>
+    <color name="colorOrange">#FFA500</color>
+    <color name="colorRed">#FF3030</color>
+    <color name="colorPink">#FFB6C1</color>
+    <color name="colorViolet">#EE82EE</color>
+    <color name="colorSPQR1">#AD1453</color>
+    <color name="colorSPQR2">#1453AD</color>
+    <color name="colorPreussen">#003153</color>
+
 </resources>

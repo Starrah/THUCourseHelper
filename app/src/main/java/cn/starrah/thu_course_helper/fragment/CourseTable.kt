@@ -122,6 +122,7 @@ class CourseTable : TableFragment() {
             initializeLeftHour()
         }
         initializeListWidth()
+
         var add_button: FloatingActionButton = theActivity!!.findViewById<FloatingActionButton>(R.id.add_item)
         add_button.setVisibility(View.VISIBLE)
         add_button.setOnClickListener(View.OnClickListener {
@@ -129,10 +130,25 @@ class CourseTable : TableFragment() {
             intent.putExtra(EXTRA_MESSAGE, -1)
             theActivity!!.startActivity(intent)
         })
+
     }
 
+    /**
+     * 描述：画所有横线
+     * 参数：无
+     * 返回：无
+     */
+    override fun drawStrokes() {
+        if(showType == showTypeCourse) {
+            drawStrokesCourse()
+        }
+        else
+        {
+            drawStrokesHour()
+        }
+    }
 
-    /*
+    /**
     描述：显示某个日程时间段
     参数：这个时间段在周几，这个时间段的信息
     返回：无

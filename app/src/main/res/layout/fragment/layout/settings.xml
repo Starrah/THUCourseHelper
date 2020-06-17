@@ -9,17 +9,20 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorBlack"
         android:layout_weight="1" />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="登录"
+        android:textColor="@color/colorBlack"
         android:id="@+id/login_button" />
 
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorBlack"
             android:layout_weight="1" />
     </LinearLayout>
 </RelativeLayout>

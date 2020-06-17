@@ -63,9 +63,6 @@ class ItemEditActivity : AppCompatActivity(){
     //comment监听器
     public lateinit var detailChanger:TextWatcher
 
-    //时间类别选择，用于选择对应的时间类别
-    private val typeChoices: ArrayList<String> = arrayListOf("课程", "科研", "社工", "社团", "其他")
-    private lateinit var pvTypeOptions: OptionsPickerView<Any>
 
     companion object {
         /**
@@ -205,7 +202,7 @@ class ItemEditActivity : AppCompatActivity(){
          */
         fun ShowItem(item:LinearLayout) {
             //和style一致
-            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 140);
+            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 100);
             item.layoutParams = params
         }
     }
@@ -222,12 +219,6 @@ class ItemEditActivity : AppCompatActivity(){
         val message = intent.getIntExtra(ItemShowActivity.EXTRA_MESSAGE, -1)
         currentID = message
 
-        initNameChanger()
-        initTeacherChanger()
-        initCourseIDChanger()
-        initAssociationChanger()
-        initDetailChanger()
-        initTypeOptionPicker()
 
         lifecycleScope.launch {
             //数据获取
@@ -237,11 +228,9 @@ class ItemEditActivity : AppCompatActivity(){
             else {
                 getData()
             }
-            //初始化界面
-            showData()
 
             mRecyclerView = findViewById(R.id.recycler_view)
-            mAdapter = ItemEditAdapter(currentItem!!.times!!, this@ItemEditActivity)
+            mAdapter = ItemEditAdapter(currentItem!!, this@ItemEditActivity)
             mRecyclerView!!.setAdapter(mAdapter)
             mRecyclerView!!.setLayoutManager(LinearLayoutManager(this@ItemEditActivity))
         }
@@ -280,169 +269,8 @@ class ItemEditActivity : AppCompatActivity(){
     }
 
 
-    /**
-     * 描述：根据读取的数据showItem修改显示界面
-     * 参数：无
-     * 返回：无
-     */
-    suspend fun showData() {
-        //名称
-        var item_name:String = currentItem!!.name
-        var item_edit_name: EditText = findViewById(R.id.item_edit_name)
-        item_edit_name.setText(item_name)
-        item_edit_name.addTextChangedListener(nameChanger)
-
-        //类别
-        var item_type:CalendarItemType = currentItem!!.type
-        var item_type_string: String = currentItem!!.type.chineseName
-        var edit_type: TextView = findViewById(R.id.item_edit_type)
-        edit_type.text = item_type_string
-        edit_type.setOnClickListener(View.OnClickListener() {
-            if (pvTypeOptions != null) {
-                pvTypeOptions.show(edit_type);
-            }
-        })
-
-        var edit_teacher: EditText = findViewById(R.id.item_edit_teacher)
-        var edit_course_id: EditText = findViewById(R.id.item_edit_course_id)
-        var edit_association: TextView = findViewById(R.id.item_edit_association)
-        var edit_teacher_place: LinearLayout = findViewById(R.id.item_edit_teacher_place)
-        var edit_course_id_place: LinearLayout = findViewById(R.id.item_edit_course_id_place)
-        var edit_association_place: LinearLayout = findViewById(R.id.item_edit_association_place)
-
-        //教师，课程号，detail
-        if(item_type == CalendarItemType.COURSE) {
-            //教师，课程号显示，其余隐藏
-            ShowItem(edit_teacher_place)
-            ShowItem(edit_course_id_place)
-            HideItem(edit_association_place)
-
-            //设置教师，课程号初值
-            var item_teacher:String? = currentItem!!.detail[CalendarItemLegalDetailKey.TEACHER]
-            if(item_teacher == null) {
-                item_teacher = ""
-            }
-
-            edit_teacher.setText(item_teacher)
-            edit_teacher.addTextChangedListener(teacherChanger)
 
 
-            var item_course_id:String? = currentItem!!.detail[CalendarItemLegalDetailKey.COURSEID]
-            if(item_course_id == null) {
-                item_course_id = ""
-            }
-
-            edit_course_id.setText(item_course_id)
-            edit_course_id.addTextChangedListener(courseIDChanger)
-        }
-        else if(item_type == CalendarItemType.SOCIALWORK || item_type == CalendarItemType.ASSOCIATION) {
-            //组织显示，其余隐藏
-            HideItem(edit_teacher_place)
-            HideItem(edit_course_id_place)
-            ShowItem(edit_association_place)
-
-
-            //设置组织初值
-            var item_association: String? =
-                currentItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION]
-            if (item_association == null) {
-                item_association = ""
-            }
-            edit_association.setText(item_association)
-            edit_association.addTextChangedListener(associationChanger)
-
-        }
-        else {
-            //全隐藏
-            HideItem(edit_teacher_place)
-            HideItem(edit_course_id_place)
-            HideItem(edit_association_place)
-        }
-
-        //详情
-        var item_comment:String? = currentItem!!.detail[CalendarItemLegalDetailKey.COMMENT]
-        var edit_comment: EditText = findViewById(R.id.item_edit_comment)
-        if(item_comment == null) {
-            item_comment = ""
-        }
-        edit_comment.setText(item_comment)
-        edit_comment.addTextChangedListener(detailChanger)
-    }
-
-
-    /**
-     * 描述：根据修改的类别信息来修改数据和显示
-     * 参数：一个int，从0开始，对应修改后当前日程的类型在枚举里对应的数值
-     * 返回：无
-     */
-    fun handleTypeChange(new_type_int:Int) {
-        var the_type:CalendarItemType = CalendarItemType.COURSE
-        for(type in CalendarItemType.values()) {
-            if(type.ordinal == new_type_int) {
-                the_type = type
-                break
-            }
-        }
-        currentItem!!.type = the_type
-        var type_edit:TextView = findViewById(R.id.item_edit_type)
-        type_edit.setText(the_type.chineseName)
-
-        var teacher_place:LinearLayout = findViewById(R.id.item_edit_teacher_place)
-        var course_id_place:LinearLayout = findViewById(R.id.item_edit_course_id_place)
-        var association_place:LinearLayout = findViewById(R.id.item_edit_association_place)
-        var teacher_edit:EditText = findViewById(R.id.item_edit_teacher)
-        var course_id_edit:EditText = findViewById(R.id.item_edit_course_id)
-        var association_edit:EditText = findViewById(R.id.item_edit_association)
-        var teacher_string:String = ""
-        var course_id_string:String = ""
-        var association_string:String = ""
-        if(the_type == CalendarItemType.COURSE) {
-            //修改数据
-            var the_teacher = currentItem!!.detail.get(CalendarItemLegalDetailKey.TEACHER)
-            if(the_teacher != null) {
-                teacher_string = the_teacher
-            }
-            var the_course_id = currentItem!!.detail.get(CalendarItemLegalDetailKey.COURSEID)
-            if(the_course_id != null) {
-                course_id_string = the_course_id
-            }
-            currentItem!!.detail.remove(CalendarItemLegalDetailKey.ORGANIZATION)
-
-            //修改显示
-            ShowItem(teacher_place)
-            ShowItem(course_id_place)
-            HideItem(association_place)
-            teacher_edit.setText(teacher_string)
-            course_id_edit.setText(course_id_string)
-        }
-        else if(the_type == CalendarItemType.ASSOCIATION || the_type == CalendarItemType.SOCIALWORK) {
-            //修改数据
-            currentItem!!.detail.remove(CalendarItemLegalDetailKey.TEACHER)
-            currentItem!!.detail.remove(CalendarItemLegalDetailKey.COURSEID)
-            var the_org_id = currentItem!!.detail.get(CalendarItemLegalDetailKey.ORGANIZATION)
-            if(the_org_id != null) {
-                association_string = the_org_id
-            }
-
-            //修改显示
-            HideItem(teacher_place)
-            HideItem(course_id_place)
-            ShowItem(association_place)
-            association_edit.setText(association_string)
-        }
-        else {
-            //修改数据
-            currentItem!!.detail.remove(CalendarItemLegalDetailKey.ORGANIZATION)
-            currentItem!!.detail.remove(CalendarItemLegalDetailKey.TEACHER)
-            currentItem!!.detail.remove(CalendarItemLegalDetailKey.COURSEID)
-
-            //修改显示
-            HideItem(teacher_place)
-            HideItem(course_id_place)
-            HideItem(association_place)
-        }
-
-    }
 
     /**
      * 描述：用于保存时，用于判断当前currentItem是否符合要求
@@ -473,188 +301,6 @@ class ItemEditActivity : AppCompatActivity(){
         CREP.updateItemAndTimes(currentItem!!)
     }
 
-    //字符编辑绑定加载函数
-    /**
-     * 描述：初始化名称监听器
-     * 参数：无
-     * 返回：无
-     */
-    private fun initNameChanger() {
-        nameChanger = (object : TextWatcher {
-            override fun beforeTextChanged(
-                s: CharSequence,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-            }
-
-            override fun afterTextChanged(editable: Editable) {
-                currentItem!!.name = editable.toString()
-            }
-        })
-    }
-    /**
-     * 描述：初始化教师监听器
-     * 参数：无
-     * 返回：无
-     */
-    private fun initTeacherChanger() {
-        teacherChanger = (object : TextWatcher {
-            override fun beforeTextChanged(
-                s: CharSequence,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-            }
-
-            override fun afterTextChanged(editable: Editable) {
-                if (currentItem!!.type.equals(CalendarItemType.COURSE)) {
-                    currentItem!!.detail[CalendarItemLegalDetailKey.TEACHER] = editable.toString()
-                }
-            }
-        })
-    }
-
-    /**
-     * 描述：初始化课程号监听器
-     * 参数：无
-     * 返回：无
-     */
-    private fun initCourseIDChanger() {
-        courseIDChanger = (object : TextWatcher {
-            override fun beforeTextChanged(
-                s: CharSequence,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-            }
-
-            override fun afterTextChanged(editable: Editable) {
-                if(currentItem!!.type.equals(CalendarItemType.COURSE)) {
-                    currentItem!!.detail[CalendarItemLegalDetailKey.COURSEID] = editable.toString()
-                }
-            }
-        })
-    }
-
-    /**
-     * 描述：初始化组织监听器
-     * 参数：无
-     * 返回：无
-     */
-    private fun initAssociationChanger() {
-        associationChanger = (object : TextWatcher {
-            override fun beforeTextChanged(
-                s: CharSequence,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-            }
-
-            override fun afterTextChanged(editable: Editable) {
-                if(currentItem!!.type.equals(CalendarItemType.SOCIALWORK) || currentItem!!.type.equals(CalendarItemType.ASSOCIATION)) {
-                    currentItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION] = editable.toString()
-                }
-            }
-        })
-    }
-
-
-
-    /**
-     * 描述：初始化详情监听器
-     * 参数：无
-     * 返回：无
-     */
-    private fun initDetailChanger() {
-        detailChanger = (object : TextWatcher {
-            override fun beforeTextChanged(
-                s: CharSequence,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-            }
-
-            override fun afterTextChanged(editable: Editable) {
-                currentItem!!.detail[CalendarItemLegalDetailKey.COMMENT] = editable.toString()
-            }
-        })
-    }
-
-    //选择器加载函数
-    /**
-     * 描述：加载类别选择器
-     * 参数：无
-     * 返回：无
-     */
-    private fun initTypeOptionPicker() {
-        pvTypeOptions = OptionsPickerBuilder(this,
-            OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
-                handleTypeChange(options1)
-            })
-            .setTitleText("时间类别选择")
-            .setContentTextSize(20) //设置滚轮文字大小
-            .setDividerColor(Color.LTGRAY) //设置分割线的颜色
-            .setSelectOptions(0, 1) //默认选中项
-            .setBgColor(Color.BLACK)
-            .setTitleBgColor(Color.DKGRAY)
-            .setTitleColor(Color.LTGRAY)
-            .setCancelColor(Color.YELLOW)
-            .setSubmitColor(Color.YELLOW)
-            .setTextColorCenter(Color.LTGRAY)
-            .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
-            .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
-            .setOutSideColor(0x00000000) //设置外部遮罩颜色
-            .setOptionsSelectChangeListener { options1, options2, options3 ->
-            }
-            .build<Any>()
-        pvTypeOptions.setPicker(typeChoices as List<Any>?) //一级选择器
-    }
 
     //对话框显示函数
     /**
