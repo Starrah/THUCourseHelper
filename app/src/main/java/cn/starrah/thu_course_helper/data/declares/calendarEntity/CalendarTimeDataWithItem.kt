@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Relation
 
 class CalendarTimeDataWithItem : CalendarTimeData() {
-    @Relation(parentColumn = "item_id", entityColumn = "id")
+    @Relation(parentColumn = "item_id", entityColumn = "rowid")
     var _im: List<CalendarItemData> = listOf()
 
     /** 该时间段所对应关联的日程项数据对象的引用。*/

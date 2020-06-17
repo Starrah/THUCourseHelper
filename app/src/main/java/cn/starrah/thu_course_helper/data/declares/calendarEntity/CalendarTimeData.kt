@@ -13,23 +13,23 @@ import cn.starrah.thu_course_helper.data.utils.assertData
 import cn.starrah.thu_course_helper.data.utils.assertDataSystem
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import com.alibaba.fastjson.JSON
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 /**
  * 描述一个时间段的数据类。
  */
+@Fts4
 @Entity(
-    foreignKeys = [ForeignKey(
-        entity = CalendarItemData::class, parentColumns = arrayOf("id"),
-        childColumns = arrayOf("item_id"), onDelete = ForeignKey.CASCADE
-    )],
-    indices = [Index("item_id")]
+//    foreignKeys = [ForeignKey(
+//        entity = CalendarItemData::class, parentColumns = arrayOf("id"),
+//        childColumns = arrayOf("item_id"), onDelete = ForeignKey.CASCADE
+//    )],
+//    indices = [Index("item_id")]
 )
 open class CalendarTimeData(
     /** 时间段的数据库id，各个时间段唯一。当试图插入新时间段到数据库中时，请保证id为默认值0。 */
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name="rowid") var id: Int = 0,
 
     /** 时间段的名称 */
     var name: String = "",

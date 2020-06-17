@@ -4,9 +4,15 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import cn.starrah.thu_course_helper.data.database.CalendarRepository.initializeTerm
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.*
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
+import cn.starrah.thu_course_helper.data.utils.AttachedLiveData
+import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
+import cn.starrah.thu_course_helper.onlinedata.AbstractCourseDataSource
+import cn.starrah.thu_course_helper.onlinedata.CourseDataSourceRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -38,6 +44,10 @@ object CalendarRepository {
         get
         private set
 
+    var onlineCourseDataSource: AbstractCourseDataSource? = null
+        get
+        private set
+
     val timeRule: SchoolTimeRule
         get() = term.timeRule
 
@@ -51,6 +61,7 @@ object CalendarRepository {
         withContext(Dispatchers.IO) {
             term.assertValidResetMsg { "内置的学期数据不合法：$it" }
             this@CalendarRepository.term = term
+            this@CalendarRepository.onlineCourseDataSource = CourseDataSourceRegistry[term.schoolName]
             database = CalendarDatabase.getDatabaseInstance(context, term.dbName)
             DAO = database.Dao()
             initialized = true
@@ -189,7 +200,7 @@ object CalendarRepository {
      * @return 对应的含Item时间段（[CalendarTimeDataWithItem]）的列表
      */
     suspend fun findTimesByIds(timeIds: List<Int>): LiveData<List<CalendarTimeDataWithItem>> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.findTimesByIds(timeIds)
         }
     }
@@ -202,7 +213,7 @@ object CalendarRepository {
      * @return 对应的含Times日程项（[CalendarItemDataWithTimes]）的列表
      */
     suspend fun findItemsByIds(itemIds: List<Int>): LiveData<List<CalendarItemDataWithTimes>> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.findItemsByIds(itemIds)
         }
     }
@@ -217,7 +228,7 @@ object CalendarRepository {
      * @return 该日程下所有含时间段（[CalendarTimeData]）的列表
      */
     suspend fun findTimesByItem(item: CalendarItemData): LiveData<List<CalendarTimeData>> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.findTimesByItem(item.id)
         }
     }
@@ -232,7 +243,7 @@ object CalendarRepository {
      * @return 该时间段对应的日程项[CalendarItemDataWithTimes]
      */
     suspend fun findItemByTime(time: CalendarTimeData): LiveData<CalendarItemDataWithTimes> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.findItemByTime(time.id)
         }
     }
@@ -252,7 +263,7 @@ object CalendarRepository {
      * @param [items] 要删除的日程项
      */
     suspend fun deleteItems(items: List<CalendarItemData>) {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.deleteItems(items)
         }
     }
@@ -264,9 +275,94 @@ object CalendarRepository {
      * @param [times] 要删除的时间段
      */
     suspend fun deleteTimes(times: List<CalendarTimeData>) {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             DAO.deleteTimes(times)
         }
+    }
+
+    /**
+     * 查找指定类型的日程。
+     * @param [type] 日程类型
+     */
+    suspend fun matchItemsSpecifiedType(type: CalendarItemType): LiveData<List<CalendarItemDataWithTimes>> {
+        return withContext(Dispatchers.IO) {
+            DAO.findItemsSpecifiedType(type.name)
+        }
+    }
+
+    /**
+     * 查找所有满足下述条件的日程：[CalendarItemData.detail]中的指定字段，与一段指定的文本具有关联。
+     * 上述“关联”可以有两种选择：（1）完全一致，（2）在中文分词的意义下匹配。
+     *
+     *
+     * 例如，数据库中的有三个日程，它们的[CalendarItemData.detail][[CalendarItemLegalDetailKey.COMMENT]]
+     * 分别为"考"，"考试"和"期末考试"。
+     *
+     * 则执行matchItemsSpecifiedDetailWord([CalendarItemLegalDetailKey.COMMENT], "考试", false)
+     * 会返回后两项（"考试"和"期末考试"），
+     *
+     * 而matchItemsSpecifiedDetailWord([CalendarItemLegalDetailKey.COMMENT], "考试", true)
+     * 则只返回第二项（"考试"）。
+     *
+     * @param [detailKey] 要查找的[CalendarItemLegalDetailKey]。
+     * @param [word] 要进行查找的目标字符串。
+     * @param [exactEqual] 如果取值为true，则只有在一个日程的由[detailKey]所指定的详情字段的内容与[word]
+     * 完全匹配的情况下才会返回；否则如果取值为false，则只要求字段的内容与[word]在中文分词的意义下匹配即可。
+     *
+     */
+    suspend fun matchItemsSpecifiedDetailWord(
+        detailKey: CalendarItemLegalDetailKey,
+        word: String,
+        exactEqual: Boolean = false
+    ): LiveData<List<CalendarItemDataWithTimes>> {
+        return withContext(Dispatchers.IO) {
+            AttachedLiveData<List<CalendarItemDataWithTimes>, List<CalendarItemDataWithTimes>>(DAO.findItemsSpecifiedDetailFulltext(word)) { newValue, old ->
+                newValue.filter {
+                    val dataValue = it.detail[detailKey] ?: return@filter false
+                    if (exactEqual) word == dataValue else word in dataValue
+                }
+            }
+        }
+    }
+
+    /**
+     * 查找具有指定名称、且其的日程具有指定类型的时间段。
+     * @param [name] 名称
+     * @param [itemType] 日程类型。如果不传或传入null，则任意类型的日程均可被找到。
+     * @param [exactEqual] 如果取值为true，则只有在一个时间段的name字段与传入的[name]参数完全匹配的情况下
+     * 才会返回；否则如果取值为false，则只要求name字段的内容与传入的[name]参数在中文分词的意义下匹配即可。
+     */
+    suspend fun matchTimesSpecifiedNameAndItemType(
+        name: String,
+        itemType: CalendarItemType? = null,
+        exactEqual: Boolean = false
+    ): LiveData<List<CalendarTimeDataWithItem>> {
+        return withContext(Dispatchers.IO) {
+            if (!exactEqual && itemType == null) DAO.findTimesSpecifiedName(name)
+            else AttachedLiveData(DAO.findTimesSpecifiedName(name)) { newValue, old ->
+                newValue.filter {
+                    (!exactEqual || it.name == name) && (itemType == null || itemType == it.calendarItem.type)
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取所有的作业类型的日程。
+     *
+     * Implementation Notes: 调用[matchItemsSpecifiedDetailWord]，查找说明字段为"网络学堂作业"的。
+     */
+    suspend fun helper_findHomeworkItems(): List<CalendarItemDataWithTimes> {
+        return matchItemsSpecifiedDetailWord(CalendarItemLegalDetailKey.COMMENT, "网络学堂作业").getNotNullValue()
+    }
+
+    /**
+     * 获取所有的期末考试类型的时间段。
+     *
+     * Implementation Notes: 调用[matchTimesSpecifiedNameAndItemType]，查找所有名称字段为"期末考试"、且日程类型为"课程"的。
+     */
+    suspend fun helper_findFinalExamTimes(): List<CalendarTimeDataWithItem> {
+        return matchTimesSpecifiedNameAndItemType("期末考试", CalendarItemType.COURSE).getNotNullValue()
     }
 
 }

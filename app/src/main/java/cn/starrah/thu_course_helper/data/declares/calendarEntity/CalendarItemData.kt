@@ -1,14 +1,11 @@
 package cn.starrah.thu_course_helper.data.declares.calendarEntity
 
 import androidx.lifecycle.LiveData
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
+import androidx.room.*
 import cn.starrah.thu_course_helper.data.database.CalendarRepository
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.utils.Verifiable
-import cn.starrah.thu_course_helper.data.utils.assertData
 import cn.starrah.thu_course_helper.data.utils.assertDataSystem
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.TypeReference
@@ -16,10 +13,11 @@ import com.alibaba.fastjson.TypeReference
 /**
  * 描述一个日程的数据类。
  */
+@Fts4
 @Entity
 open class CalendarItemData(
     /** 日程的数据库id，各个日程唯一。当试图插入新日程到数据库中时，请保证id为默认值0。*/
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name="rowid") var id: Int = 0,
 
     /** 日程的名称 */
     var name: String = "",

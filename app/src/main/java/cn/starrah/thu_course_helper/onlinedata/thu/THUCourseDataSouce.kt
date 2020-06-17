@@ -3,6 +3,7 @@ package cn.starrah.thu_course_helper.onlinedata.thu
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.webkit.CookieManager
@@ -31,7 +32,6 @@ import com.github.kittinunf.fuel.coroutines.awaitByteArray
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.coroutines.awaitStringResponse
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.net.URI
@@ -50,11 +50,11 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
 //        Pattern.compile("src=\"(.*?/j_acegi_login\\.do\\?url=/jxmh\\.do&amp;m=bks_jxrl&amp;ticket=[a-zA-Z0-9]+)\"")
     override val schoolName: String = "清华大学"
 
-    override suspend fun login(
+    suspend fun oldLogin(
         activity: FragmentActivity,
         username: String,
         password: String,
-        extra: Map<String, Any>?
+        extra: Map<String, Any>
     ) {
         val resStr = CookiedFuel.get("$XK_BASE_URL/xklogin.do")
             .awaitString(Charset.forName("GBK"))
@@ -83,7 +83,66 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         isSessionValid = true
     }
 
-    override suspend fun loadAllCourse(term: SchoolTerm): List<CalendarItemDataWithTimes> {
+    private var captchaParam: String? = null
+
+    /**
+     * 登录清华大学选课系统。具体使用：
+     *
+     * (1) 首先请求验证码：要求extra参数中，"requireCaptcha"字段的值为true。至于username和password字段，
+     * 则可以随便传（比如传""）。这一过程必定返回非空的Bitmap类型，请把这个Bitmap显示给用户以便用户填写。
+     *
+     * (2) 之后再请求一次本函数，username和password就是用户实际的用户名和密码，而extra要求其中"captcha"字段
+     * 为用户填写的验证码值。如果登录成功则必定返回null；如果登录失败则会直接抛异常。
+     */
+    override suspend fun login(
+        username: String,
+        password: String,
+        extra: Map<String, Any>
+    ): Bitmap? {
+        if (extra["old"] != null) {
+            // TODO 在登录框的显示验证码做好以前，临时过渡用的内容。正式版应当删掉此内容，
+            oldLogin(activity!!, username, password, extra)
+            return null
+        }
+        if (extra["requireCaptcha"] == true) {
+            val resStr = CookiedFuel.get("$XK_BASE_URL/xklogin.do")
+                .awaitString(Charset.forName("GBK"))
+            val captchaUrl = XK_BASE_URL + CAPTCHA_PATTERN.matcher(resStr).run { find(); group(1) }
+            captchaParam = captchaUrl.split("=")[1]
+            val jpgBytes = CookiedFuel.get(captchaUrl).awaitByteArray()
+            val bitmap = BitmapFactory.decodeByteArray(jpgBytes, 0, jpgBytes.size)
+            return bitmap
+        }
+        else {
+            val (_, loginResp, _) = CookiedFuel.post(
+                "https://zhjwxk.cic.tsinghua.edu.cn/j_acegi_formlogin_xsxk.do", listOf(
+                    "j_username" to username,
+                    "j_password" to password,
+                    "captchaflag" to (captchaParam
+                        ?: throw DataInvalidException("没有有效的验证码图片。请重试。")),
+                    "_login_image_" to (extra["captcha"] ?: throw DataInvalidException("您没有输入验证码！"))
+                )
+            ).awaitStringResponse(Charset.forName("GBK"))
+            if ("login_error" in loginResp.url.toString()) {
+                if ("code_error" in loginResp.url.toString()) throw DataInvalidException("验证码错误！")
+                else throw DataInvalidException("登录错误，可能是用户名或密码不正确！")
+            }
+            isSessionValid = true
+            return null
+        }
+    }
+
+    /**
+     * 读取全部课程数据（但不处理）。
+     *
+     * 一般而言，调用本函数后，需要把本函数的返回值作为参数调用[applyLoadedCourses].才能把获取到的课表同步到本地数据中。
+     *
+     * **请注意，extra中必须提供一个"context"字段、内容为一个Context！否则会抛出异常！**
+     */
+    override suspend fun loadAllCourses(
+        term: SchoolTerm,
+        extra: Map<String, Any>
+    ): List<CalendarItemDataWithTimes> {
         return withContext(Dispatchers.IO) {
             assertDataSystem(schoolName == term.schoolName, "学校名称错误！")
             val termStrInXK = when (term.type) {
@@ -96,8 +155,10 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 CookiedFuel.get("$XK_BASE_URL/syxk.vsyxkKcapb.do?m=ztkbSearch&p_xnxq=$termStrInXK&pathContent=整体课表")
                     .awaitString(Charset.forName("GBK"))
 
-            if ("用户登陆超时或访问内容不存在。" in rawStr){
+            if ("用户登陆超时或访问内容不存在。" in rawStr) {
                 isSessionValid = false
+                PreferenceManager.getDefaultSharedPreferences(extra["context"] as Context)
+                    .edit { putInt("login_status", 3) }
                 throw LoginStatusTimeoutException()
             }
             if ("该学年学期的选课或退课不在选课进度表中" in rawStr) throw DataInvalidException("当前学期的课程无法从教务系统的数据库中获得。可能是所选学期是将来的学期，或过于久远的过去学期。")
@@ -106,24 +167,18 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         }
     }
 
-
     /**
-     * 从选课系统拉取本人课程数据，并按照既定的合并策略，同步到本地数据中
-     * @param [context] 请尽量给一个[Context]（[Activity]等都可以），以便发生Cookie过期时，
-     * 设置页能更好的提示用户。请尽量传此参数，但是传null也不是不可以。
+     * 把获取到的选课系统课程数据同步到本地数据中。
+     *
+     * 本函数的extra不需要传。
      */
-    suspend fun mergeAllCourseFromSchoolSystem(context: Context?) = withContext(Dispatchers.IO) {
-        val oldDataDeferred = async { CREP.DAO.findAllItems() }
-        val newDataDeferred = async { loadAllCourse(CREP.term) }
-        val oldData = oldDataDeferred.await().filter { it.type == CalendarItemType.COURSE }
-        val newData = try {
-            newDataDeferred.await()
-        }
-        catch (e: LoginStatusTimeoutException) {
-            PreferenceManager.getDefaultSharedPreferences(context)
-                .edit { putInt("login_status", 3) }
-            throw e
-        }
+    override suspend fun applyLoadedCourses(
+        courses: List<CalendarItemDataWithTimes>,
+        extra: Map<String, Any>
+    ) = withContext(Dispatchers.IO) {
+        val oldData = CREP.DAO.findAllItems().filter { it.type == CalendarItemType.COURSE }
+        val newData = courses
+
         val oldDataMap = oldData.associateBy { it.name }
         val oldDataCourseIDMap =
             oldData.associateBy { it.detail[CalendarItemLegalDetailKey.COURSEID] }
@@ -156,6 +211,140 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
 
     }
 
+    /** 登录info直接获得cookie。作为备用。 */
+    private suspend fun getCookie(
+        username: String,
+        password: String
+    ): String {
+        // 登录info
+        val (_, resp, _) = CookiedFuel.post(
+            "https://info.tsinghua.edu.cn/Login", listOf(
+                "redirect" to "NO",
+                "userName" to username,
+                "password" to password,
+                "x" to "34",
+                "y" to "4"
+            )
+        ).awaitStringResponse(Charset.forName("GBK"))
+        if (resp.url.toString().run { substring(length - 1) } != "1")
+            throw DataInvalidException("登录失败，可能是用户名或密码错误")
+        return DEFAULT_COOKIEJAR.cookieMap["info.tsinghua.edu.cn"]!!["UPORTALINFONEW"]!!.first
+    }
+
+
+    // TODO 在登录框的显示验证码做好以前，临时过渡用的内容。正式版应当删掉此内容
+    private var activity: FragmentActivity? = null
+
+    override suspend fun doSomething(vararg params: Any?): Any? {
+        if (params[0] as? String == "VPNCookie") {
+            assertDataSystem(
+                params.size >= 3 && params[1] is String && params[2] is String,
+                "没有传入用户名和密码"
+            )
+            return getVPNCookiejar(params[1] as String, params[2] as String)
+        }
+
+        // TODO 在登录框的显示验证码做好以前，临时过渡用的内容。正式版应当删掉此内容
+        if (params[0] is FragmentActivity) {
+            activity = params[0] as FragmentActivity
+            return Unit
+        }
+
+        throw NotImplementedError("不支持的操作！")
+    }
+
+    private suspend fun getVPNCookiejar(
+        username: String,
+        password: String
+    ): CookieJar {
+        val GBKCharset = Charset.forName("GBK")
+        val J_ACEGI_PATTERN =
+            Pattern.compile("(?:src|href)=\"(.*?/j_acegi_login\\.do\\?url=/jxmh\\.do&amp;m=bks_jxrl&amp;ticket=[a-zA-Z0-9]+)\"")
+        val WEBVPN_SITE = "https://webvpn.tsinghua.edu.cn"
+        val INFO_VPN_PREFIX =
+            "$WEBVPN_SITE/http/77726476706e69737468656265737421f9f9479369247b59700f81b9991b2631506205de"
+
+        val respStr = CookiedFuel.post(
+            "${WEBVPN_SITE}/do-login?local_login=true", listOf(
+                "auth_type" to "local",
+                "username" to username,
+                "password" to password,
+                "sms_code" to ""
+            )
+        ).awaitString(GBKCharset)
+        if ("验证码" in respStr) throw Exception("Web VPN要求验证码，请过一段时间再尝试。")
+        if ("密码错误" in respStr) throw Exception("登录失败，可能是用户名或密码错误")
+
+        val (_, resp, _) = CookiedFuel.post(
+            "${INFO_VPN_PREFIX}/Login", listOf(
+                "redirect" to "NO",
+                "userName" to username,
+                "password" to password,
+                "x" to "34",
+                "y" to "4"
+            )
+        ).awaitStringResponse(GBKCharset)
+        if (resp.url.toString().run { substring(length - 1) } != "1")
+            throw Exception("登录失败，可能是用户名或密码错误")
+
+        val rootNodeString = CookiedFuel.get(
+            "${INFO_VPN_PREFIX}/render.userLayoutRootNode.uP"
+        ).awaitString(GBKCharset)
+        val matcher = J_ACEGI_PATTERN.matcher(rootNodeString)
+        println(rootNodeString)
+        if (!matcher.find()) throw throw Exception("登录失败，可能是用户名或密码错误")
+
+        val webvpnHost = URI(WEBVPN_SITE).host
+        return CookieJar().apply {
+            DEFAULT_COOKIEJAR.cookieMap[webvpnHost]?.let {
+                cookieMap[webvpnHost] = it
+            }
+        }
+    }
+
+
+    @Suppress("UNUSED_PARAMETER")
+    @SuppressLint("InflateParams", "SetJavaScriptEnabled")
+    suspend fun refreshHomework(
+        activity: Activity,
+        username: String,
+        password: String,
+        extra: Map<String, Any>? = null
+    ): String {
+        val webView =
+            LayoutInflater.from(activity).inflate(R.layout.homework_webview, null) as WebView
+        WebView.setWebContentsDebuggingEnabled(true)
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
+        webView.settings.javaScriptEnabled = true
+        webView.settings.allowUniversalAccessFromFileURLs = true
+
+        var loadFirstSuccess = false
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                if (!loadFirstSuccess) {
+                    loadFirstSuccess = true
+                    webView.evaluateJavascript("getHomework(\"$username\", \"$password\")", null)
+                }
+            }
+        }
+
+        val rawHomeworkData = suspendCancellableCoroutine<String> { continuation ->
+            val javaObj = object {
+                @JavascriptInterface
+                fun homeworkData(data: String) {
+                    continuation.resume(data)
+                }
+            }
+            webView.addJavascriptInterface(javaObj, "java")
+            webView.loadUrl("file:///android_asset/www/homework-index.html")
+        }
+
+        webView.destroy()
+        return rawHomeworkData
+    }
+
+    // 下面是调用的私有函数。外部使用者不需要看这些内容。
     /**
      * @return 是否对old进行了修改（决定了要不要存回去）
      */
@@ -455,20 +644,20 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                             })
                         }
                         val arrangeSmallResult = when (smallPerWeek) {
-                            3    -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
-                            4    -> listOf(2, 2)
-                            5    -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
-                            6    -> {
+                            3 -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
+                            4 -> listOf(2, 2)
+                            5 -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
+                            6 -> {
                                 if (ttsms[0] < 3) listOf(2, 4)
                                 else if (ttsms[1] < 3) listOf(4, 2)
                                 else listOf(3, 3)
                             }
-                            7    -> {
+                            7 -> {
                                 if (ttsms[0] >= 3 && ttsms[0] < ttsms[1]) listOf(3, 4)
                                 else if (ttsms[1] >= 3 && ttsms[0] > ttsms[1]) listOf(4, 3)
                                 else null
                             }
-                            8    -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
+                            8 -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
                             else -> null
                         }
 
@@ -620,110 +809,4 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
 
         return res.filter { it in 1..16 }.sorted().toMutableList()
     }
-
-    override suspend fun getCookie(
-        username: String,
-        password: String
-    ): String {
-        // 登录info
-        val (_, resp, _) = CookiedFuel.post(
-            "https://info.tsinghua.edu.cn/Login", listOf(
-                "redirect" to "NO",
-                "userName" to username,
-                "password" to password,
-                "x" to "34",
-                "y" to "4"
-            )
-        ).awaitStringResponse(Charset.forName("GBK"))
-        if (resp.url.toString().run { substring(length - 1) } != "1")
-            throw DataInvalidException("登录失败，可能是用户名或密码错误")
-        return DEFAULT_COOKIEJAR.cookieMap["info.tsinghua.edu.cn"]!!["UPORTALINFONEW"]!!.first
-    }
-
-    suspend fun getVPNCookiejar(
-        username: String,
-        password: String
-    ): CookieJar {
-        val GBKCharset = Charset.forName("GBK")
-        val J_ACEGI_PATTERN =
-            Pattern.compile("(?:src|href)=\"(.*?/j_acegi_login\\.do\\?url=/jxmh\\.do&amp;m=bks_jxrl&amp;ticket=[a-zA-Z0-9]+)\"")
-        val WEBVPN_SITE = "https://webvpn.tsinghua.edu.cn"
-        val INFO_VPN_PREFIX = "$WEBVPN_SITE/http/77726476706e69737468656265737421f9f9479369247b59700f81b9991b2631506205de"
-
-        val respStr = CookiedFuel.post(
-            "${WEBVPN_SITE}/do-login?local_login=true", listOf(
-                "auth_type" to "local",
-                "username" to username,
-                "password" to password,
-                "sms_code" to ""
-            )
-        ).awaitString(GBKCharset)
-        if ("验证码" in respStr) throw Exception("Web VPN要求验证码，请过一段时间再尝试。")
-        if ("密码错误" in respStr) throw Exception("登录失败，可能是用户名或密码错误")
-
-        val (_, resp, _) = CookiedFuel.post(
-            "${INFO_VPN_PREFIX}/Login", listOf(
-                "redirect" to "NO",
-                "userName" to username,
-                "password" to password,
-                "x" to "34",
-                "y" to "4"
-            )
-        ).awaitStringResponse(GBKCharset)
-        if (resp.url.toString().run { substring(length - 1) } != "1")
-            throw Exception("登录失败，可能是用户名或密码错误")
-
-        val rootNodeString = CookiedFuel.get(
-            "${INFO_VPN_PREFIX}/render.userLayoutRootNode.uP"
-        ).awaitString(GBKCharset)
-        val matcher = J_ACEGI_PATTERN.matcher(rootNodeString)
-        println(rootNodeString)
-        if (!matcher.find()) throw throw Exception("登录失败，可能是用户名或密码错误")
-
-        val webvpnHost = URI(WEBVPN_SITE).host
-        return CookieJar().apply { DEFAULT_COOKIEJAR.cookieMap[webvpnHost]?.let { cookieMap[webvpnHost] = it } }
-    }
-
-
-    @Suppress("UNUSED_PARAMETER")
-    @SuppressLint("InflateParams", "SetJavaScriptEnabled")
-    suspend fun refreshHomework(
-        activity: Activity,
-        username: String,
-        password: String,
-        extra: Map<String, Any>? = null
-    ): String {
-        val webView =
-            LayoutInflater.from(activity).inflate(R.layout.homework_webview, null) as WebView
-        WebView.setWebContentsDebuggingEnabled(true)
-        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
-        webView.settings.javaScriptEnabled = true
-        webView.settings.allowUniversalAccessFromFileURLs = true
-
-        var loadFirstSuccess = false
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                if (!loadFirstSuccess) {
-                    loadFirstSuccess = true
-                    webView.evaluateJavascript("getHomework(\"$username\", \"$password\")", null)
-                }
-            }
-        }
-
-        val rawHomeworkData = suspendCancellableCoroutine<String> { continuation ->
-            val javaObj = object {
-                @JavascriptInterface
-                fun homeworkData(data: String) {
-                    continuation.resume(data)
-                }
-            }
-            webView.addJavascriptInterface(javaObj, "java")
-            webView.loadUrl("file:///android_asset/www/homework-index.html")
-        }
-
-        webView.destroy()
-        return rawHomeworkData
-    }
-
 }

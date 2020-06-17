@@ -2,15 +2,27 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b548d3abf9482da2afd48d59152c7601",
+    "identityHash": "8a324beebe6606b9d56071b4e0117c2f",
     "entities": [
       {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [],
         "tableName": "CalendarItemData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `detail` TEXT NOT NULL)",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`name` TEXT NOT NULL, `type` TEXT NOT NULL, `detail` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "rowid",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -35,7 +47,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "rowid"
           ],
           "autoGenerate": true
         },
@@ -43,12 +55,24 @@
         "foreignKeys": []
       },
       {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [],
         "tableName": "CalendarTimeData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `timeInCourseSchedule` TEXT, `timeInHour` TEXT, `repeatWeeks` TEXT NOT NULL, `place` TEXT NOT NULL, `comment` TEXT NOT NULL, `item_id` INTEGER NOT NULL, `RMDtype` TEXT NOT NULL, `RMDaheadTime` INTEGER NOT NULL, `RMDmethod` TEXT NOT NULL, `RMDalarmSound` TEXT NOT NULL, FOREIGN KEY(`item_id`) REFERENCES `CalendarItemData`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`name` TEXT NOT NULL, `type` TEXT NOT NULL, `timeInCourseSchedule` TEXT, `timeInHour` TEXT, `repeatWeeks` TEXT NOT NULL, `place` TEXT NOT NULL, `comment` TEXT NOT NULL, `item_id` INTEGER NOT NULL, `RMDtype` TEXT NOT NULL, `RMDaheadTime` INTEGER NOT NULL, `RMDmethod` TEXT NOT NULL, `RMDalarmSound` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "rowid",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -127,37 +151,16 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "rowid"
           ],
           "autoGenerate": true
         },
-        "indices": [
-          {
-            "name": "index_CalendarTimeData_item_id",
-            "unique": false,
-            "columnNames": [
-              "item_id"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_CalendarTimeData_item_id` ON `${TABLE_NAME}` (`item_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "CalendarItemData",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "item_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "indices": [],
+        "foreignKeys": []
       },
       {
         "tableName": "FastSearchTable",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dayId` INTEGER NOT NULL, `timeId` INTEGER NOT NULL, PRIMARY KEY(`dayId`, `timeId`), FOREIGN KEY(`timeId`) REFERENCES `CalendarTimeData`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dayId` INTEGER NOT NULL, `timeId` INTEGER NOT NULL, PRIMARY KEY(`dayId`, `timeId`))",
         "fields": [
           {
             "fieldPath": "dayId",
@@ -197,25 +200,13 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_FastSearchTable_dayId` ON `${TABLE_NAME}` (`dayId`)"
           }
         ],
-        "foreignKeys": [
-          {
-            "table": "CalendarTimeData",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "timeId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b548d3abf9482da2afd48d59152c7601')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8a324beebe6606b9d56071b4e0117c2f')"
     ]
   }
 }

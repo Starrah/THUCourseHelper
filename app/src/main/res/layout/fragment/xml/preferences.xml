@@ -5,7 +5,7 @@
     <Preference
         app:key="login_status"
         app:summary=""
-        app:title="@string/settings_not_login"
+        app:title="@string/status_not_login"
         app:defaultValue="0" />
     <!--        android:layout=""-->
 <!--

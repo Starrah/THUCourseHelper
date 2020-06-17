@@ -13,13 +13,14 @@ import java.time.LocalDate
  */
 @Entity(
     primaryKeys = ["dayId", "timeId"],
-    indices = [Index("timeId"), Index("dayId")],
-    foreignKeys = [ForeignKey(
-        entity = CalendarTimeData::class,
-        parentColumns = arrayOf("id"),
-        childColumns = arrayOf("timeId"),
-        onDelete = ForeignKey.CASCADE
-    )]
+    indices = [Index("timeId"), Index("dayId")]
+//    ,
+//    foreignKeys = [ForeignKey(
+//        entity = CalendarTimeData::class,
+//        parentColumns = arrayOf("rowid"),
+//        childColumns = arrayOf("timeId"),
+//        onDelete = ForeignKey.CASCADE
+//    )]
 )
 data class FastSearchTable(
     val dayId: Int = 0,

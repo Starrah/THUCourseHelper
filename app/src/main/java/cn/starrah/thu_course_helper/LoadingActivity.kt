@@ -19,8 +19,6 @@ import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.onlinedata.backend.*
 import com.alibaba.fastjson.JSON
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.coroutines.awaitString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.*
@@ -74,8 +72,7 @@ class LoadingActivity : AppCompatActivity() {
                 else 0 // 不应当更新
 
             if (BACKEND_SITE == "") {
-                // 在开发状态下、没有后端服务器的情况，就读取本地字符串数据
-                // TODO 正式版应当删掉此处
+                // TODO 在开发状态下、没有后端服务器的情况，就读取本地字符串数据.正式版应当删掉此处
                 sp.edit {
                     putString("available_terms", JSON.toJSONString(listOf<TermDescription>()))
                 }
@@ -123,6 +120,8 @@ class LoadingActivity : AppCompatActivity() {
             }
 
             CREP.initializeTerm(this@LoadingActivity, currentTerm!!)
+
+//            loadTestData()
 
             val the_intent = Intent()
             the_intent.setClass(this@LoadingActivity, MainActivity::class.java)
