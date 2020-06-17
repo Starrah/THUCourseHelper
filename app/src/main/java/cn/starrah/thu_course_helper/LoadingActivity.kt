@@ -19,8 +19,6 @@ import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.onlinedata.backend.*
 import com.alibaba.fastjson.JSON
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.coroutines.awaitString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.*
@@ -122,6 +120,8 @@ class LoadingActivity : AppCompatActivity() {
             }
 
             CREP.initializeTerm(this@LoadingActivity, currentTerm!!)
+
+//            loadTestData()
 
             val the_intent = Intent()
             the_intent.setClass(this@LoadingActivity, MainActivity::class.java)

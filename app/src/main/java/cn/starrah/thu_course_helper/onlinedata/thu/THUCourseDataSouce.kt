@@ -32,7 +32,6 @@ import com.github.kittinunf.fuel.coroutines.awaitByteArray
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.coroutines.awaitStringResponse
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.net.URI
@@ -400,7 +399,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
 
     private val XKTYPE_LIST = listOf("必修", "限选", "任选")
 
-    private fun parseRawZTKB(raw: String, term: SchoolTerm): List<CalendarItemDataWithTimes> {
+    fun parseRawZTKB(raw: String, term: SchoolTerm): List<CalendarItemDataWithTimes> {
         val startIndex = "function setInitValue()".let { raw.indexOf(it) + it.length }
         val endIndex = raw.indexOf("Event.observe")
         val exraw = raw.substring(startIndex, endIndex)

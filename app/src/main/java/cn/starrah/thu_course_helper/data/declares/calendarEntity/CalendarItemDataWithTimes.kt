@@ -5,7 +5,7 @@ import androidx.room.Relation
 
 class CalendarItemDataWithTimes(
     /** 该日程的所有时间段的信息。*/
-    @Relation(parentColumn = "id", entityColumn = "item_id")
+    @Relation(parentColumn = "rowid", entityColumn = "item_id")
     var times: MutableList<CalendarTimeData> = mutableListOf()
 ): CalendarItemData() {
     /**

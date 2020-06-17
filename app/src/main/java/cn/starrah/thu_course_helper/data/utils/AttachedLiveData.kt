@@ -19,9 +19,9 @@ open class AttachedLiveData<T, P>(
 ): LiveData<T>() {
     private var mainData: T? = mainLiveData.value?.let{ transformFunc(it, null) }
 
-    init {
-        value = mainData
-    }
+//    init {
+//        value = mainData
+//    }
 
     private val observer = Observer<P> { t ->
         mainData = transformFunc(t, mainData)
