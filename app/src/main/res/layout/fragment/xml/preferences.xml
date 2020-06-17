@@ -20,7 +20,6 @@
         app:title="@string/settings_sync_XK" />
 
     <SwitchPreferenceCompat
-
         app:key="sync_learnx_homeworks"
         app:title="@string/settings_sync_learnx"
         app:defaultValue="false"
@@ -60,6 +59,17 @@
         app:key="stay_notice"
         app:title="@string/settings_stay_notice"
         app:defaultValue="false" />
+
+    <ListPreference
+        app:entries="@array/backup_titles"
+        app:entryValues="@array/backup_titles"
+        app:key="dull_backup"
+        app:defaultValue="dull"
+        app:title="@string/backup_outter_title" />
+
+    <Preference
+        app:key="dull_feedback"
+        app:title="@string/feedback_title" />
 
     <Preference
         app:key="check_version"

@@ -1,5 +1,6 @@
 package cn.starrah.thu_course_helper.fragment
 
+import android.app.AlertDialog
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
@@ -12,10 +13,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPICheckVersion
-import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPITermData
-import cn.starrah.thu_course_helper.onlinedata.backend.TermDescription
-import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
+import cn.starrah.thu_course_helper.onlinedata.backend.*
 import cn.starrah.thu_course_helper.utils.startDownloadIntent
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.launch
@@ -30,6 +28,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var pf_sync_xk: Preference
     lateinit var pf_term: ListPreference
     lateinit var pf_check_version: Preference
+    lateinit var pf_feedback: Preference
+    lateinit var pf_backup: ListPreference
     val spListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
         if (key == "login_status" || key == "login_force_update") {
             val login_status = sp.getInt("login_status", 0)
@@ -43,8 +43,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 else -> ""
             }
             pf_sync_learnx.isEnabled = login_status == 2
-            pf_sync_learnx.summary =
-                if (!pf_sync_learnx.isEnabled) resources.getString(R.string.errmsg_not_save_password) else ""
+            if (!pf_sync_learnx.isEnabled) pf_sync_learnx.isChecked = false
+            pf_sync_learnx.summary = if (!pf_sync_learnx.isEnabled)
+                resources.getString(R.string.errmsg_not_save_password)
+            else ""
 
             pf_sync_xk.isEnabled =
                 ((login_status == 1 || login_status == 2) && CREP.onlineCourseDataSource?.isSessionValid == true)
@@ -176,6 +178,83 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             true
         }
+
+        pf_feedback = findPreference("dull_feedback")!!
+        pf_feedback.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            true
+        }
+
+        pf_backup = findPreference("dull_backup")!!
+        pf_backup.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { pf, newValue ->
+                if (newValue == resources.getString(R.string.backup_download_title)) {
+                    AlertDialog.Builder(activity).setTitle(R.string.warning)
+                        .setMessage(R.string.remind_download_warning)
+                        .setNegativeButton(R.string.cancel) { dialog, which -> dialog.cancel() }
+                        .setPositiveButton(R.string.confirm) { dialog, which ->
+                            dialog.dismiss()
+                            lifecycleScope.launch {
+                                try {
+                                    BackendAPIDownloadMyData(
+                                        requireActivity(),
+                                        CREP.onlineCourseDataSource!!.doSomething(
+                                            "VPNCookie",
+                                            sp.getString("login_name", null)!!,
+                                            CREP.getUserPassword(requireActivity())
+                                        )
+                                    )
+                                    Toast.makeText(
+                                        activity,
+                                        R.string.remind_backup_download_success,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                catch (e: Exception) {
+                                    Toast.makeText(
+                                        activity,
+                                        e.message,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                        .show()
+                }
+                else if (newValue == resources.getString(R.string.backup_upload_title)) {
+                    AlertDialog.Builder(activity).setTitle(R.string.warning)
+                        .setMessage(R.string.remind_upload_warning)
+                        .setNegativeButton(R.string.cancel) { dialog, which -> dialog.cancel() }
+                        .setPositiveButton(R.string.confirm) { dialog, which ->
+                            dialog.dismiss()
+                            lifecycleScope.launch {
+                                try {
+                                    BackendAPIUploadMyData(
+                                        requireActivity(),
+                                        CREP.onlineCourseDataSource!!.doSomething(
+                                            "VPNCookie",
+                                            sp.getString("login_name", null)!!,
+                                            CREP.getUserPassword(requireActivity())
+                                        )
+                                    )
+                                    Toast.makeText(
+                                        activity,
+                                        R.string.remind_backup_upload_success,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                catch (e: Exception) {
+                                    Toast.makeText(
+                                        activity,
+                                        e.message,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                        .show()
+                }
+                false
+            }
 
         spListener.onSharedPreferenceChanged(sp, "login_status")
 

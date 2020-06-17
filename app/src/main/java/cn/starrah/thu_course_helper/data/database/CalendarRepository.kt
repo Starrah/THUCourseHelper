@@ -2,6 +2,7 @@ package cn.starrah.thu_course_helper.data.database
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.data.database.CalendarRepository.initializeTerm
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.*
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
@@ -59,9 +60,12 @@ object CalendarRepository {
      */
     suspend fun initializeTerm(context: Context, term: SchoolTerm) {
         withContext(Dispatchers.IO) {
+            if (initialized && term === this@CalendarRepository.term) return@withContext // 如果term对象没变，则直接返回、不进行任何操作
             term.assertValidResetMsg { "内置的学期数据不合法：$it" }
             this@CalendarRepository.term = term
             this@CalendarRepository.onlineCourseDataSource = CourseDataSourceRegistry[term.schoolName]
+            // 如果之前初始化过，则把旧的数据库关闭掉以防资源泄露。
+            if (initialized) database.close()
             database = CalendarDatabase.getDatabaseInstance(context, term.dbName)
             DAO = database.Dao()
             initialized = true
@@ -363,6 +367,10 @@ object CalendarRepository {
      */
     suspend fun helper_findFinalExamTimes(): List<CalendarTimeDataWithItem> {
         return matchTimesSpecifiedNameAndItemType("期末考试", CalendarItemType.COURSE).getNotNullValue()
+    }
+
+    suspend fun getUserPassword(context: Context): String {
+        return PreferenceManager.getDefaultSharedPreferences(context).getString("login_pass", "")!!
     }
 
 }

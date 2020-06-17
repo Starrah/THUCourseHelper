@@ -8,6 +8,10 @@
 
     <string name="back">返回</string>
 
+    <string name="remind">提示</string>
+    <string name="warning">警告</string>
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
 
     <!--日程信息-->
     <string name="item_top">编辑日程信息</string>
@@ -104,5 +108,15 @@
 
     <string name="login_success">登录成功！</string>
     <string name="sync_XK_success">同步选课系统课程数据成功！</string>
+
+    <string name="feedback_title">提交反馈</string>
+
+    <string name="backup_outter_title">备份和恢复个人数据</string>
+    <string name="backup_upload_title">备份课程、日程和设置项到服务器</string>
+    <string name="backup_download_title">从服务器恢复课程、日程和设置项</string>
+    <string name="remind_upload_warning">您确定要将您的数据，包括课程、日程和部分配置项，备份到服务器吗？这将会覆盖您之前备份过的同一学期的数据（如果有的话）。</string>
+    <string name="remind_download_warning">您确定要从服务器恢复您的所有数据吗？一旦恢复数据完成，您本机当前学期的所有的数据，包括课程、日程和部分配置项，都将全部丢失并被从服务器获取到的数据覆盖！该操作不可撤销！</string>
+    <string name="remind_backup_upload_success">数据备份成功！</string>
+    <string name="remind_backup_download_success">数据恢复成功！</string>
 
 </resources>
