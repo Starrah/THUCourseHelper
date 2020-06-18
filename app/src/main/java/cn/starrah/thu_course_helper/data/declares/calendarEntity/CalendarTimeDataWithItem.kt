@@ -3,7 +3,20 @@ package cn.starrah.thu_course_helper.data.declares.calendarEntity
 import androidx.lifecycle.LiveData
 import androidx.room.Relation
 
-class CalendarTimeDataWithItem : CalendarTimeData() {
+class CalendarTimeDataWithItem() : CalendarTimeData() {
+    constructor(superInstance: CalendarTimeData) : this() {
+        id = superInstance.id
+        name = superInstance.name
+        type = superInstance.type
+        timeInCourseSchedule = superInstance.timeInCourseSchedule
+        timeInHour = superInstance.timeInHour
+        repeatWeeks = superInstance.repeatWeeks
+        place = superInstance.place
+        comment = superInstance.comment
+        remindData= superInstance.remindData
+        item_id = superInstance.item_id
+    }
+
     @Relation(parentColumn = "item_id", entityColumn = "rowid")
     var _im: List<CalendarItemData> = listOf()
 

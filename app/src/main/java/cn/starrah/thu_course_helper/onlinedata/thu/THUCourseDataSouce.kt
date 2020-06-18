@@ -18,6 +18,7 @@ import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
@@ -64,40 +65,6 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         if (!checkInTUNET()) throw DataInvalidException("您当前不在校园网环境，因此无法登录；请您连接到清华大学校园网，或者使用sslvpn后重试。\n若要了解使用sslvpn的方法，请访问https://sslvpn.tsinghua.edu.cn/ 。")
     }
 
-    suspend fun oldLogin(
-        activity: FragmentActivity,
-        username: String,
-        password: String,
-        extra: Map<String, Any>
-    ) {
-        assertInTUNET()
-        val resStr = CookiedFuel.get("$XK_BASE_URL/xklogin.do")
-            .awaitString(Charset.forName("GBK"))
-        println(DEFAULT_COOKIEJAR.cookieMap)
-        val captchaUrl = XK_BASE_URL + CAPTCHA_PATTERN.matcher(resStr).run { find(); group(1) }
-        val captchaParam = captchaUrl.split("=")[1]
-        val jpgBytes = CookiedFuel.get(captchaUrl).awaitByteArray()
-        val bitmap = BitmapFactory.decodeByteArray(jpgBytes, 0, jpgBytes.size)
-        val captchaInput = suspendCancellableCoroutine<String?> { continuation ->
-            CaptchaDialog(activity, bitmap) {
-                continuation.resume(it)
-            }.show()
-        } ?: throw DataInvalidException("用户未输入验证码")
-        val (_, loginResp, _) = CookiedFuel.post(
-            "https://zhjwxk.cic.tsinghua.edu.cn/j_acegi_formlogin_xsxk.do", listOf(
-                "j_username" to username,
-                "j_password" to password,
-                "captchaflag" to captchaParam,
-                "_login_image_" to captchaInput
-            )
-        ).awaitStringResponse(Charset.forName("GBK"))
-        if ("login_error" in loginResp.url.toString()) {
-            if ("code_error" in loginResp.url.toString()) throw DataInvalidException("验证码错误！")
-            else throw DataInvalidException("登录错误，可能是用户名或密码不正确！")
-        }
-        isSessionValid = true
-    }
-
     private var captchaParam: String? = null
 
     /**
@@ -114,11 +81,6 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         password: String,
         extra: Map<String, Any>
     ): Bitmap? {
-        if (extra["old"] != null) {
-            // TODO 在登录框的显示验证码做好以前，临时过渡用的内容。正式版应当删掉此内容，
-            oldLogin(activity!!, username, password, extra)
-            return null
-        }
         assertInTUNET()
         if (extra["requireCaptcha"] == true) {
             val resStr = CookiedFuel.get("$XK_BASE_URL/xklogin.do")
@@ -148,6 +110,15 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         }
     }
 
+    private fun calculateTermStrInXK(term: SchoolTerm): String? {
+        return when (term.type) {
+            SchoolTermType.AUTUMN -> "${term.beginYear}-${term.beginYear + 1}-1"
+            SchoolTermType.SPRING -> "${term.beginYear}-${term.beginYear + 1}-2"
+            SchoolTermType.SUMMER -> "${term.beginYear}-${term.beginYear + 1}-3"
+            else                  -> null // 不可获取课表（如寒假）
+        }
+    }
+
     /**
      * 读取全部课程数据（但不处理）。
      *
@@ -162,12 +133,8 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         return withContext(Dispatchers.IO) {
             assertInTUNET()
             assertDataSystem(schoolName == term.schoolName, "学校名称错误！")
-            val termStrInXK = when (term.type) {
-                SchoolTermType.AUTUMN -> "${term.beginYear}-${term.beginYear + 1}-1"
-                SchoolTermType.SPRING -> "${term.beginYear}-${term.beginYear + 1}-2"
-                SchoolTermType.SUMMER -> "${term.beginYear}-${term.beginYear + 1}-3"
-                else                  -> return@withContext listOf<CalendarItemDataWithTimes>() // 不可获取课表（如寒假）
-            }
+            val termStrInXK = calculateTermStrInXK(term)
+                ?: return@withContext listOf<CalendarItemDataWithTimes>()
             val rawStr =
                 CookiedFuel.get("$XK_BASE_URL/syxk.vsyxkKcapb.do?m=ztkbSearch&p_xnxq=$termStrInXK&pathContent=整体课表")
                     .awaitString(Charset.forName("GBK"))
@@ -204,7 +171,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             newData.mapNotNull { it.detail[CalendarItemLegalDetailKey.COURSEID] }.toSet()
 
         val toDeleteOnes = oldData.filter {
-            it.detail[CalendarItemLegalDetailKey.FROM_WEB] == "y" &&
+            it.detail[CalendarItemLegalDetailKey.FROM_WEB] == XK_WEB_KEYWORD &&
                     it.name !in newDataNames &&
                     it.detail[CalendarItemLegalDetailKey.COURSEID].let { it != null && it !in newDataCourseIDs }
         }
@@ -249,6 +216,28 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         return DEFAULT_COOKIEJAR.cookieMap["info.tsinghua.edu.cn"]!!["UPORTALINFONEW"]!!.first
     }
 
+    /**
+     * 读取各种数据，并且可以直接把获取到的相关数据写入(apply)到数据库中。
+     *
+     * （A） 获取课程作业
+     *
+     * 参数：{ "homework": true, "username": 用户名, "password": 密码, "activity": 当前[Activity]实例,
+     *        "onlyUnsubmitted": 如果为true，则只获取未提交且未过期的作业，否则获取全部课程作业,
+     *        "apply": 如果为true，则获取到的数据会直接被写入到数据库中 }
+     *
+     * 返回类型：[List]<[CalendarItemDataWithTimes]>，获取到的每个课程作业对应的日程
+     *
+     * （B） 获取期末考试数据
+     *
+     * 注：如果某门考试，其对应的日程并不存在于数据库中，那么这样的时间段也是会存在于返回值中的（课程Item的id为0）；
+     * 但是如果设置了apply选项，那么这样的时间段并不会被添加到数据库中（因为找不到其对应的日程，即本函数不可能
+     * 向数据库中添加以前不存在的日程、只会对时间段进行添加和修改。）
+     *
+     * 参数：{ "exam": true, "username": 用户名, "password": 密码,
+     *        "apply": 如果为true，则获取到的数据会直接被写入到数据库中 }
+     *
+     * 返回类型：[List]<[CalendarItemDataWithTimes]>，获取到的每个期末考试，对应的时间段数据。
+     */
     override suspend fun loadData(term: SchoolTerm, extra: Map<String, Any>): Any? {
         if (extra["homework"] == true) {
             assertDataSystem(
@@ -266,14 +255,31 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             val parsedData = parseHomework(rawStr, onlyUnsubmitted)
             if (apply) applyHomework(parsedData)
             return parsedData
-//            data class HomeWorkData(val courseNames: List<String>, )
         }
-        return Unit
+        else if (extra["exam"] == true) {
+            assertDataSystem(
+                extra["username"] is String && extra["password"] is String,
+                "没有传入用户名和密码。"
+            )
+            val apply: Boolean = extra["apply"] as? Boolean ?: false
+            val data = getExam(
+                extra["username"] as String,
+                extra["password"] as String,
+                term,
+                apply
+            )
+            return data
+        }
+        throw Exception("不支持的操作！")
     }
 
-    // TODO 在登录框的显示验证码做好以前，临时过渡用的内容。正式版应当删掉此内容
-    private var activity: FragmentActivity? = null
-
+    /**
+     * （A）获取后端验证所用的Cookie。
+     *
+     * 参数：("VPNCookie", 用户名, 密码)
+     *
+     * 返回：CookieJar类型的对象，可以直接JSON序列化后发给后端。。
+     */
     override suspend fun doSomething(vararg params: Any?): Any? {
         if (params[0] as? String == "VPNCookie") {
             assertDataSystem(
@@ -283,27 +289,13 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             return getVPNCookiejar(params[1] as String, params[2] as String)
         }
 
-        // TODO 在登录框的显示验证码做好以前，临时过渡用的内容。正式版应当删掉此内容
-        if (params[0] is FragmentActivity) {
-            activity = params[0] as FragmentActivity
-            return Unit
-        }
-
         throw NotImplementedError("不支持的操作！")
     }
 
-    // 下面是调用的私有函数。外部使用者不需要看这些内容。
-    private suspend fun getVPNCookiejar(
+    private suspend fun loginWEBVPN(
         username: String,
         password: String
-    ): CookieJar {
-        val GBKCharset = Charset.forName("GBK")
-        val J_ACEGI_PATTERN =
-            Pattern.compile("(?:src|href)=\"(.*?/j_acegi_login\\.do\\?url=/jxmh\\.do&amp;m=bks_jxrl&amp;ticket=[a-zA-Z0-9]+)\"")
-        val WEBVPN_SITE = "https://webvpn.tsinghua.edu.cn"
-        val INFO_VPN_PREFIX =
-            "$WEBVPN_SITE/http/77726476706e69737468656265737421f9f9479369247b59700f81b9991b2631506205de"
-
+    ) {
         val respStr = CookiedFuel.post(
             "${WEBVPN_SITE}/do-login?local_login=true", listOf(
                 "auth_type" to "local",
@@ -311,9 +303,189 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 "password" to password,
                 "sms_code" to ""
             )
-        ).awaitString(GBKCharset)
+        ).awaitString()
         if ("验证码" in respStr) throw Exception("Web VPN要求验证码，请过一段时间再尝试。")
         if ("密码错误" in respStr) throw Exception("登录失败，可能是用户名或密码错误")
+    }
+
+    val XK_WEB_KEYWORD = "XK"
+
+    private suspend fun getExam(
+        username: String,
+        password: String,
+        term: SchoolTerm,
+        apply: Boolean = false
+    ): List<CalendarTimeDataWithItem> {
+        return withContext(Dispatchers.IO) {
+            val ACADEMIC_SITE = "http://academic.tsinghua.edu.cn"
+            val ACADEMIC_VPN_PREFIX =
+                "$WEBVPN_SITE/http/77726476706e69737468656265737421f1f44098223d6153301c9aa596522b2027124ec39c5debe6"
+            val ZHJW_SITE = "http://zhjw.cic.tsinghua.edu.cn"
+            val ZHJW_VPN_PREFIX =
+                "$WEBVPN_SITE/http/77726476706e69737468656265737421eaff4b8b69336153301c9aa596522b20bc86e6e559a9b290"
+
+            val needVPN = !checkInTUNET()
+            if (needVPN) loginWEBVPN(username, password)
+
+            // 登录academic
+            CookiedFuel.post(
+                "${if (needVPN) ACADEMIC_VPN_PREFIX else "https://academic.tsinghua.edu.cn"}/Login",
+                listOf(
+                    "userName" to username,
+                    "password" to password
+                )
+            ).awaitStringResponse(GBKCharset)
+
+            val J_ACEGI_PATTERN =
+                Pattern.compile("(?:src|href)=\"(.*?/j_acegi_login\\.do\\?url=/zhjw\\.do&amp;m=jxmh_show&amp;.*?ticket=[a-zA-Z0-9]+)\"")
+            //访问rootNode，获取j_acegi
+            val rootNodeString = CookiedFuel.get(
+                "${if (needVPN) ACADEMIC_VPN_PREFIX else ACADEMIC_SITE}/render.userLayoutRootNode.uP"
+            ).awaitString(GBKCharset)
+            val matcher = J_ACEGI_PATTERN.matcher(rootNodeString)
+            val acegi_url = if (matcher.find()) matcher.group(1)!!.replace("&amp;", "&")
+            else throw throw Exception("登录失败，可能是用户名或密码错误")
+            //登录j_acegi
+            CookiedFuel.get(acegi_url).awaitString(GBKCharset)
+
+            //获取本学期课程列表，存储为课程号和课序号的列表
+            val courseListHtml =
+                CookiedFuel.get("${if (needVPN) ZHJW_VPN_PREFIX else ZHJW_SITE}/portal3rd.do?m=bks_bxqkc&version=1")
+                    .awaitString(GBKCharset)
+            val KSSJ_PATTERN = Pattern.compile("<a id=\"kssj-(\\d{8})-(\\d{1,3})\">")
+            val matcherKSSJ = KSSJ_PATTERN.matcher(courseListHtml)
+            val kchList = mutableListOf<Pair<String, String>>()
+            val jsonObjList = mutableListOf<JSONObject>()
+            while (matcherKSSJ.find()) {
+                kchList.add(Pair(matcherKSSJ.group(1), matcherKSSJ.group(2)))
+            }
+
+            val JSONCALLBACK = "jQuery${System.currentTimeMillis()}"
+            @Suppress("RegExpRedundantEscape") val JSONP_PATTERN =
+                Pattern.compile("$JSONCALLBACK\\(\\[.*?(\\{.*\\}).*?\\]\\)", Pattern.DOTALL)
+
+            val termStr =
+                calculateTermStrInXK(term) ?: return@withContext listOf<CalendarTimeDataWithItem>()
+            for ((kch, kxh) in kchList) {
+                //对每个课程号，逐个获取考试信息，存为JSONObject
+                val respRawStr = CookiedFuel.get(
+                    "${if (needVPN) ZHJW_VPN_PREFIX else ZHJW_SITE}/jxmh.do?m=bks_ksSearch", listOf(
+                        "kch" to kch,
+                        "kxh" to kxh,
+                        "p_xnxq" to termStr,
+                        "jsoncallback" to JSONCALLBACK
+                    )
+                ).awaitString(GBKCharset)
+                val matcherJsonp = JSONP_PATTERN.matcher(respRawStr)
+                val respJsonObj =
+                    if (matcherJsonp.find()) JSON.parseObject(matcherJsonp.group(1)) else null
+                respJsonObj?.let { jsonObjList.add(it) }
+            }
+
+            //获取原始的课程item信息
+            val itemsList = CREP.DAO.findItemsSpecifiedTypeNotLive(
+                CalendarItemType.COURSE.name
+            )
+            val itemKCHMap =
+                itemsList.associateBy { it.detail[CalendarItemLegalDetailKey.COURSEID] }
+            val itemNameMap = itemsList.associateBy { it.name }
+
+            val toUpdateTimes = mutableListOf<CalendarTimeDataWithItem>()
+            val toAddTimes = mutableListOf<CalendarTimeDataWithItem>()
+            val toReturnButNoItemTimes = mutableListOf<CalendarTimeDataWithItem>()
+
+            val KSRQ_PATTERN = Pattern.compile("(\\d{2})\\.(\\d{2})\\S (\\S{2})")
+            fun parseKsrq(ksrq: String): TimeInHour? {
+                val matcherKsrq = KSRQ_PATTERN.matcher(ksrq)
+                if (matcherKsrq.find()) {
+                    val (startTime, endTime) = when (matcherKsrq.group(3)) {
+                        "上午" -> Pair(LocalTime.of(8, 0), LocalTime.of(10, 0))
+                        "下午" -> Pair(LocalTime.of(14, 30), LocalTime.of(16, 30))
+                        "晚上" -> Pair(LocalTime.of(19, 0), LocalTime.of(21, 0))
+                        else -> return null
+                    }
+                    val date: LocalDate = LocalDate.of(
+                        LocalDate.now().year + (if (term.type == SchoolTermType.AUTUMN) 1 else 0),
+                        matcherKsrq.group(1)!!.toInt(),
+                        matcherKsrq.group(2)!!.toInt()
+                    )
+                    return TimeInHour(startTime, endTime, date = date)
+                }
+                else return null
+            }
+
+            for (jsonObj in jsonObjList) {
+                //JSONObject转为TimeInHour、并根据Item的情况，重用修改或者新增TimeData。
+                val item = itemKCHMap[jsonObj["kch"] as String]
+                    ?: itemNameMap[jsonObj["kcm"] as String]
+                val newTimeInHour = parseKsrq(jsonObj["ksrq"] as String) ?: continue
+
+                if (item == null) {
+                    // 找不到日程。那么要编一日程共返回使用；但是不写入数据库
+                    val newItem = CalendarItemData(
+                        name = jsonObj["kcm"] as String,
+                        type = CalendarItemType.COURSE
+                    ).apply {
+                        detail[CalendarItemLegalDetailKey.COURSEID] = jsonObj["kch"] as String
+                    }
+                    val timeWithItem = CalendarTimeDataWithItem().apply {
+                        name = "期末考试"
+                        type = CalendarTimeType.SINGLE_HOUR
+                        timeInHour = newTimeInHour
+                        place = jsonObj["ksdd"] as String
+                        item_id = newItem.id
+                        calendarItem = newItem
+                    }
+                    toReturnButNoItemTimes.add(timeWithItem)
+                    continue
+                }
+
+                //找得到日程。接下来根据是否找得到时间段，决定是编辑还是新增。
+                var time = item.times.find { it.name == "期末考试" }
+                if (time != null) {
+                    time.timeInHour = newTimeInHour
+                    time.type = CalendarTimeType.SINGLE_HOUR
+                    time.place = jsonObj["ksdd"] as String
+                    toUpdateTimes.add(CalendarTimeDataWithItem(time).apply { calendarItem = item })
+                }
+                else {
+                    time = CalendarTimeData(
+                        name = "期末考试",
+                        type = CalendarTimeType.SINGLE_HOUR,
+                        timeInHour = newTimeInHour,
+                        place = jsonObj["ksdd"] as String,
+                        item_id = item.id
+                    )
+                    item.times.add(time)
+                    toAddTimes.add(CalendarTimeDataWithItem(time).apply { calendarItem = item })
+                }
+            }
+
+            val toApplyList = toAddTimes + toUpdateTimes
+            if (apply) {
+                CREP.DAO.updateTimes(toApplyList)
+            }
+
+            val toReturnList = toApplyList + toReturnButNoItemTimes
+            toReturnList
+        }
+    }
+
+    val WEBVPN_SITE = "https://webvpn.tsinghua.edu.cn"
+    val GBKCharset = Charset.forName("GBK")
+
+    // 下面是调用的私有函数。外部使用者不需要看这些内容。
+    private suspend fun getVPNCookiejar(
+        username: String,
+        password: String
+    ): CookieJar {
+        val J_ACEGI_PATTERN =
+            Pattern.compile("(?:src|href)=\"(.*?/j_acegi_login\\.do\\?url=/jxmh\\.do&amp;m=bks_jxrl&amp;ticket=[a-zA-Z0-9]+)\"")
+
+        val INFO_VPN_PREFIX =
+            "$WEBVPN_SITE/http/77726476706e69737468656265737421f9f9479369247b59700f81b9991b2631506205de"
+
+        loginWEBVPN(username, password)
 
         val (_, resp, _) = CookiedFuel.post(
             "${INFO_VPN_PREFIX}/Login", listOf(
@@ -415,7 +587,10 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         return rawHomeworkData
     }
 
-    suspend fun parseHomework(raw: String, onlyUnsubmitted: Boolean = false): MutableList<CalendarItemDataWithTimes> {
+    suspend fun parseHomework(
+        raw: String,
+        onlyUnsubmitted: Boolean = false
+    ): MutableList<CalendarItemDataWithTimes> {
         fun parseCalendarItem(
             homework: HomeWorkData._HomeWork,
             onlyUnsubmitted: Boolean = false
@@ -840,7 +1015,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             }
 
             item.times = res
-            item.detail[CalendarItemLegalDetailKey.FROM_WEB] = "y"
+            item.detail[CalendarItemLegalDetailKey.FROM_WEB] = XK_WEB_KEYWORD
         }
 
         return itemList

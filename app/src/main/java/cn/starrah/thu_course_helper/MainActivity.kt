@@ -13,7 +13,9 @@ import cn.starrah.thu_course_helper.fragment.CourseTable
 import cn.starrah.thu_course_helper.fragment.Information
 import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import cn.starrah.thu_course_helper.fragment.TimeTable
+import cn.starrah.thu_course_helper.utils.setLastSyncExamDate
 import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
+import cn.starrah.thu_course_helper.utils.shouldSyncExam
 import cn.starrah.thu_course_helper.utils.shouldSyncHomework
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
@@ -93,6 +95,17 @@ class MainActivity : FragmentActivity() {
                     )
                 )
                 setLastSyncHomeworkDatetime(this@MainActivity)
+            }
+            if (shouldSyncExam(this@MainActivity)) {
+                CREP.onlineCourseDataSource!!.loadData(
+                    CREP.term, mapOf(
+                        "exam" to true,
+                        "username" to sp.getString("login_name", null)!!,
+                        "password" to CREP.getUserPassword(this@MainActivity),
+                        "apply" to true
+                    )
+                )
+                setLastSyncExamDate(this@MainActivity)
             }
         }
     }
