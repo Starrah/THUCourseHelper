@@ -45,6 +45,8 @@
             <intent-filter>
                 <action android:name="button_up" />
                 <action android:name="button_down" />
+                <action android:name="update_widget" />
+
             </intent-filter>
 
             <intent-filter>

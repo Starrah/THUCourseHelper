@@ -1,5 +1,6 @@
 package cn.starrah.thu_course_helper
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -15,6 +16,7 @@ import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import cn.starrah.thu_course_helper.fragment.TimeTable
 import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
 import cn.starrah.thu_course_helper.utils.shouldSyncHomework
+import cn.starrah.thu_course_helper.widget.AppWidget
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
@@ -95,6 +97,17 @@ class MainActivity : FragmentActivity() {
                 setLastSyncHomeworkDatetime(this@MainActivity)
             }
         }
+    }
+
+    /**
+     * 实现intent更新
+     */
+    override fun onStart() {
+        super.onStart()
+        val intent = Intent(this, AppWidget::class.java)
+        intent.setAction("update_widget")
+
+        sendBroadcast(intent)
     }
 
 

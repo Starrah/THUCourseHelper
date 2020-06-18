@@ -15,6 +15,7 @@ import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalTime
@@ -22,13 +23,15 @@ import java.time.LocalTime
 class AppWidget : AppWidgetProvider() {
     private val BUTTON_UP = "button_up"
     private val BUTTON_DOWN = "button_down"
+    private val UPDATE_WIDGET = "update_widget"
 
     //当前时间段数组
-    private var timeList:MutableList<CalendarTimeDataWithItem> = mutableListOf()
+    companion object {
+        private var timeList: MutableList<CalendarTimeDataWithItem> = mutableListOf()
 
-    //当前显示的元素
-    private var showItem:Int = -1
-
+        //当前显示的元素
+        private var showItem:Int = -1
+    }
 
     /**
      * 接受广播事件
@@ -39,7 +42,12 @@ class AppWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         if (intent == null) return
         val action = intent.action
-        if (action == BUTTON_UP) {
+        if(action == UPDATE_WIDGET) {
+            GlobalScope.launch {
+                updateData(context)
+            }
+        }
+        else if (action == BUTTON_UP) {
             showItem -= 1
             if(showItem < 0) {
                 showItem = 0
@@ -121,9 +129,15 @@ class AppWidget : AppWidgetProvider() {
             var start_time:String = ItemEditActivity.getTimeString(the_item.timeInHour!!.startTime)
             var end_time:String = ItemEditActivity.getTimeString(the_item.timeInHour!!.endTime)
             var time:String = start_time + "-" + end_time
+            if(the_item.type == CalendarTimeType.POINT) {
+                time = start_time
+            }
 
             //地点
             var place:String = the_item.place
+            if(place.isEmpty()) {
+                place = "暂无地点"
+            }
 
             remoteViews.setTextViewText(R.id.time_show_name, name)
             remoteViews.setTextViewText(R.id.time_show_time, time)
