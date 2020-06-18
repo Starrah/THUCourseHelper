@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <Preference
         app:defaultValue="0"
         app:key="login_status"
@@ -18,11 +19,18 @@
         app:summary=""
         app:title="@string/settings_sync_XK" />
 
-    <SwitchPreferenceCompat
-        app:defaultValue="false"
+    <!--    <SwitchPreferenceCompat-->
+    <!--        app:key="sync_learnx_homeworks"-->
+    <!--        app:title="@string/settings_sync_learnx"-->
+    <!--        app:defaultValue="false"-->
+    <!--        app:enabled="false" />-->
+
+    <MultiSelectListPreference
         app:enabled="false"
-        app:key="sync_learnx_homeworks"
-        app:title="@string/settings_sync_learnx" />
+        app:entries="@array/hmex_options"
+        app:entryValues="@array/hmex_options"
+        app:key="sync_hmex"
+        app:title="@string/settings_sync_hmex_title" />
 
     <ListPreference
         app:key="term_id"
@@ -61,10 +69,10 @@
         app:title="@string/settings_stay_notice_title"
         app:useSimpleSummaryProvider="true" />
 
-<!--    <SwitchPreferenceCompat-->
-<!--        app:defaultValue="false"-->
-<!--        app:key="stay_notice"-->
-<!--        app:title="@string/settings_stay_notice_title" />-->
+    <!--    <SwitchPreferenceCompat-->
+    <!--        app:defaultValue="false"-->
+    <!--        app:key="stay_notice"-->
+    <!--        app:title="@string/settings_stay_notice_title" />-->
 
     <ListPreference
         app:defaultValue="dull"

@@ -7,13 +7,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
+import androidx.preference.*
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.onlinedata.backend.*
+import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
 import cn.starrah.thu_course_helper.utils.startDownloadIntent
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.launch
@@ -23,7 +21,7 @@ import java.time.format.DateTimeFormatter
 
 class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var sp: SharedPreferences
-    lateinit var pf_sync_learnx: SwitchPreferenceCompat
+    lateinit var pf_sync_hmex: MultiSelectListPreference
     lateinit var pf_login: Preference
     lateinit var pf_sync_xk: Preference
     lateinit var pf_term: ListPreference
@@ -42,9 +40,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 4    -> resources.getString(R.string.status_login_session_expire)
                 else -> ""
             }
-            pf_sync_learnx.isEnabled = login_status == 2
-            if (!pf_sync_learnx.isEnabled) pf_sync_learnx.isChecked = false
-            pf_sync_learnx.summary = if (!pf_sync_learnx.isEnabled)
+
+            pf_sync_hmex.isEnabled = login_status == 2
+            pf_sync_hmex.summary = if (!pf_sync_hmex.isEnabled)
                 resources.getString(R.string.errmsg_not_save_password)
             else ""
 
@@ -109,7 +107,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         pf_login = findPreference<Preference>("login_status")!!
         pf_login.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            var the_dialog = LoginDialog(requireActivity())
+            val the_dialog = LoginDialog(requireActivity())
             the_dialog.show()
 
             true
@@ -128,7 +126,28 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        pf_sync_learnx = findPreference("sync_learnx_homeworks")!!
+        pf_sync_hmex = findPreference("sync_hmex")!!
+        pf_sync_hmex.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { pref, newValue ->
+                lifecycleScope.launch {
+                    if (resources.getString(R.string.settings_open_sync_homework) in newValue as Set<String> &&
+                        sp.getInt("login_status", 0) == 2) {
+                        CREP.onlineCourseDataSource!!.loadData(
+                            CREP.term,
+                            mapOf(
+                                "homework" to true,
+                                "activity" to requireActivity(),
+                                "username" to sp.getString("login_name", null)!!,
+                                "password" to CREP.getUserPassword(requireActivity()),
+                                "onlyUnsubmitted" to true,
+                                "apply" to true
+                            )
+                        )
+                        setLastSyncHomeworkDatetime(requireActivity())
+                    }
+                }
+                true
+            }
 
         pf_term = findPreference("term_id")!!
         pf_term.title = (if (CREP.initialized) CREP.term else null)?.chineseName ?: ""

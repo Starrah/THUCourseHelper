@@ -355,10 +355,12 @@ object CalendarRepository {
     /**
      * 获取所有的作业类型的日程。
      *
-     * Implementation Notes: 调用[matchItemsSpecifiedDetailWord]，查找说明字段为"网络学堂作业"的。
+     * Implementation Notes: 调用[matchItemsSpecifiedDetailWord]，查找说明FROM_WEB字段含有"learn"的。
      */
     suspend fun helper_findHomeworkItems(): List<CalendarItemDataWithTimes> {
-        return matchItemsSpecifiedDetailWord(CalendarItemLegalDetailKey.COMMENT, "网络学堂作业").getNotNullValue()
+        return matchItemsSpecifiedDetailWord(CalendarItemLegalDetailKey.FROM_WEB, "learn").getNotNullValue().filter {
+            it.type == CalendarItemType.OTHER
+        }
     }
 
     /**

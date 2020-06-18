@@ -9,14 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.data.SPRING2019TERMJSON
 import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
-import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
-import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPICheckVersion
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPITermData
@@ -24,9 +17,7 @@ import cn.starrah.thu_course_helper.onlinedata.backend.TermDescription
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -73,14 +64,16 @@ class LoadingActivity : AppCompatActivity() {
                 ?.let { JSON.parseObject(it, SchoolTerm::class.java) }
             val term_id = sp.getString("term_id", null)
 
+            val SYNC_TERM_INTERVAL_DAYS = 7
+            val HAND_CHANGE_KEEP_DAYS = 7
             val needRequestOnlineData: Int =
                 // 请求学期数据，触发条件：
                 if ((currentTerm == null || currentTerm.termId != term_id) || //本地无有效学期数据
                     version != lastStartVersion || // 发生了版本更新
-                    (currentTerm.endInclusiveDate < LocalDate.now() && lastHandChangeTermTimePassed >= 7) || // 当前学期已结束，并且距离上一次手动修改学期的时间已经超过7天
-                    (lastSyncDataTimePassed >= 7 && lastHandChangeTermTimePassed >= 7) // 距离上次刷新数据和距离上次手动更改学期都过去了7天
+                    (currentTerm.endInclusiveDate < LocalDate.now() && lastHandChangeTermTimePassed >= HAND_CHANGE_KEEP_DAYS) || // 当前学期已结束，并且距离上一次手动修改学期的时间已经超过7天
+                    (lastSyncDataTimePassed >= SYNC_TERM_INTERVAL_DAYS && lastHandChangeTermTimePassed >= HAND_CHANGE_KEEP_DAYS) // 距离上次刷新数据和距离上次手动更改学期都过去了7天
                 ) 2 // 应当更新学期列表和当前学期数据
-                else if (lastSyncDataTimePassed >= 7 && lastHandChangeTermTimePassed < 7) 1 // 应当只更新学期列表、不更新学期数据
+                else if (lastSyncDataTimePassed >= SYNC_TERM_INTERVAL_DAYS && lastHandChangeTermTimePassed < HAND_CHANGE_KEEP_DAYS) 1 // 应当只更新学期列表、不更新学期数据
                 else 0 // 不应当更新
 
             if (BACKEND_SITE == "") {
@@ -136,6 +129,13 @@ class LoadingActivity : AppCompatActivity() {
             CREP.initializeTerm(this@LoadingActivity, currentTerm!!)
 
 //            loadTestData()
+
+//            THUCourseDataSouce.loadData(CREP.term, mapOf(
+//                "homework" to true,
+//                "activity" to this@LoadingActivity,
+//                "username" to sp.getString("login_name", null)!!,
+//                "password" to CREP.getUserPassword(this@LoadingActivity)
+//            ))
 
             val the_intent = Intent()
             the_intent.setClass(this@LoadingActivity, MainActivity::class.java)

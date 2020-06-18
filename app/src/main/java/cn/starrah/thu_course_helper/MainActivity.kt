@@ -1,24 +1,28 @@
 package cn.starrah.thu_course_helper
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
+import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.fragment.CourseTable
 import cn.starrah.thu_course_helper.fragment.Information
 import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import cn.starrah.thu_course_helper.fragment.TimeTable
-import cn.starrah.thu_course_helper.widget.AppWidget
+import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
+import cn.starrah.thu_course_helper.utils.shouldSyncHomework
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 
 
 class MainActivity : FragmentActivity() {
 
     //显示布局变量
-    var courseTableType:String = "course"
+    var courseTableType: String = "course"
     var showDays = 5
 
 
@@ -41,27 +45,27 @@ class MainActivity : FragmentActivity() {
             BottomNavigationView.OnNavigationItemSelectedListener {
             override fun onNavigationItemSelected(item: MenuItem): Boolean {
                 when (item.getItemId()) {
-                   R.id.navigation_course_table -> {
-                       supportFragmentManager.inTransaction {
-                           replace(R.id.frame_page, CourseTable())
-                       }
-                       return true
-                   }
+                    R.id.navigation_course_table -> {
+                        supportFragmentManager.inTransaction {
+                            replace(R.id.frame_page, CourseTable())
+                        }
+                        return true
+                    }
 
-                    R.id.navigation_time_table -> {
-                    supportFragmentManager.inTransaction {
+                    R.id.navigation_time_table   -> {
+                        supportFragmentManager.inTransaction {
                             replace(R.id.frame_page, TimeTable())
                         }
                         return true
                     }
 
-                    R.id.navigation_information -> {
+                    R.id.navigation_information  -> {
                         supportFragmentManager.inTransaction {
                             replace(R.id.frame_page, Information())
                         }
                         return true
                     }
-                    R.id.navigation_settings -> {
+                    R.id.navigation_settings     -> {
                         supportFragmentManager.inTransaction {
                             replace(R.id.frame_page, SettingsFragment())
                         }
@@ -75,17 +79,22 @@ class MainActivity : FragmentActivity() {
         if (intent.getStringExtra("SHOW_TOAST") != null)
             Toast.makeText(this, intent.getStringExtra("SHOW_TOAST")!!, Toast.LENGTH_SHORT).show()
 
-    }
-
-    /**
-     * 实现intent更新
-     */
-    override fun onStart() {
-        super.onStart()
-        val intent = Intent(this, AppWidget::class.java)
-        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE")
-
-        sendBroadcast(intent)
+        lifecycleScope.launch {
+            val sp = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
+            if (shouldSyncHomework(this@MainActivity)) {
+                CREP.onlineCourseDataSource!!.loadData(
+                    CREP.term, mapOf(
+                        "homework" to true,
+                        "activity" to this@MainActivity,
+                        "username" to sp.getString("login_name", null)!!,
+                        "password" to CREP.getUserPassword(this@MainActivity),
+                        "onlyUnsubmitted" to true,
+                        "apply" to true
+                    )
+                )
+                setLastSyncHomeworkDatetime(this@MainActivity)
+            }
+        }
     }
 
 

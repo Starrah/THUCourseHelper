@@ -2,7 +2,9 @@ package cn.starrah.thu_course_helper.data.utils
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 
 /**
@@ -18,16 +20,18 @@ import kotlin.coroutines.resume
 suspend fun <T> LiveData<T>.getNotNullValue(): T {
     var v: T? = this.value
     if (v != null) return v
-    v = suspendCancellableCoroutine<T> { cont ->
-        val observer = object: Observer<T> {
-            override fun onChanged(t: T) {
-                if (t != null){
-                    this@getNotNullValue.removeObserver(this)
-                    cont.resume(t)
+    v = withContext(Dispatchers.Main) {
+       suspendCancellableCoroutine<T> { cont ->
+            val observer = object : Observer<T> {
+                override fun onChanged(t: T) {
+                    if (t != null) {
+                        this@getNotNullValue.removeObserver(this)
+                        cont.resume(t)
+                    }
                 }
             }
+            this@getNotNullValue.observeForever(observer)
         }
-        this.observeForever(observer)
     }
     return v
 }

@@ -13,7 +13,12 @@ async function core(username, password) {
     if (!courses)
         courses = await helper.getCourseList(semester.id);
     const homeworks = await helper.getAllContents(courses.map(value => value.id), types_1.ContentType.HOMEWORK);
-    const courseNames = courses.map(value => value.name);
+    const courseNames = courses.map(value => {
+        return {
+            name: value.name,
+            id: value.id
+        };
+    });
     return { courseNames, homeworks };
 }
 function homeworkSuccessCb(data) {
