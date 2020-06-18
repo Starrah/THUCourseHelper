@@ -2,6 +2,7 @@ package cn.starrah.thu_course_helper.data.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import cn.starrah.thu_course_helper.BuildConfig
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.*
 
 @Dao
@@ -16,25 +17,31 @@ abstract class CalendarDao {
     @Transaction
     @Query(
         """
-        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound FROM CalendarTimeData
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData
         INNER JOIN FastSearchTable
         ON CalendarTimeData.rowid=FastSearchTable.timeId
-        WHERE FastSearchTable.dayId=:dayIds
+        WHERE FastSearchTable.dayId IN (:dayIds)
     """
     )
     abstract fun findTimesByDays(dayIds: List<Int>): LiveData<List<CalendarTimeDataWithItem>>
 
     @Query(
         """
-        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound FROM CalendarTimeData
-        WHERE CalendarTimeData.rowid=:timeIds
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData
+        WHERE CalendarTimeData.rowid IN (:timeIds)
     """
     )
     protected abstract fun _findTimesByIds(timeIds: List<Int>): List<CalendarTimeData>
 
     @Query(
         """
-        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound FROM CalendarTimeData
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData
         WHERE CalendarTimeData.item_id=:itemId
     """
     )
@@ -42,7 +49,9 @@ abstract class CalendarDao {
 
     @Query(
         """
-        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound FROM CalendarTimeData
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData
         WHERE CalendarTimeData.item_id IN (:itemIds)
     """
     )
@@ -51,7 +60,7 @@ abstract class CalendarDao {
     @Query(
         """
         SELECT CalendarItemData.rowid, name, type, detail FROM CalendarItemData
-        WHERE CalendarItemData.rowid=:itemIds
+        WHERE CalendarItemData.rowid IN (:itemIds)
     """
     )
     protected abstract fun _findItemsByIds(itemIds: List<Int>): List<CalendarItemData>
@@ -109,7 +118,9 @@ abstract class CalendarDao {
         }
         else {
             val r = _updateItems(listOf(item))
-            assert(r == 1)
+            if (BuildConfig.DEBUG && r != 1) {
+                error("Assertion failed")
+            }
             return item.id
         }
     }
@@ -130,7 +141,9 @@ abstract class CalendarDao {
     open fun updateTimesInItem(times: List<CalendarTimeData>, itemId: Int) {
         for (time in times) {
             if (time.item_id == 0) time.item_id = itemId
-            assert(time.item_id == itemId)
+            if (BuildConfig.DEBUG && time.item_id != itemId) {
+                error("Assertion failed")
+            }
         }
 
         val oldTimes = _findTimesByItem(itemId)
@@ -162,14 +175,18 @@ abstract class CalendarDao {
         }
         else {
             val r = _updateItems(listOf(item))
-            assert(r == 1)
+            if (BuildConfig.DEBUG && r != 1) {
+                error("Assertion failed")
+            }
             itemId = item.id
             oldTimes = _findTimesByItem(itemId)
         }
 
         for (time in times) {
             if (time.item_id == 0) time.item_id = itemId
-            assert(time.item_id == itemId)
+            if (BuildConfig.DEBUG && time.item_id != itemId) {
+                error("Assertion failed")
+            }
         }
 
         val newTimesMap = times.associateBy { it.id }
@@ -185,7 +202,9 @@ abstract class CalendarDao {
         oldToUpdateOnes: List<CalendarTimeData>
     ) {
         var toUpdateOnes = times.filter { it.id != 0 }
-        assert(oldToUpdateOnes.size == toUpdateOnes.size)
+        if (BuildConfig.DEBUG && oldToUpdateOnes.size != toUpdateOnes.size) {
+            error("Assertion failed")
+        }
         val oldToUpdateOnesMap = oldToUpdateOnes.associateBy { it.id }
         toUpdateOnes = toUpdateOnes.filter {
             oldToUpdateOnesMap[it.id]?.calculateDayIdsInTerm() == it.calculateDayIdsInTerm()
@@ -193,7 +212,9 @@ abstract class CalendarDao {
         val toInsertOnes = times - toUpdateOnes
 
         val updatedCount = toUpdateOnes.run { if (!isEmpty()) _updateTimes(toUpdateOnes) else 0 }
-        assert(updatedCount == toUpdateOnes.size)
+        if (BuildConfig.DEBUG && updatedCount != toUpdateOnes.size) {
+            error("Assertion failed")
+        }
 
         toInsertOnes.run {
             if (!isEmpty()) {
@@ -225,8 +246,10 @@ abstract class CalendarDao {
     @Transaction
     @Query(
         """
-        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound FROM CalendarTimeData
-        WHERE CalendarTimeData.rowid=:timeIds
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData
+        WHERE CalendarTimeData.rowid IN (:timeIds)
     """
     )
     abstract fun findTimesByIds(timeIds: List<Int>): LiveData<List<CalendarTimeDataWithItem>>
@@ -240,7 +263,7 @@ abstract class CalendarDao {
     @Query(
         """
         SELECT CalendarItemData.rowid, name, type, detail FROM CalendarItemData
-        WHERE CalendarItemData.rowid=:itemIds
+        WHERE CalendarItemData.rowid IN (:itemIds)
     """
     )
     abstract fun findItemsByIds(itemIds: List<Int>): LiveData<List<CalendarItemDataWithTimes>>
@@ -255,7 +278,9 @@ abstract class CalendarDao {
     @Transaction
     @Query(
         """
-        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound FROM CalendarTimeData
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData
         WHERE CalendarTimeData.item_id=:itemId
     """
     )
@@ -271,7 +296,8 @@ abstract class CalendarDao {
     @Transaction
     @Query(
         """
-        SELECT CalendarItemData.rowid, CalendarItemData.name, CalendarItemData.type, detail FROM CalendarItemData
+        SELECT CalendarItemData.rowid, CalendarItemData.name, CalendarItemData.type, detail 
+        FROM CalendarItemData
         INNER JOIN CalendarTimeData
         ON CalendarItemData.rowid=CalendarTimeData.item_id
         WHERE CalendarTimeData.rowid=:timeId
@@ -294,10 +320,12 @@ abstract class CalendarDao {
     protected abstract fun _deleteTimesWithoutCascade(times: List<CalendarTimeData>): Int
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         DELETE FROM FastSearchTable
         WHERE FastSearchTable.timeId IN (:timeIds)
-    """)
+    """
+    )
     protected abstract fun _deleteFastTableNodeByTimeIds(timeIds: List<Int>): Int
 
     @Delete
@@ -322,37 +350,53 @@ abstract class CalendarDao {
     abstract fun findAllItems(): List<CalendarItemDataWithTimes>
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         SELECT CalendarItemData.rowid, name, type, detail FROM CalendarItemData
         WHERE type MATCH :typeName
-    """)
+    """
+    )
     abstract fun findItemsSpecifiedType(typeName: String): LiveData<List<CalendarItemDataWithTimes>>
 
     @Transaction
-    @Query("""
-        SELECT CalendarItemData.rowid, name, type, detail FROM CalendarItemData WHERE detail MATCH :text
-    """)
+    @Query(
+        """
+        SELECT CalendarItemData.rowid, name, type, detail FROM CalendarItemData 
+        WHERE detail MATCH :text
+    """
+    )
     abstract fun findItemsSpecifiedDetailFulltext(text: String): LiveData<List<CalendarItemDataWithTimes>>
 
     @Transaction
-    @Query("""
-        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound FROM CalendarTimeData WHERE name MATCH :name
-    """)
+    @Query(
+        """
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData 
+        WHERE name MATCH :name
+    """
+    )
     abstract fun findTimesSpecifiedName(name: String): LiveData<List<CalendarTimeDataWithItem>>
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM CalendarItemData
-    """)
+    """
+    )
     protected abstract fun _dropCalendarItemData()
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM CalendarTimeData
-    """)
+    """
+    )
     protected abstract fun _dropCalendarTimeData()
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM FastSearchTable
-    """)
+    """
+    )
     protected abstract fun _dropFastSearchTable()
 
     /** 删除所有的表。 */
