@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/colorGreyBG">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="5dp">
+        <!--名称-->
+        <LinearLayout style="@style/layout_title_time_show">
+            <TextView style="@style/title_time_show"
+                android:id="@+id/time_show_name"/>
+        </LinearLayout>
+
+
+        <!--时间，类似8:00-9:30-->
+        <LinearLayout style="@style/layout_time_show"
+            android:id="@+id/time_show_time_place">
+            <TextView style="@style/icon_time_show"
+                android:drawableLeft="@drawable/icon_time"
+                android:text =""/>
+            <TextView style="@style/input_time_show"
+                android:id="@+id/time_show_time"/>
+        </LinearLayout>
+
+        <!--地点-->
+        <LinearLayout style="@style/layout_time_show"
+            android:id="@+id/time_show_place_place">
+            <TextView style="@style/icon_time_show"
+                android:drawableLeft="@drawable/icon_place"
+                android:text =""/>
+            <TextView style="@style/input_time_show"
+                android:id="@+id/time_show_place"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 右侧切换按钮 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_up"
+            android:background="@drawable/icon_button_up"
+            android:layout_gravity="top"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/icon_button_down"
+            android:layout_gravity="bottom"
+            android:id="@+id/button_down"/>
+    </LinearLayout>
+
+</LinearLayout>
