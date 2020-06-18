@@ -21,7 +21,8 @@
 
 
         <!--时间，类似8:00-9:30-->
-        <LinearLayout style="@style/layout_time_show">
+        <LinearLayout style="@style/layout_time_show"
+            android:id="@+id/time_show_time_place">
             <TextView style="@style/icon_time_show"
                 android:drawableLeft="@drawable/icon_time"
                 android:text =""/>
@@ -30,7 +31,8 @@
         </LinearLayout>
 
         <!--地点-->
-        <LinearLayout style="@style/layout_time_show">
+        <LinearLayout style="@style/layout_time_show"
+            android:id="@+id/time_show_place_place">
             <TextView style="@style/icon_time_show"
                 android:drawableLeft="@drawable/icon_place"
                 android:text =""/>
@@ -41,13 +43,14 @@
 
     <!-- 右侧切换按钮 -->
     <LinearLayout
-        android:layout_width="40dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="vertical">
         <ImageButton
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/button_up"
+            android:background="@drawable/icon_button_up"
             android:layout_gravity="top"/>
         <TextView
             android:layout_width="match_parent"
@@ -55,8 +58,9 @@
             android:layout_weight="1"/>
 
         <ImageButton
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/icon_button_down"
             android:layout_gravity="bottom"
             android:id="@+id/button_down"/>
     </LinearLayout>

@@ -43,7 +43,8 @@
 
         <receiver android:name=".widget.AppWidget" >
             <intent-filter>
-                <action android:name="action_button" />
+                <action android:name="button_up" />
+                <action android:name="button_down" />
             </intent-filter>
 
             <intent-filter>

@@ -83,7 +83,7 @@ class MainActivity : FragmentActivity() {
     override fun onStart() {
         super.onStart()
         val intent = Intent(this, AppWidget::class.java)
-        intent.setAction("action_button")
+        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE")
 
         sendBroadcast(intent)
     }
