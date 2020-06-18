@@ -13,6 +13,7 @@ import cn.starrah.thu_course_helper.data.utils.assertData
 import cn.starrah.thu_course_helper.data.utils.assertDataSystem
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import com.alibaba.fastjson.JSON
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -148,6 +149,51 @@ open class CalendarTimeData(
             }
         }
 
+    /**
+     * 该时间段数据，在今天中下次发生的时间。如果今天不会发生的时间，那么为null。
+     *
+     * **数据类型说明**：由两个[LocalDateTime]组成的[Pair]，其中前一个表示开始时间、后一个表示结束时间。
+     */
+    val todayHappenTime: Pair<LocalDateTime, LocalDateTime>?
+        get() {
+            val timeData = when (type) {
+                CalendarTimeType.SINGLE_COURSE, CalendarTimeType.REPEAT_COURSE                     -> timeInCourseSchedule!!.toTimeInHour()
+                CalendarTimeType.SINGLE_HOUR, CalendarTimeType.REPEAT_HOUR, CalendarTimeType.POINT -> timeInHour!!
+            }
+            return when (type) {
+                CalendarTimeType.SINGLE_COURSE, CalendarTimeType.SINGLE_HOUR, CalendarTimeType.POINT -> {
+                    val realStartTime = LocalDateTime.of(timeData.date, timeData.startTime)
+                    val realEndTime = LocalDateTime.of(timeData.date, timeData.endTime)
+                    if (LocalDate.now() == realStartTime.toLocalDate()) Pair(
+                        realStartTime,
+                        realEndTime
+                    )
+                    else null
+                }
+                CalendarTimeType.REPEAT_COURSE, CalendarTimeType.REPEAT_HOUR                         -> {
+                    val today = LocalDate.now()
+                    val currentWeekNumber = CREP.term.dateToWeekNumber(today)
+                    if (currentWeekNumber !in repeatWeeks || timeData.dayOfWeek != today.dayOfWeek) null
+                    else Pair(
+                        LocalDateTime.of(today, timeData.startTime),
+                        LocalDateTime.of(today, timeData.endTime)
+                    )
+                }
+            }
+        }
+
+    val todayHappenType: CalendarTimeType.TodayType
+        get() {
+            val tod = todayHappenTime
+            val now = LocalDateTime.now()
+            return when {
+                tod == null -> CalendarTimeType.TodayType.NONE
+                now > tod.second -> CalendarTimeType.TodayType.PAST
+                now >= tod.first && now <= tod.second -> CalendarTimeType.TodayType.NOW
+                now < tod.first -> CalendarTimeType.TodayType.FUTURE
+                else -> CalendarTimeType.TodayType.NONE
+            }
+        }
 
     class TC {
         @TypeConverter

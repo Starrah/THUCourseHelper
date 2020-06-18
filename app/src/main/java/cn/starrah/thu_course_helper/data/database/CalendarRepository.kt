@@ -17,6 +17,7 @@ import cn.starrah.thu_course_helper.onlinedata.CourseDataSourceRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 /**
  * 本类是获取各类数据的接口。通过设置学期[initializeTerm]，自动打开对应的数据库；
@@ -371,6 +372,30 @@ object CalendarRepository {
 
     suspend fun getUserPassword(context: Context): String {
         return PreferenceManager.getDefaultSharedPreferences(context).getString("login_pass", "")!!
+    }
+
+    /**
+     * 小部件显示所用的数据。
+     * @param [onlyCourse] 如果为true，则返回的数据只有课程；否则则课程和日程都返回。
+     * @return 一个[Pair]，其中first是[CalendarTimeDataWithItem]的列表，并且已经按照各个事件在当天中发生的时间
+     * 顺序做好了排序（要获取一个[CalendarTimeData]对象在当天的发生情况，请直接调用[CalendarTimeData.todayHappenType]。）；
+     * second是当前正在发生的那个时间段，在first列表中的下标，（用于直接准确定位要显示哪个时间段在小部件上。）
+     */
+    suspend fun widgetShowData(onlyCourse: Boolean = false): Pair<List<CalendarTimeDataWithItem>, Int> {
+        val times = findTimesByDays(listOf(LocalDate.now())).getNotNullValue()
+            .map { Pair(it, it.todayHappenTime) }.filter {
+                it.second != null && (!onlyCourse || it.first.calendarItem.type == CalendarItemType.COURSE)
+            }.sortedBy { it.second!!.first }
+        val index = if (times.isEmpty()) -1 else {
+            val now = LocalDateTime.now()
+            var cur = 0
+            for (time in times) {
+                if (time.second!!.first > now) break
+                cur++
+            }
+            if (cur - 1 >= 0) cur - 1 else 0
+        }
+        return Pair(times.map { it.first }, index)
     }
 
 }

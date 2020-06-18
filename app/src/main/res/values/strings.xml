@@ -66,7 +66,6 @@
     <string name="settings_sync_learnx">从网络学堂同步课程作业</string>
     <string name="settings_course_show_days">课程表每周显示日数</string>
     <string name="settings_time_show_days">日程表每周显示日数</string>
-    <string name="settings_stay_notice">常驻通知栏</string>
     <string name="settings_course_show_type">课程表显示形式</string>
     <string name="settings_term_remind">点击切换学期</string>
     <string name="settings_check_version">检查更新</string>
@@ -118,5 +117,10 @@
     <string name="remind_download_warning">您确定要从服务器恢复您的所有数据吗？一旦恢复数据完成，您本机当前学期的所有的数据，包括课程、日程和部分配置项，都将全部丢失并被从服务器获取到的数据覆盖！该操作不可撤销！</string>
     <string name="remind_backup_upload_success">数据备份成功！</string>
     <string name="remind_backup_download_success">数据恢复成功！</string>
+
+    <string name="settings_stay_notice_title">常驻通知栏设置</string>
+    <string name="settings_stay_notice_no">关</string>
+    <string name="settings_stay_notice_course">显示课程</string>
+    <string name="settings_stay_notice_all">显示课程和日程</string>
 
 </resources>
