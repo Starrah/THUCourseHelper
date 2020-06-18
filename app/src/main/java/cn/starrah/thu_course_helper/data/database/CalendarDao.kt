@@ -339,4 +339,27 @@ abstract class CalendarDao {
         SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound FROM CalendarTimeData WHERE name MATCH :name
     """)
     abstract fun findTimesSpecifiedName(name: String): LiveData<List<CalendarTimeDataWithItem>>
+
+    @Query("""
+        DELETE FROM CalendarItemData
+    """)
+    protected abstract fun _dropCalendarItemData()
+
+    @Query("""
+        DELETE FROM CalendarTimeData
+    """)
+    protected abstract fun _dropCalendarTimeData()
+
+    @Query("""
+        DELETE FROM FastSearchTable
+    """)
+    protected abstract fun _dropFastSearchTable()
+
+    /** 删除所有的表。 */
+    @Transaction
+    open fun dropAllTables() {
+        _dropCalendarItemData()
+        _dropCalendarTimeData()
+        _dropFastSearchTable()
+    }
 }

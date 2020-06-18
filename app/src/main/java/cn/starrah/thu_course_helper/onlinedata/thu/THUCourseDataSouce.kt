@@ -307,7 +307,6 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             "${INFO_VPN_PREFIX}/render.userLayoutRootNode.uP"
         ).awaitString(GBKCharset)
         val matcher = J_ACEGI_PATTERN.matcher(rootNodeString)
-        println(rootNodeString)
         if (!matcher.find()) throw throw Exception("登录失败，可能是用户名或密码错误")
 
         val webvpnHost = URI(WEBVPN_SITE).host

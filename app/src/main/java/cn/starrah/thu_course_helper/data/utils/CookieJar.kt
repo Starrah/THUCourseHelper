@@ -1,24 +1,53 @@
 package cn.starrah.thu_course_helper.data.utils
 
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.Headers
-import com.github.kittinunf.fuel.core.Request
-import com.github.kittinunf.fuel.core.Response
+import com.alibaba.fastjson.JSON
+import com.github.kittinunf.fuel.core.*
+import com.github.kittinunf.fuel.core.deserializers.StringDeserializer
 import java.util.regex.Pattern
 import com.github.kittinunf.fuel.core.interceptors.redirectResponseInterceptor
 
+// 用于后端处理返回json中的errMsg字段，以保证错误消息能够被作为Exception的message。
+private val backendErrMsgHandler: FoldableResponseInterceptor = { next ->
+    { req, resp ->
+        if (!req.executionOptions.responseValidator(resp) && "application/json" in resp.headers[Headers.CONTENT_TYPE]) {
+            val jsonObj =
+                runCatching { JSON.parseObject(StringDeserializer().deserialize(resp)) }.getOrNull()
+            if (jsonObj != null && !(jsonObj["errMsg"] as? String).isNullOrEmpty()) {
+                throw DataInvalidException(jsonObj["errMsg"] as String)
+            }
+        }
+        next(req, resp)
+    }
+}
+
 val CookiedFuel = FuelManager().apply {
-    addRequestInterceptor { next -> {req ->
-        next(req.enableCookie(DEFAULT_COOKIEJAR))
-    } }
+    addRequestInterceptor { next ->
+        { req ->
+            next(req.enableCookie(DEFAULT_COOKIEJAR))
+        }
+    }
+
+    // 为了确保重定向期间的cookie也能被获取，各个Interceptor的顺序就十分重要。
+    // 必须保证获取cookie的Interceptor是位于重定向的Interceptor之前的。
     removeAllResponseInterceptors()
-    addResponseInterceptor { next -> {req, resp ->
-        next(req, resp.saveCookie(DEFAULT_COOKIEJAR))
-    } }
+
+    // 获取cookie，存到默认DEFAULT_COOKIEJAR
+    addResponseInterceptor { next ->
+        { req, resp ->
+            next(req, resp.saveCookie(DEFAULT_COOKIEJAR))
+        }
+    }
+
+    // 处理重定向
     addResponseInterceptor(redirectResponseInterceptor(this))
+
+    // 用于后端处理返回json中的errMsg字段，以保证错误消息能够被作为Exception的message。
+    addResponseInterceptor(backendErrMsgHandler)
 
     // 设置超时
     timeoutInMillisecond = 5000
+
+    // 对于Fuel对象，也需要设置一下超时。在这里一并处理了。
     FuelManager.instance.timeoutInMillisecond = 5000
 }
 
@@ -61,7 +90,7 @@ fun Request.enableCookie(cookieJar: CookieJar): Request {
     val cookies = cookieJar.cookieMap[domain]
     val cookieString = cookies?.filter {
         it.value.second?.let { request.url.path?.ifEmpty { "/" }?.startsWith(it) } != false
-    } ?.map { "${it.key}=${it.value.first}" } ?.joinToString("; ")
+    }?.map { "${it.key}=${it.value.first}" }?.joinToString("; ")
     if (cookieString != null) {
         request[Headers.COOKIE] = cookieString
     }

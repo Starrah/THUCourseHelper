@@ -25,4 +25,15 @@ enum class CalendarTimeType(val chineseName: String) {
             return valueOf(value)
         }
     }
+
+    /**
+     * 该时间段在现在的类型。
+     */
+    enum class TodayType {
+        /** 今天不会发生 */ NONE,
+        /** 今天已经发生完了 */ PAST,
+        /** 今天正在发生 */ NOW,
+        /** 今天将来会发生 */ FUTURE,
+        ;
+    }
 }

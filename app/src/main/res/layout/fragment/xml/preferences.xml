@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <Preference
+        app:defaultValue="0"
         app:key="login_status"
         app:summary=""
-        app:title="@string/status_not_login"
-        app:defaultValue="0" />
+        app:title="@string/status_not_login" />
     <!--        android:layout=""-->
-<!--
-注：现在的Preference的默认view，是只显示登录名（学号）、已登录状态、保存密码状态的。
-但是可以使用android:layout=对应的layout文件，来指定这个preference对应的view的。
-之后可以用这个方法实现显示姓名、头像等等。
--->
+    <!--
+    注：现在的Preference的默认view，是只显示登录名（学号）、已登录状态、保存密码状态的。
+    但是可以使用android:layout=对应的layout文件，来指定这个preference对应的view的。
+    之后可以用这个方法实现显示姓名、头像等等。
+    -->
 
     <Preference
         app:key="sync_XK_btn"
@@ -20,46 +19,63 @@
         app:title="@string/settings_sync_XK" />
 
     <SwitchPreferenceCompat
-
-        app:key="sync_learnx_homeworks"
-        app:title="@string/settings_sync_learnx"
         app:defaultValue="false"
-        app:enabled="false" />
+        app:enabled="false"
+        app:key="sync_learnx_homeworks"
+        app:title="@string/settings_sync_learnx" />
 
     <ListPreference
         app:key="term_id"
-        app:title=""
-        app:summary="@string/settings_term_remind" />
+        app:summary="@string/settings_term_remind"
+        app:title="" />
 
     <ListPreference
+        app:defaultValue="@string/settings_course_show_type_course"
         app:entries="@array/table_show_type"
         app:entryValues="@array/table_show_type"
         app:key="course_show_type"
         app:title="@string/settings_course_show_type"
-        app:defaultValue="@string/settings_course_show_type_course"
         app:useSimpleSummaryProvider="true" />
 
     <ListPreference
+        app:defaultValue="@string/table_show_day_number_5d"
         app:entries="@array/table_show_day_number"
         app:entryValues="@array/table_show_day_number"
         app:key="course_show_days"
         app:title="@string/settings_course_show_days"
-        app:defaultValue="@string/table_show_day_number_5d"
-        app:useSimpleSummaryProvider="true"
-        />
+        app:useSimpleSummaryProvider="true" />
 
     <ListPreference
+        app:defaultValue="@string/table_show_day_number_5d"
         app:entries="@array/table_show_day_number"
         app:entryValues="@array/table_show_day_number"
         app:key="time_show_days"
         app:title="@string/settings_time_show_days"
-        app:defaultValue="@string/table_show_day_number_5d"
         app:useSimpleSummaryProvider="true" />
 
-    <SwitchPreferenceCompat
+    <ListPreference
+        app:defaultValue="@string/settings_stay_notice_no"
+        app:entries="@array/stay_notice_values"
+        app:entryValues="@array/stay_notice_values"
         app:key="stay_notice"
-        app:title="@string/settings_stay_notice"
-        app:defaultValue="false" />
+        app:title="@string/settings_stay_notice_title"
+        app:useSimpleSummaryProvider="true" />
+
+<!--    <SwitchPreferenceCompat-->
+<!--        app:defaultValue="false"-->
+<!--        app:key="stay_notice"-->
+<!--        app:title="@string/settings_stay_notice_title" />-->
+
+    <ListPreference
+        app:defaultValue="dull"
+        app:entries="@array/backup_titles"
+        app:entryValues="@array/backup_titles"
+        app:key="dull_backup"
+        app:title="@string/backup_outter_title" />
+
+    <Preference
+        app:key="dull_feedback"
+        app:title="@string/feedback_title" />
 
     <Preference
         app:key="check_version"
