@@ -41,6 +41,11 @@
         <item>@string/backup_download_title</item>
     </string-array>
 
+    <string-array name="hmex_options">
+        <item>@string/settings_open_sync_exam</item>
+        <item>@string/settings_open_sync_homework</item>
+    </string-array>
+
     <string-array name="stay_notice_values">
         <item>@string/settings_stay_notice_no</item>
         <item>@string/settings_stay_notice_course</item>

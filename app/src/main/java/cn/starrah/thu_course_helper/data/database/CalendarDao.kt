@@ -43,7 +43,7 @@ abstract class CalendarDao {
     @Query(
         """
         SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound FROM CalendarTimeData
-        WHERE CalendarTimeData.item_id=:itemIds
+        WHERE CalendarTimeData.item_id IN (:itemIds)
     """
     )
     protected abstract fun _findTimesByItems(itemIds: List<Int>): List<CalendarTimeData>

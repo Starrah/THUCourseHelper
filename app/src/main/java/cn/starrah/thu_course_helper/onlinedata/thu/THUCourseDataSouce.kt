@@ -28,6 +28,8 @@ import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.data.utils.*
 import cn.starrah.thu_course_helper.fragment.CaptchaDialog
 import cn.starrah.thu_course_helper.onlinedata.AbstractCourseDataSource
+import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson.JSONObject
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.coroutines.awaitByteArray
 import com.github.kittinunf.fuel.coroutines.awaitString
@@ -37,8 +39,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.net.URI
 import java.nio.charset.Charset
-import java.time.DayOfWeek
-import java.time.LocalTime
+import java.time.*
+import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
 import kotlin.coroutines.resume
 import kotlin.math.roundToInt
@@ -247,6 +249,27 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         return DEFAULT_COOKIEJAR.cookieMap["info.tsinghua.edu.cn"]!!["UPORTALINFONEW"]!!.first
     }
 
+    override suspend fun loadData(term: SchoolTerm, extra: Map<String, Any>): Any? {
+        if (extra["homework"] == true) {
+            assertDataSystem(
+                extra["username"] is String && extra["password"] is String,
+                "没有传入用户名和密码。"
+            )
+            assertDataSystem(extra["activity"] is Activity, "没有传入Activity引用。")
+            val rawStr = getHomework(
+                extra["activity"] as Activity,
+                extra["username"] as String,
+                extra["password"] as String
+            )
+            val onlyUnsubmitted: Boolean = extra["onlyUnsubmitted"] as? Boolean ?: true
+            val apply: Boolean = extra["apply"] as? Boolean ?: false
+            val parsedData = parseHomework(rawStr, onlyUnsubmitted)
+            if (apply) applyHomework(parsedData)
+            return parsedData
+//            data class HomeWorkData(val courseNames: List<String>, )
+        }
+        return Unit
+    }
 
     // TODO 在登录框的显示验证码做好以前，临时过渡用的内容。正式版应当删掉此内容
     private var activity: FragmentActivity? = null
@@ -269,6 +292,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         throw NotImplementedError("不支持的操作！")
     }
 
+    // 下面是调用的私有函数。外部使用者不需要看这些内容。
     private suspend fun getVPNCookiejar(
         username: String,
         password: String
@@ -317,10 +341,42 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         }
     }
 
+    class HomeWorkData<T>(
+        val courseNames: List<_ID_Name>,
+        val homeworks: Map<String, List<JSONObject>>
+    ) {
+        class _ID_Name(val id: String, val name: String)
+        class _HomeWork(
+            val title: String,
+            val deadline: LocalDateTime,
+            val submitted: Boolean,
+            val courseName: String,
+            val id: String
+        ) {
+            val fromNowtoDeadline: Duration
+                get() = Duration.between(LocalDateTime.now(), deadline)
+
+            companion object {
+                private val zoneId = ZoneId.of("+08:00")
+                fun of(jsonObject: JSONObject, courseName: String): _HomeWork {
+                    return _HomeWork(
+                        jsonObject["title"] as String,
+                        ZonedDateTime.parse(
+                            jsonObject["deadline"] as String,
+                            DateTimeFormatter.ISO_DATE_TIME
+                        ).withZoneSameInstant(zoneId).toLocalDateTime(),
+                        jsonObject["submitted"] as Boolean,
+                        courseName,
+                        jsonObject["id"] as String
+                    )
+                }
+            }
+        }
+    }
 
     @Suppress("UNUSED_PARAMETER")
     @SuppressLint("InflateParams", "SetJavaScriptEnabled")
-    suspend fun refreshHomework(
+    private suspend fun getHomework(
         activity: Activity,
         username: String,
         password: String,
@@ -359,7 +415,87 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         return rawHomeworkData
     }
 
-    // 下面是调用的私有函数。外部使用者不需要看这些内容。
+    suspend fun parseHomework(raw: String, onlyUnsubmitted: Boolean = false): MutableList<CalendarItemDataWithTimes> {
+        fun parseCalendarItem(
+            homework: HomeWorkData._HomeWork,
+            onlyUnsubmitted: Boolean = false
+        ): CalendarItemDataWithTimes? { // 返回值表示要新增的对象
+            if (onlyUnsubmitted && (homework.submitted || homework.deadline < LocalDateTime.now()))
+                return null // 对于已提交或已过期的作业不予处理
+
+            // 生成时间段数据
+            val timeInHour = TimeInHour(
+                homework.deadline.toLocalTime(),
+                homework.deadline.toLocalTime(),
+                date = homework.deadline.toLocalDate()
+            )
+            val time = CalendarTimeData(
+                name = "(${homework.courseName})",
+                type = CalendarTimeType.POINT,
+                timeInHour = timeInHour,
+                comment = if (homework.submitted) "已提交" else "未提交"
+            )
+            val item = CalendarItemDataWithTimes(mutableListOf(time))
+            item.name = homework.title
+            item.type = CalendarItemType.OTHER
+            item.detail[CalendarItemLegalDetailKey.COMMENT] = "网络学堂作业"
+            item.detail[CalendarItemLegalDetailKey.FROM_WEB] = "${homework.id},learn"
+            return item
+        }
+
+        return withContext(Dispatchers.IO) {
+            val obj = JSON.parseObject(raw, HomeWorkData::class.java)
+            val courseNameMap = obj.courseNames.associate { Pair(it.id, it.name) }
+
+            val resultList = mutableListOf<CalendarItemDataWithTimes>()
+            for ((id, homeworks) in obj.homeworks) {
+                for (homeworkJsonobj in homeworks) {
+                    val homework = HomeWorkData._HomeWork.of(homeworkJsonobj, courseNameMap[id]!!)
+                    val item = parseCalendarItem(homework, onlyUnsubmitted)
+                    if (item != null) resultList.add(item)
+                }
+            }
+            return@withContext resultList
+        }
+    }
+
+    suspend fun applyHomework(list: MutableList<CalendarItemDataWithTimes>) {
+        fun tryReuseCalendarItem(
+            item: CalendarItemDataWithTimes,
+            // 最终oldItemsToDeleteIdMap里剩下的所有日程会被删掉的。
+            oldItemsToDeleteFromWebMap: MutableMap<String, CalendarItemDataWithTimes>? = null
+        ): Boolean { // 返回值false重用失败，应当新增新的对象；true表示重用成功，不需要新增这个对象
+            // 尝试查找可复用的数据对象
+            val key = item.detail[CalendarItemLegalDetailKey.FROM_WEB]
+            val oldItem = oldItemsToDeleteFromWebMap?.get(key)
+            val oldTime = oldItem?.times?.get(0)
+            val time = item.times[0]
+            if (oldItem != null && oldTime != null && oldItem.name == item.name && oldItem.type == item.type &&
+                oldTime.name == time.name && oldTime.type == time.type && oldTime.timeInHour == time.timeInHour) {
+                // 找到则复用对象即可。那么既不要删除，也不要新增。
+                // 从删除列表里移除原日程的引用，而返回false表示重用成功、当前的item对象不要添加到数据库中。
+                oldItemsToDeleteFromWebMap.remove(key)
+                return true
+            }
+
+            //没找到，则返回false表示重用失败、应当添加当前的新对象到数据库中。
+            return false
+        }
+
+        withContext(Dispatchers.IO) {
+            val oldHomework = CREP.helper_findHomeworkItems()
+            val toDeleteMap = oldHomework.associateBy {
+                it.detail[CalendarItemLegalDetailKey.FROM_WEB] ?: ""
+            }.toMutableMap()
+            val toAddList = list.filter { !tryReuseCalendarItem(it, toDeleteMap) }
+
+            CREP.DAO.deleteItems(toDeleteMap.values.toList())
+            for (toAddOne in toAddList) {
+                CREP.DAO.updateItemAndTimes(toAddOne, toAddOne.times)
+            }
+        }
+    }
+
     /**
      * @return 是否对old进行了修改（决定了要不要存回去）
      */
