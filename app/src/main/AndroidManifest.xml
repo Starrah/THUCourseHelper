@@ -40,6 +40,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+
+        <receiver android:name=".widget.AppWidget" >
+            <intent-filter>
+                <action android:name="action_button" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget" />
+        </receiver>
     </application>
+
+
 
 </manifest>

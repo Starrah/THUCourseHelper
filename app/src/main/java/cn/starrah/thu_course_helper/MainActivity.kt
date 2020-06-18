@@ -1,22 +1,18 @@
 package cn.starrah.thu_course_helper
 
-import cn.starrah.thu_course_helper.R
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import cn.starrah.thu_course_helper.data.SPRING2019TERMJSON
-import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.fragment.CourseTable
 import cn.starrah.thu_course_helper.fragment.Information
 import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import cn.starrah.thu_course_helper.fragment.TimeTable
-import com.alibaba.fastjson.JSON
+import cn.starrah.thu_course_helper.widget.AppWidget
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.runBlocking
 
 
 class MainActivity : FragmentActivity() {
@@ -81,6 +77,16 @@ class MainActivity : FragmentActivity() {
 
     }
 
+    /**
+     * 实现intent更新
+     */
+    override fun onStart() {
+        super.onStart()
+        val intent = Intent(this, AppWidget::class.java)
+        intent.setAction("action_button")
+
+        sendBroadcast(intent)
+    }
 
 
 }
