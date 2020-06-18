@@ -7,7 +7,17 @@ class CalendarItemDataWithTimes(
     /** 该日程的所有时间段的信息。*/
     @Relation(parentColumn = "rowid", entityColumn = "item_id")
     var times: MutableList<CalendarTimeData> = mutableListOf()
-): CalendarItemData() {
+) : CalendarItemData() {
+    constructor(
+        superInstance: CalendarItemData,
+        times: MutableList<CalendarTimeData> = mutableListOf()
+    ) : this(times) {
+        id = superInstance.id
+        name = superInstance.name
+        type = superInstance.type
+        detail = superInstance.detail
+    }
+
     /**
      * 可以在主线程调用。
      *
@@ -16,7 +26,7 @@ class CalendarItemDataWithTimes(
      */
     override suspend fun queryTimes(): LiveData<List<CalendarTimeData>> {
         val superRes = super.queryTimes()
-        times = superRes.value?.toMutableList()?:times
+        times = superRes.value?.toMutableList() ?: times
         return superRes
     }
 

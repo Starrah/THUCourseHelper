@@ -113,7 +113,7 @@ abstract class CalendarDao {
      */
     @Transaction
     open fun updateItem(item: CalendarItemData): Int {
-        if (item.id == 0 || _findItemsByIds(listOf(item.id)).size <= 0) {
+        if (item.id == 0 || _findItemsByIds(listOf(item.id)).isEmpty()) {
             return _insertItems(listOf(item)).single().toInt()
         }
         else {
@@ -201,20 +201,26 @@ abstract class CalendarDao {
         times: List<CalendarTimeData>,
         oldToUpdateOnes: List<CalendarTimeData>
     ) {
-        var toUpdateOnes = times.filter { it.id != 0 }
+        val toUpdateOnes = times.filter { it.id != 0 }
         if (BuildConfig.DEBUG && oldToUpdateOnes.size != toUpdateOnes.size) {
             error("Assertion failed")
         }
+
         val oldToUpdateOnesMap = oldToUpdateOnes.associateBy { it.id }
-        toUpdateOnes = toUpdateOnes.filter {
+        val toPlainUpdateOnes = toUpdateOnes.filter {
             oldToUpdateOnesMap[it.id]?.calculateDayIdsInTerm() == it.calculateDayIdsInTerm()
         }
-        val toInsertOnes = times - toUpdateOnes
+        val toDeleteThenInsertOnes = toUpdateOnes - toPlainUpdateOnes
 
-        val updatedCount = toUpdateOnes.run { if (!isEmpty()) _updateTimes(toUpdateOnes) else 0 }
-        if (BuildConfig.DEBUG && updatedCount != toUpdateOnes.size) {
+        val toInsertOnes = times - toPlainUpdateOnes
+
+
+        val updatedCount = toPlainUpdateOnes.run { if (!isEmpty()) _updateTimes(this) else 0 }
+        if (BuildConfig.DEBUG && updatedCount != toPlainUpdateOnes.size) {
             error("Assertion failed")
         }
+
+        toDeleteThenInsertOnes.run { if(!isEmpty()) _deleteTimes(this) }
 
         toInsertOnes.run {
             if (!isEmpty()) {
@@ -353,10 +359,32 @@ abstract class CalendarDao {
     @Query(
         """
         SELECT CalendarItemData.rowid, name, type, detail FROM CalendarItemData
+        WHERE type=:typeStr AND name IN (:names) AND detail MATCH :detailKeyword
+    """
+    )
+    abstract fun findItemsEqualsNamesAndTypeAndMatchDetail(
+        names: List<String>,
+        typeStr: String,
+        detailKeyword: String
+    ): List<CalendarItemDataWithTimes>
+
+    @Transaction
+    @Query(
+        """
+        SELECT CalendarItemData.rowid, name, type, detail FROM CalendarItemData
         WHERE type MATCH :typeName
     """
     )
     abstract fun findItemsSpecifiedType(typeName: String): LiveData<List<CalendarItemDataWithTimes>>
+
+    @Transaction
+    @Query(
+        """
+        SELECT CalendarItemData.rowid, name, type, detail FROM CalendarItemData
+        WHERE type MATCH :typeName
+    """
+    )
+    abstract fun findItemsSpecifiedTypeNotLive(typeName: String): List<CalendarItemDataWithTimes>
 
     @Transaction
     @Query(

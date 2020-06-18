@@ -11,11 +11,14 @@ import androidx.preference.*
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.onlinedata.backend.*
+import cn.starrah.thu_course_helper.utils.setLastSyncExamDate
 import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
+import cn.starrah.thu_course_helper.utils.shouldSyncExam
 import cn.starrah.thu_course_helper.utils.startDownloadIntent
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
@@ -101,6 +104,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+    @Suppress("USELESS_CAST", "UNCHECKED_CAST")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
         sp = preferenceManager.sharedPreferences
@@ -132,6 +136,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 lifecycleScope.launch {
                     if (resources.getString(R.string.settings_open_sync_homework) in newValue as Set<String> &&
                         sp.getInt("login_status", 0) == 2) {
+                        sp.edit(commit = true) {
+                            remove("lastSyncHWTime")
+                        }
                         CREP.onlineCourseDataSource!!.loadData(
                             CREP.term,
                             mapOf(
@@ -145,6 +152,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         )
                         setLastSyncHomeworkDatetime(requireActivity())
                     }
+                    else {
+                        // 删除现存的所有作业数据
+                        CREP.deleteItems(CREP.helper_findHomeworkItems())
+                    }
+                    if (resources.getString(R.string.settings_open_sync_exam) in newValue as Set<String> &&
+                        sp.getInt("login_status", 0) == 2) {
+                        sp.edit(commit = true) {
+                            remove("lastSyncExamTime")
+                        }
+                        CREP.onlineCourseDataSource!!.loadData(
+                            CREP.term, mapOf(
+                                "exam" to true,
+                                "username" to sp.getString("login_name", null)!!,
+                                "password" to CREP.getUserPassword(requireActivity()),
+                                "apply" to true
+                            )
+                        )
+                        setLastSyncExamDate(requireActivity())
+                    }
+                    //暂时规定如果取消自动同步期末考试，期末考试数据也不会自动删除吧。
                 }
                 true
             }
