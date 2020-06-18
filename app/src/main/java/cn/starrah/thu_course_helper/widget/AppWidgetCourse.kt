@@ -6,24 +6,21 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.activity.ItemEditActivity
 import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 
-class AppWidget : AppWidgetProvider() {
+class AppWidgetCourse : AppWidgetProvider() {
     private val BUTTON_UP = "button_up"
     private val BUTTON_DOWN = "button_down"
-    private val UPDATE_WIDGET = "update_widget"
+    private val UPDATE_WIDGET = "update_action"
 
     //当前时间段数组
     companion object {
@@ -72,6 +69,7 @@ class AppWidget : AppWidgetProvider() {
      * 调用时间：每隔30分钟会自动调用，进入app时也会调用
      * 操作：更新数据和绑定按钮事件
      */
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -93,7 +91,7 @@ class AppWidget : AppWidgetProvider() {
         val remoteViews = RemoteViews(context.packageName, R.layout.app_widget_layout)
         //没有日程
         if(timeList.isEmpty() || showItem < 0 || showItem >= timeList.size) {
-            var name:String = "今日无日程"
+            var name:String = "今日无课程"
             remoteViews.setTextViewText(R.id.time_show_name, name)
             remoteViews.setViewVisibility(R.id.time_show_time_place, View.INVISIBLE)
             remoteViews.setViewVisibility(R.id.time_show_place_place, View.INVISIBLE)
@@ -155,19 +153,19 @@ class AppWidget : AppWidgetProvider() {
         }
 
         //按钮绑定函数
-        val intent_up = Intent(context, AppWidget::class.java)
+        val intent_up = Intent(context, AppWidgetCourse::class.java)
         intent_up.setAction(BUTTON_UP)
         val pendingIntentUp = PendingIntent.getBroadcast(context, 0, intent_up, 0)
         remoteViews.setOnClickPendingIntent(R.id.button_up, pendingIntentUp)
 
-        val intent_down = Intent(context, AppWidget::class.java)
+        val intent_down = Intent(context, AppWidgetCourse::class.java)
         intent_down.setAction(BUTTON_DOWN)
         val pendingIntentDown = PendingIntent.getBroadcast(context, 0, intent_down, 0)
         remoteViews.setOnClickPendingIntent(R.id.button_down, pendingIntentDown)
 
         // 更新appWidget
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        val componentName = ComponentName(context, AppWidget::class.java)
+        val componentName = ComponentName(context, AppWidgetCourse::class.java)
         appWidgetManager.updateAppWidget(componentName, remoteViews)
     }
 
@@ -177,7 +175,7 @@ class AppWidget : AppWidgetProvider() {
      * 返回：无
      */
     private suspend fun updateData(context: Context) {
-        var raw_list = CREP.widgetShowData(false)
+        var raw_list = CREP.widgetShowData(true)
         timeList.clear()
         timeList.addAll(raw_list.first)
         showItem = raw_list.second

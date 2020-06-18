@@ -41,21 +41,28 @@
                 android:value=".MainActivity" />
         </activity>
 
-        <receiver android:name=".widget.AppWidget" >
+        <receiver android:name=".widget.AppWidgetTime" >
+        <intent-filter>
+            <action android:name="button_up" />
+            <action android:name="button_down" />
+            <action android:name="update_action"/>
+            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        </intent-filter>
+        <meta-data
+            android:name="android.appwidget.provider"
+            android:resource="@xml/app_widget_time" />
+        </receiver>
+
+        <receiver android:name=".widget.AppWidgetCourse" >
             <intent-filter>
                 <action android:name="button_up" />
                 <action android:name="button_down" />
-                <action android:name="update_widget" />
-
-            </intent-filter>
-
-            <intent-filter>
+                <action android:name="update_action"/>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/appwidget" />
+                android:resource="@xml/app_widget_course" />
         </receiver>
     </application>
 

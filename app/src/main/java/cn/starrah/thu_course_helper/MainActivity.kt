@@ -16,7 +16,8 @@ import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import cn.starrah.thu_course_helper.fragment.TimeTable
 import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
 import cn.starrah.thu_course_helper.utils.shouldSyncHomework
-import cn.starrah.thu_course_helper.widget.AppWidget
+import cn.starrah.thu_course_helper.widget.AppWidgetCourse
+import cn.starrah.thu_course_helper.widget.AppWidgetTime
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
@@ -104,10 +105,12 @@ class MainActivity : FragmentActivity() {
      */
     override fun onStart() {
         super.onStart()
-        val intent = Intent(this, AppWidget::class.java)
-        intent.setAction("update_widget")
-
-        sendBroadcast(intent)
+        val intent1 = Intent(this, AppWidgetTime::class.java)
+        intent1.setAction("update_action")
+        val intent2 = Intent(this, AppWidgetCourse::class.java)
+        intent2.setAction("update_action")
+        sendBroadcast(intent1)
+        sendBroadcast(intent2)
     }
 
 
