@@ -616,7 +616,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             }
         }
     }
-
+    
     class HomeWorkData(
         val courseNames: List<_ID_Name>,
         val homeworks: Map<String, List<JSONObject>>

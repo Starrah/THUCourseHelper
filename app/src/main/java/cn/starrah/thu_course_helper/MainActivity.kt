@@ -15,10 +15,7 @@ import cn.starrah.thu_course_helper.fragment.Information
 import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import cn.starrah.thu_course_helper.fragment.TimeTable
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
-import cn.starrah.thu_course_helper.utils.setLastSyncExamDate
-import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
-import cn.starrah.thu_course_helper.utils.shouldSyncExam
-import cn.starrah.thu_course_helper.utils.shouldSyncHomework
+import cn.starrah.thu_course_helper.utils.*
 import cn.starrah.thu_course_helper.widget.AppWidgetCourse
 import cn.starrah.thu_course_helper.widget.AppWidgetTime
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -87,30 +84,16 @@ class MainActivity : FragmentActivity() {
 
         lifecycleScope.launch {
             val sp = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
-            if (shouldSyncHomework(this@MainActivity)) {
-                CREP.onlineCourseDataSource!!.loadData(
-                    CREP.term, mapOf(
-                        "homework" to true,
-                        "activity" to this@MainActivity,
-                        "username" to sp.getString("login_name", null)!!,
-                        "password" to CREP.getUserPassword(this@MainActivity),
-                        "onlyUnsubmitted" to true,
-                        "apply" to true
-                    )
-                )
-                setLastSyncHomeworkDatetime(this@MainActivity)
-            }
-            if (shouldSyncExam(this@MainActivity)) {
-                CREP.onlineCourseDataSource!!.loadData(
-                    CREP.term, mapOf(
-                        "exam" to true,
-                        "username" to sp.getString("login_name", null)!!,
-                        "password" to CREP.getUserPassword(this@MainActivity),
-                        "apply" to true
-                    )
-                )
-                setLastSyncExamDate(this@MainActivity)
-            }
+            if (!trySyncHomework(this@MainActivity)) Toast.makeText(
+                this@MainActivity,
+                R.string.warning_sync_hw_fail,
+                Toast.LENGTH_SHORT
+            ).show()
+            if (!trySyncExam(this@MainActivity)) Toast.makeText(
+                this@MainActivity,
+                R.string.warning_sync_exam_fail,
+                Toast.LENGTH_SHORT
+            ).show()
             val onlineSource = CREP.onlineCourseDataSource
             if (onlineSource is THUCourseDataSouce) {
                 onlineSource.tryShouldFixDataFromBackendLaterAfterWrittenToDB(this@MainActivity)

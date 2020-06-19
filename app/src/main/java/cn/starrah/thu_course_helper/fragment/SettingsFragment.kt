@@ -120,6 +120,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         pf_sync_xk = findPreference("sync_XK_btn")!!
         pf_sync_xk.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             lifecycleScope.launch {
+                Toast.makeText(activity, R.string.sync_XK_process, Toast.LENGTH_SHORT).show()
                 val onlineData = CREP.onlineCourseDataSource?.loadAllCourses(
                     CREP.term,
                     mapOf("context" to requireActivity())

@@ -77,10 +77,9 @@ class LoginDialog(context: Context) : Dialog(context){
         //加载验证码
         (theContext as FragmentActivity).lifecycleScope.launch {
             try {
-                var map_captcha = mapOf<String, Any>("requireCaptcha" to true)
-                var captcha_bitmap: Bitmap? = THUCourseDataSouce.login("", "", map_captcha)
-                assert(captcha_bitmap != null)
-                captchaView.setImageBitmap(captcha_bitmap)
+                val map_captcha = mapOf<String, Any>("requireCaptcha" to true)
+                val captcha_bitmap: Bitmap? = THUCourseDataSouce.login("", "", map_captcha)
+                captchaView.setImageBitmap(captcha_bitmap!!)
             }
             catch (e: Exception) {
                 e.printStackTrace()
