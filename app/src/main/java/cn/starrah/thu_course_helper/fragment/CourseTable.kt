@@ -211,6 +211,19 @@ class CourseTable : TableFragment() {
     }
 
 
-
+    /**
+     * 描述：设置初始位置
+     * 参数：无
+     * 返回：无
+     */
+    override fun setOriginalPlace() {
+        if(showType == showTypeCourse) {
+            setOriginalPlaceCourse()
+        }
+        else
+        {
+            setOriginalPlaceHour()
+        }
+    }
 
 }

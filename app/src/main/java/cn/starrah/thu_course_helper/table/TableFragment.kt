@@ -2,31 +2,27 @@ package cn.starrah.thu_course_helper
 
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Color
-import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.activity.ItemShowActivity
 import cn.starrah.thu_course_helper.data.constants.LayoutConstants
 import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
+import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener
@@ -275,7 +271,7 @@ abstract class TableFragment : Fragment(){
             return
         }
         initializeLayout()
-
+        setOriginalPlace()
 
         lifecycleScope.launch {
             getValidTimes()
@@ -787,6 +783,7 @@ abstract class TableFragment : Fragment(){
                 showAllDates()
                 clearOriginalCourses()
                 drawStrokes()
+                setOriginalPlace()
                 //initializeLayout()
                 lifecycleScope.launch {
                     getValidTimes()
@@ -838,4 +835,30 @@ abstract class TableFragment : Fragment(){
         }
     }
 
+    /**
+     * 描述：对于小时显示的情况，设置初始位置
+     */
+    protected fun setOriginalPlaceHour() {
+        var current_time = Duration.between(LocalTime.parse("00:00"), LocalTime.now())
+        var current_place = GetPlaceByDuration(current_time).toInt()
+        var layout: ScrollView = requireActivity().findViewById(R.id.main_scroll)
+        layout.post(Runnable { layout.scrollTo(0, current_place) })
+    }
+
+    /**
+     * 描述：对于大节显示的情况，设置初始位置
+     */
+    protected fun setOriginalPlaceCourse() {
+        var current_time = LocalTime.now()
+        var time_in_hour = TimeInHour(startTime = current_time, endTime = current_time, dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now())
+        var time_in_course = time_in_hour.toTimeInCourseSchedule()
+        var start_small: Float =
+            CREP.timeRule.getStartSmallIndex(time_in_course.startBig) + time_in_course.startOffsetSmall
+        var current_place = (LayoutConstants.HeightPerSmall * start_small).toInt()
+        var layout: ScrollView = requireActivity().findViewById(R.id.main_scroll)
+        layout.post(Runnable { layout.scrollTo(0, current_place) })
+        //layout.scrollTo(current_place, current_place)
+    }
+
+    protected abstract fun setOriginalPlace()
 }

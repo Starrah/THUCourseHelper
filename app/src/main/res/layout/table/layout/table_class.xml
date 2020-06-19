@@ -218,7 +218,8 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:id="@+id/main_scroll">
             <!--左侧"节数"布局,左右滑动的时候不动-->
             <LinearLayout
                 android:layout_width="match_parent"
