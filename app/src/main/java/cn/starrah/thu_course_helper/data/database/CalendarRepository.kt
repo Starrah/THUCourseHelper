@@ -1,8 +1,6 @@
 package cn.starrah.thu_course_helper.data.database
 
 import android.content.Context
-import android.content.pm.PackageManager
-import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.preference.PreferenceManager
@@ -25,14 +23,12 @@ import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPITermData
 import cn.starrah.thu_course_helper.onlinedata.backend.TermDescription
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import kotlin.system.exitProcess
 
 /**
  * 本类是获取各类数据的接口。通过设置学期[initializeTerm]，自动打开对应的数据库；
@@ -76,8 +72,8 @@ object CalendarRepository {
      * 在调用Repository进行任何操作之前，必须保证它被初始化过。
      */
     suspend fun initializeTerm(context: Context, term: SchoolTerm) {
+        if (initialized && term == this@CalendarRepository.term) return // 如果term对象没变，则直接返回、不进行任何操作
         withContext(Dispatchers.IO) {
-            if (initialized && term === this@CalendarRepository.term) return@withContext // 如果term对象没变，则直接返回、不进行任何操作
             term.assertValidResetMsg { "内置的学期数据不合法：$it" }
             this@CalendarRepository.term = term
             this@CalendarRepository.onlineCourseDataSource =
@@ -101,12 +97,12 @@ object CalendarRepository {
      * 在调用Repository进行任何操作之前，必须保证它被初始化过。
      *
      * @param [context] [Context]
-     * @param [dontRequsetBackend] 如果为true，则只要当前学期在[SharedPreference]中有数据，就不会尝试联网获取数据。
+     * @param [dontRequestBackend] 如果为true，则只要当前学期在[SharedPreference]中有数据，就不会尝试联网获取数据。
      *
      * @return 消息，表示从网络加载数据是否成功等等。本函数只要顺利返回就说明初始化一定是成功完成了的；
      * 返回值除非有特殊需要，否则可以忽略。
      */
-    suspend fun initializeDefault(context: Context, dontRequsetBackend: Boolean = false): String? {
+    suspend fun initializeDefault(context: Context, dontRequestBackend: Boolean = false): String? {
         val version = context.packageManager.getPackageInfo(context.packageName, 0).versionName
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
         val lastStartVersion = sp.getString("lastStartVersion", null)
@@ -125,7 +121,7 @@ object CalendarRepository {
         val term_id = sp.getString("term_id", null)
         var returnStr: String? = null
 
-        if (!dontRequsetBackend || currentTerm == null ) {
+        if (!dontRequestBackend || currentTerm == null ) {
             val SYNC_TERM_INTERVAL_DAYS = 7
             val HAND_CHANGE_KEEP_DAYS = 7
             val needRequestOnlineData: Int =

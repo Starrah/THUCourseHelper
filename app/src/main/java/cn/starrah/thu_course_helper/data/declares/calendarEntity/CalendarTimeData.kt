@@ -12,10 +12,14 @@ import cn.starrah.thu_course_helper.data.utils.Verifiable
 import cn.starrah.thu_course_helper.data.utils.assertData
 import cn.starrah.thu_course_helper.data.utils.assertDataSystem
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
+import cn.starrah.thu_course_helper.utils.startDownloadIntent
 import com.alibaba.fastjson.JSON
 import java.time.DayOfWeek
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.zip.CheckedOutputStream
 
 /**
  * 描述一个时间段的数据类。
@@ -30,7 +34,7 @@ import java.time.LocalDateTime
 )
 open class CalendarTimeData(
     /** 时间段的数据库id，各个时间段唯一。当试图插入新时间段到数据库中时，请保证id为默认值0。 */
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name="rowid") var id: Int = 0,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rowid") var id: Int = 0,
 
     /** 时间段的名称 */
     var name: String = "",
@@ -89,65 +93,77 @@ open class CalendarTimeData(
         }
     }
 
+    fun getNextHappenTime(baseTime: LocalDateTime): Pair<LocalDateTime, LocalDateTime>? {
+        val timeData = when (type) {
+            CalendarTimeType.SINGLE_COURSE, CalendarTimeType.REPEAT_COURSE                     -> timeInCourseSchedule!!.toTimeInHour()
+            CalendarTimeType.SINGLE_HOUR, CalendarTimeType.REPEAT_HOUR, CalendarTimeType.POINT -> timeInHour!!
+        }
+        return when (type) {
+            CalendarTimeType.SINGLE_COURSE, CalendarTimeType.SINGLE_HOUR, CalendarTimeType.POINT -> {
+                val realStartTime = LocalDateTime.of(timeData.date, timeData.startTime)
+                val realEndTime = LocalDateTime.of(timeData.date, timeData.endTime)
+                if (baseTime < realStartTime) Pair(
+                    realStartTime,
+                    realEndTime
+                )
+                else null
+            }
+            CalendarTimeType.REPEAT_COURSE, CalendarTimeType.REPEAT_HOUR                         -> {
+                val currentWeekNumber = CREP.term.dateToWeekNumber(LocalDate.now())
+                val futureTimes = repeatWeeks.filter { it >= currentWeekNumber }.sorted().run {
+                    if (size > 2) subList(0, 2) else this
+                }.map {
+                    Pair(
+                        LocalDateTime.of(
+                            CREP.term.dateOfWeekAndDay(it, timeData.dayOfWeek!!),
+                            timeData.startTime
+                        ),
+                        LocalDateTime.of(
+                            CREP.term.dateOfWeekAndDay(it, timeData.dayOfWeek!!),
+                            timeData.endTime
+                        )
+                    )
+                }
+                var result: Pair<LocalDateTime, LocalDateTime>? = null
+                for (futureTime in futureTimes) {
+                    if (baseTime < futureTime.first) {
+                        result = futureTime
+                        break
+                    }
+                }
+                result
+            }
+        }
+    }
+
     /**
      * 该时间段数据，在现实中下次发生的时间。如果没有下一次发生的时间，那么为null。
      *
      * **数据类型说明**：由两个[LocalDateTime]组成的[Pair]，其中前一个表示开始时间、后一个表示结束时间。
      */
     val nextHappenTime: Pair<LocalDateTime, LocalDateTime>?
-        get() {
-            val timeData = when (type) {
-                CalendarTimeType.SINGLE_COURSE, CalendarTimeType.REPEAT_COURSE                     -> timeInCourseSchedule!!.toTimeInHour()
-                CalendarTimeType.SINGLE_HOUR, CalendarTimeType.REPEAT_HOUR, CalendarTimeType.POINT -> timeInHour!!
-            }
-            return when (type) {
-                CalendarTimeType.SINGLE_COURSE, CalendarTimeType.SINGLE_HOUR, CalendarTimeType.POINT -> {
-                    val realStartTime = LocalDateTime.of(timeData.date, timeData.startTime)
-                    val realEndTime = LocalDateTime.of(timeData.date, timeData.endTime)
-                    if (LocalDateTime.now() < realStartTime) Pair(
-                        realStartTime,
-                        realEndTime
-                    )
-                    else null
-                }
-                CalendarTimeType.REPEAT_COURSE, CalendarTimeType.REPEAT_HOUR                         -> {
-                    val currentWeekNumber = CREP.term.dateToWeekNumber(LocalDate.now())
-                    val futureTimes = repeatWeeks.filter { it >= currentWeekNumber }.sorted().run {
-                        if (size > 2) subList(0, 2) else this
-                    }.map {
-                        Pair(
-                            LocalDateTime.of(
-                                CREP.term.dateOfWeekAndDay(it, timeData.dayOfWeek!!),
-                                timeData.startTime
-                            ),
-                            LocalDateTime.of(
-                                CREP.term.dateOfWeekAndDay(it, timeData.dayOfWeek!!),
-                                timeData.endTime
-                            )
-                        )
-                    }
-                    var result: Pair<LocalDateTime, LocalDateTime>? = null
-                    for (futureTime in futureTimes) {
-                        if (LocalDateTime.now() < futureTime.first) {
-                            result = futureTime
-                            break
-                        }
-                    }
-                    result
-                }
+        get() = getNextHappenTime(LocalDateTime.now())
+
+    fun getNextRemindTime(baseTime: LocalDateTime): LocalDateTime? {
+        return when (remindData.type) {
+            CalendarRemindType.NONE                              -> null
+            CalendarRemindType.SINGAL, CalendarRemindType.REPEAT -> {
+                var nextHappenTime: LocalDateTime? = baseTime - Duration.ofMinutes(1)
+                var nextRemindTime: LocalDateTime?
+                do {
+                    nextHappenTime = getNextHappenTime(nextHappenTime!! + Duration.ofMinutes(1))?.first
+                    nextRemindTime = nextHappenTime?.minus(remindData.aheadTime)
+                } while (nextRemindTime != null && nextRemindTime < baseTime)
+                return nextRemindTime
             }
         }
+    }
 
     /**
      * 该时间段数据下次应提醒的时间。事实上等于[nextHappenTime].first - [remindData].aheadTime
      */
     val nextRemindTime: LocalDateTime?
-        get() = when (remindData.type) {
-            CalendarRemindType.NONE                              -> null
-            CalendarRemindType.SINGAL, CalendarRemindType.REPEAT -> nextHappenTime?.first?.let {
-                it - remindData.aheadTime
-            }
-        }
+        get() = getNextRemindTime(LocalDateTime.now())
 
     /**
      * 该时间段数据，在今天中下次发生的时间。如果今天不会发生的时间，那么为null。
@@ -187,13 +203,49 @@ open class CalendarTimeData(
             val tod = todayHappenTime
             val now = LocalDateTime.now()
             return when {
-                tod == null -> CalendarTimeType.TodayType.NONE
-                now > tod.second -> CalendarTimeType.TodayType.PAST
+                tod == null                           -> CalendarTimeType.TodayType.NONE
+                now > tod.second                      -> CalendarTimeType.TodayType.PAST
                 now >= tod.first && now <= tod.second -> CalendarTimeType.TodayType.NOW
-                now < tod.first -> CalendarTimeType.TodayType.FUTURE
-                else -> CalendarTimeType.TodayType.NONE
+                now < tod.first                       -> CalendarTimeType.TodayType.FUTURE
+                else                                  -> CalendarTimeType.TodayType.NONE
             }
         }
+
+    val timeStr: String
+        get() {
+            val timeData = when (type) {
+                CalendarTimeType.SINGLE_COURSE, CalendarTimeType.REPEAT_COURSE                     -> timeInCourseSchedule!!.toTimeInHour()
+                CalendarTimeType.SINGLE_HOUR, CalendarTimeType.REPEAT_HOUR, CalendarTimeType.POINT -> timeInHour!!
+            }
+            val fmt = DateTimeFormatter.ofPattern("HH:mm")
+            return timeData.startTime.format(fmt) +
+                    if (timeData.startTime != timeData.endTime) "-" + timeData.endTime.format(fmt) else ""
+        }
+
+    fun isHappenInRange(start: LocalDateTime, end: LocalDateTime): Boolean {
+        val timeData = when (type) {
+            CalendarTimeType.SINGLE_COURSE, CalendarTimeType.REPEAT_COURSE                     -> timeInCourseSchedule!!.toTimeInHour()
+            CalendarTimeType.SINGLE_HOUR, CalendarTimeType.REPEAT_HOUR, CalendarTimeType.POINT -> timeInHour!!
+        }
+        when (type) {
+            CalendarTimeType.SINGLE_COURSE, CalendarTimeType.SINGLE_HOUR, CalendarTimeType.POINT -> {
+                val realStartTime = LocalDateTime.of(timeData.date, timeData.startTime)
+                return realStartTime in start..end
+            }
+            CalendarTimeType.REPEAT_COURSE, CalendarTimeType.REPEAT_HOUR                         -> {
+                val weekNumberRange =
+                    CREP.term.dateToWeekNumber(start.toLocalDate())..CREP.term.dateToWeekNumber(end.toLocalDate())
+                for (weekNumber in weekNumberRange) {
+                    val realStartTime = LocalDateTime.of(
+                        CREP.term.dateOfWeekAndDay(weekNumber, timeData.dayOfWeek!!),
+                        timeData.startTime
+                    )
+                    if (realStartTime in start..end) return true
+                }
+                return false
+            }
+        }
+    }
 
     class TC {
         @TypeConverter
@@ -213,6 +265,7 @@ open class CalendarTimeData(
                 assertData(timeInCourseSchedule != null, "时间定义不能为空！")
                 timeInCourseSchedule!!.assertValid()
                 assertData(timeInCourseSchedule!!.date != null, "请选择日期！")
+                assertData(CREP.term.isDateInTerm(timeInCourseSchedule!!.date!!), "所选择的日期不在本学期内！")
                 timeInCourseSchedule!!.dayOfWeek = timeInCourseSchedule!!.date!!.dayOfWeek
             }
             CalendarTimeType.REPEAT_COURSE -> {
@@ -225,6 +278,7 @@ open class CalendarTimeData(
                 assertData(timeInHour != null, "时间定义不能为空！")
                 timeInHour!!.assertValid()
                 assertData(timeInHour!!.date != null, "请选择日期！")
+                assertData(CREP.term.isDateInTerm(timeInCourseSchedule!!.date!!), "所选择的日期不在本学期内！")
             }
             CalendarTimeType.REPEAT_HOUR   -> {
                 assertData(timeInHour != null, "时间定义不能为空！")

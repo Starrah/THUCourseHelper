@@ -261,6 +261,22 @@ abstract class CalendarDao {
     abstract fun findTimesByIds(timeIds: List<Int>): LiveData<List<CalendarTimeDataWithItem>>
 
     /**
+     * 根据id查询时间段。
+     * @param [timeIds] id的列表
+     * @return 对应的含Item时间段（[CalendarTimeDataWithItem]）的列表
+     */
+    @Transaction
+    @Query(
+        """
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData
+        WHERE CalendarTimeData.rowid IN (:timeIds)
+    """
+    )
+    abstract fun findTimesByIdsNoLive(timeIds: List<Int>): List<CalendarTimeDataWithItem>
+
+    /**
      * 根据id查询日程。
      * @param [itemIds] id的列表
      * @return 对应的含Times日程项（[CalendarItemDataWithTimes]）的列表
@@ -354,6 +370,16 @@ abstract class CalendarDao {
     """
     )
     abstract fun findAllItems(): List<CalendarItemDataWithTimes>
+
+    @Transaction
+    @Query(
+        """
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData
+    """
+    )
+    abstract fun findAllTimes():List<CalendarTimeDataWithItem>
 
     @Transaction
     @Query(

@@ -13,6 +13,7 @@ import android.webkit.WebViewClient
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.constants.THE_ZONE
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
@@ -633,14 +634,13 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 get() = Duration.between(LocalDateTime.now(), deadline)
 
             companion object {
-                private val zoneId = ZoneId.of("+08:00")
                 fun of(jsonObject: JSONObject, courseName: String): _HomeWork {
                     return _HomeWork(
                         jsonObject["title"] as String,
                         ZonedDateTime.parse(
                             jsonObject["deadline"] as String,
                             DateTimeFormatter.ISO_DATE_TIME
-                        ).withZoneSameInstant(zoneId).toLocalDateTime(),
+                        ).withZoneSameInstant(THE_ZONE).toLocalDateTime(),
                         jsonObject["submitted"] as Boolean,
                         courseName,
                         jsonObject["id"] as String
@@ -770,7 +770,12 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
 
             CREP.DAO.deleteItems(toDeleteMap.values.toList())
             for (toAddOne in toAddList) {
-                CREP.DAO.updateItemAndTimes(toAddOne, toAddOne.times)
+                try {
+                    CREP.updateItemAndTimes(toAddOne, toAddOne.times)
+                }
+                catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }

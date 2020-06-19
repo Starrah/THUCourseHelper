@@ -16,6 +16,9 @@ class CalendarTimeDataWithItem() : CalendarTimeData() {
         remindData= superInstance.remindData
         item_id = superInstance.item_id
     }
+    constructor(superInstance: CalendarTimeData, item: CalendarItemData): this(superInstance) {
+        calendarItem = item
+    }
 
     @Relation(parentColumn = "item_id", entityColumn = "rowid")
     var _im: List<CalendarItemData> = listOf()

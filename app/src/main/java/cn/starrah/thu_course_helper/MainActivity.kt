@@ -10,16 +10,21 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.data.database.CREP
+import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import cn.starrah.thu_course_helper.fragment.CourseTable
 import cn.starrah.thu_course_helper.fragment.Information
 import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import cn.starrah.thu_course_helper.fragment.TimeTable
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
+import cn.starrah.thu_course_helper.service.RemindReceiver
+import cn.starrah.thu_course_helper.service.showRemindNotification
 import cn.starrah.thu_course_helper.utils.*
 import cn.starrah.thu_course_helper.widget.AppWidgetCourse
 import cn.starrah.thu_course_helper.widget.AppWidgetTime
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : FragmentActivity() {
@@ -98,6 +103,14 @@ class MainActivity : FragmentActivity() {
             if (onlineSource is THUCourseDataSouce) {
                 onlineSource.tryShouldFixDataFromBackendLaterAfterWrittenToDB(this@MainActivity)
             }
+
+//            val time = withContext(Dispatchers.IO) { CREP.DAO.findAllItems() }.first().let { CalendarTimeDataWithItem(it.times[0], it) }
+////            showRemindNotification(this@MainActivity, time)
+//            val alarmIntent = Intent(this@MainActivity, RemindReceiver::class.java).apply {
+//                action = "remind"
+//                addCategory("timeId:${time.id}")
+//            }
+//            sendBroadcast(alarmIntent)
         }
     }
 

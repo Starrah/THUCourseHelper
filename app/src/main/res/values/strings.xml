@@ -132,4 +132,8 @@
     <string name="warning_sync_hw_fail">自动同步网络学堂课程作业失败。请检查网络连接。</string>
     <string name="warning_sync_exam_fail">自动同步考试数据失败。请检查网络连接。</string>
 
+
+    <string name="notification_channel_remind_name">日程定时提醒</string>
+
+    <string name="notification_remind_prefix">提醒-</string>
 </resources>

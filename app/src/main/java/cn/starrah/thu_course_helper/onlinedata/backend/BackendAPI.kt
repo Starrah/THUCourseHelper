@@ -116,7 +116,7 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
 
         CREP.DAO.dropAllTables()
         for (one in respObj.calendarData) {
-            CREP.updateItemAndTimes(one)
+            CREP.DAO.updateItemAndTimes(one, one.times)
         }
     }
 }
