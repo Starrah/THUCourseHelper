@@ -64,6 +64,27 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_course" />
         </receiver>
+
+        <receiver android:name=".widget.NotificationCourse" >
+            <intent-filter>
+                <action android:name="button_up" />
+                <action android:name="button_down" />
+                <action android:name="update_action"/>
+                <action android:name="delete_action"/>
+
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".widget.NotificationTime" >
+            <intent-filter>
+                <action android:name="button_up" />
+                <action android:name="button_down" />
+                <action android:name="update_action"/>
+                <action android:name="delete_action"/>
+
+            </intent-filter>
+        </receiver>
+
     </application>
 
 
