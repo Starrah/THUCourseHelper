@@ -160,6 +160,9 @@
         <item name="android:gravity">center|left</item>
     </style>
 
-
+    <style name="information_button">
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_marginVertical">30dp</item>
+    </style>
 
 </resources>

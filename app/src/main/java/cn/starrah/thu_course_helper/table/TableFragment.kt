@@ -857,7 +857,6 @@ abstract class TableFragment : Fragment(){
         var current_place = (LayoutConstants.HeightPerSmall * start_small).toInt()
         var layout: ScrollView = requireActivity().findViewById(R.id.main_scroll)
         layout.post(Runnable { layout.scrollTo(0, current_place) })
-        //layout.scrollTo(current_place, current_place)
     }
 
     protected abstract fun setOriginalPlace()

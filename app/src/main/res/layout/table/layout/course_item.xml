@@ -8,12 +8,12 @@
     app:cardBackgroundColor="@color/colorGreyText"
     app:cardCornerRadius="7dp">
 
+
     <TextView
         android:id="@+id/text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/colorWhite"
         android:layout_gravity="center"
-        android:gravity="center"/>
-
+        android:gravity="center" />
 </androidx.cardview.widget.CardView>
