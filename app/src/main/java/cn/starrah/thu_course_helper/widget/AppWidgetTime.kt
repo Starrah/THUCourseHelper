@@ -42,6 +42,7 @@ class AppWidgetTime : AppWidgetProvider() {
         if(action == UPDATE_WIDGET) {
             GlobalScope.launch {
                 updateData(context)
+                shiftShow(context)
             }
         }
         else if (action == BUTTON_UP) {
@@ -182,7 +183,6 @@ class AppWidgetTime : AppWidgetProvider() {
         if(!timeList.isEmpty() && showItem >= timeList.size) {
             showItem = timeList.size - 1
         }
-        shiftShow(context)
     }
 
 

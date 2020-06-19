@@ -70,6 +70,8 @@
                 <action android:name="button_up" />
                 <action android:name="button_down" />
                 <action android:name="update_action"/>
+                <action android:name="delete_action"/>
+
             </intent-filter>
         </receiver>
 
@@ -78,6 +80,8 @@
                 <action android:name="button_up" />
                 <action android:name="button_down" />
                 <action android:name="update_action"/>
+                <action android:name="delete_action"/>
+
             </intent-filter>
         </receiver>
 

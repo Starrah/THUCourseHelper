@@ -1,6 +1,7 @@
 package cn.starrah.thu_course_helper.fragment
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
@@ -15,6 +16,8 @@ import cn.starrah.thu_course_helper.utils.setLastSyncExamDate
 import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
 import cn.starrah.thu_course_helper.utils.shouldSyncExam
 import cn.starrah.thu_course_helper.utils.startDownloadIntent
+import cn.starrah.thu_course_helper.widget.NotificationCourse
+import cn.starrah.thu_course_helper.widget.NotificationTime
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -31,6 +34,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var pf_check_version: Preference
     lateinit var pf_feedback: Preference
     lateinit var pf_backup: ListPreference
+    lateinit var pf_stay_notice: ListPreference
     val spListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
         if (key == "login_status" || key == "login_force_update") {
             val login_status = sp.getInt("login_status", 0)
@@ -304,7 +308,71 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         spListener.onSharedPreferenceChanged(sp, "login_status")
 
+
+        //通知栏
+        pf_stay_notice = findPreference("stay_notice")!!
+        pf_stay_notice.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { pf, newValue ->
+                if (newValue == resources.getString(R.string.settings_stay_notice_no)) {
+                    cancelNotificationCourse()
+                    cancelNotificationTime()
+                }
+                else if (newValue == resources.getString(R.string.settings_stay_notice_course)) {
+                    updateNotificationCourse()
+                    cancelNotificationTime()
+                }
+                else {
+                    updateNotificationCourse()
+                    updateNotificationTime()
+                }
+                true
+            }
     }
+
+    /**
+     * 描述：更新通知栏(日程）
+     * 参数：无
+     * 返回：无
+     */
+    private fun updateNotificationTime() {
+        val intent_notify_time = Intent(requireActivity(), NotificationTime::class.java)
+        intent_notify_time.setAction("update_action")
+        requireActivity().sendBroadcast(intent_notify_time)
+    }
+
+    /**
+     * 描述：更新通知栏(课程）
+     * 参数：无
+     * 返回：无
+     */
+    private fun updateNotificationCourse() {
+        val intent_notify_course = Intent(requireActivity(), NotificationCourse::class.java)
+        intent_notify_course.setAction("update_action")
+        requireActivity().sendBroadcast(intent_notify_course)
+    }
+
+    /**
+     * 描述：取消通知栏（日程）
+     * 参数：无
+     * 返回：无
+     */
+    private fun cancelNotificationTime() {
+        val intent_notify_time = Intent(requireActivity(), NotificationTime::class.java)
+        intent_notify_time.setAction("delete_action")
+        requireActivity().sendBroadcast(intent_notify_time)
+    }
+
+    /**
+     * 描述：取消通知栏（课程）
+     * 参数：无
+     * 返回：无
+     */
+    private fun cancelNotificationCourse() {
+        val intent_notify_course = Intent(requireActivity(), NotificationCourse::class.java)
+        intent_notify_course.setAction("delete_action")
+        requireActivity().sendBroadcast(intent_notify_course)
+    }
+
 
     override fun onPause() {
         super.onPause()

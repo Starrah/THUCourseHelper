@@ -26,6 +26,7 @@ class NotificationCourse : BroadcastReceiver() {
     private val BUTTON_UP = "button_up"
     private val BUTTON_DOWN = "button_down"
     private val UPDATE_WIDGET = "update_action"
+    private val DELETE_WIDGET = "delete_action"
     private val CHANNEL_ID = "notify_course_silent"
     private val NOTIFY_ID = 0
     //当前时间段数组
@@ -47,21 +48,28 @@ class NotificationCourse : BroadcastReceiver() {
         if(action == UPDATE_WIDGET) {
             GlobalScope.launch {
                 updateData(context)
+                var remoteViews = shiftShow(context)
+                updateNotification(remoteViews, context)
             }
+        }
+        else if(action == DELETE_WIDGET) {
+            deleteNotification(context)
         }
         else if (action == BUTTON_UP) {
             showItem -= 1
             if(showItem < 0) {
                 showItem = 0
             }
-            shiftShow(context)
+            var remoteViews = shiftShow(context)
+            updateNotification(remoteViews, context)
         }
         else if(action == BUTTON_DOWN) {
             showItem ++
             if(showItem >= timeList.size) {
                 showItem = timeList.size - 1
             }
-            shiftShow(context)
+            var remoteViews = shiftShow(context)
+            updateNotification(remoteViews, context)
         }
     }
 
@@ -69,14 +77,14 @@ class NotificationCourse : BroadcastReceiver() {
     /**
      * 描述：切换当前显示的元素（需要先获取当前元素id）
      * 参数：context
-     * 返回：无
+     * 返回：得到的remote view
      */
-    private fun shiftShow(context: Context) {
+    private fun shiftShow(context: Context) :RemoteViews {
         // 小部件在Launcher桌面的布局
         val remoteViews = RemoteViews(context.packageName, R.layout.app_widget_layout)
         //没有日程
-        if(timeList.isEmpty() || showItem < 0 || showItem >= timeList.size) {
-            var name:String = "今日无课程"
+        if (timeList.isEmpty() || showItem < 0 || showItem >= timeList.size) {
+            var name: String = "今日无课程"
             remoteViews.setTextViewText(R.id.time_show_name, name)
             remoteViews.setViewVisibility(R.id.time_show_time_place, View.INVISIBLE)
             remoteViews.setViewVisibility(R.id.time_show_place_place, View.INVISIBLE)
@@ -89,18 +97,18 @@ class NotificationCourse : BroadcastReceiver() {
             remoteViews.setViewVisibility(R.id.time_show_place_place, View.VISIBLE)
 
             var the_item: CalendarTimeDataWithItem = timeList.get(showItem)
-            if(the_item.timeInHour == null) {
+            if (the_item.timeInHour == null) {
                 the_item.timeInHour = the_item.timeInCourseSchedule!!.toTimeInHour()
             }
 
             //名称
-            var name:String = the_item.calendarItem.name + the_item.name
-            var current_time:LocalTime = LocalTime.now()
-            var description:String = ""
-            if(current_time.isAfter(the_item.timeInHour!!.endTime)) {
+            var name: String = the_item.calendarItem.name + the_item.name
+            var current_time: LocalTime = LocalTime.now()
+            var description: String = ""
+            if (current_time.isAfter(the_item.timeInHour!!.endTime)) {
                 description = "（已结束）"
             }
-            else if(current_time.isBefore(the_item.timeInHour!!.startTime)) {
+            else if (current_time.isBefore(the_item.timeInHour!!.startTime)) {
                 description = "（未开始）"
             }
             else {
@@ -109,16 +117,16 @@ class NotificationCourse : BroadcastReceiver() {
             name = name + description
 
             //时间
-            var start_time:String = ItemEditActivity.getTimeString(the_item.timeInHour!!.startTime)
-            var end_time:String = ItemEditActivity.getTimeString(the_item.timeInHour!!.endTime)
-            var time:String = start_time + "-" + end_time
-            if(the_item.type == CalendarTimeType.POINT) {
+            var start_time: String = ItemEditActivity.getTimeString(the_item.timeInHour!!.startTime)
+            var end_time: String = ItemEditActivity.getTimeString(the_item.timeInHour!!.endTime)
+            var time: String = start_time + "-" + end_time
+            if (the_item.type == CalendarTimeType.POINT) {
                 time = start_time
             }
 
             //地点
-            var place:String = the_item.place
-            if(place.isEmpty()) {
+            var place: String = the_item.place
+            if (place.isEmpty()) {
                 place = "暂无地点"
             }
 
@@ -129,10 +137,10 @@ class NotificationCourse : BroadcastReceiver() {
             //显示button
             remoteViews.setViewVisibility(R.id.button_up, View.VISIBLE)
             remoteViews.setViewVisibility(R.id.button_down, View.VISIBLE)
-            if(showItem == 0) {
+            if (showItem == 0) {
                 remoteViews.setViewVisibility(R.id.button_up, View.INVISIBLE)
             }
-            if(showItem == timeList.size - 1) {
+            if (showItem == timeList.size - 1) {
                 remoteViews.setViewVisibility(R.id.button_down, View.INVISIBLE)
             }
         }
@@ -147,10 +155,15 @@ class NotificationCourse : BroadcastReceiver() {
         intent_down.setAction(BUTTON_DOWN)
         val pendingIntentDown = PendingIntent.getBroadcast(context, 0, intent_down, 0)
         remoteViews.setOnClickPendingIntent(R.id.button_down, pendingIntentDown)
+        return remoteViews
+    }
 
-
-
-
+    /**
+     * 描述：更新通知栏，必须先调用shiftShow
+     * 参数：remote view, context
+     * 返回：无
+     */
+    private fun updateNotification(remoteViews: RemoteViews, context: Context) {
         // 更新通知栏
         var notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -181,7 +194,17 @@ class NotificationCourse : BroadcastReceiver() {
         var notify:Notification = mBuilder.build()
         notify.flags = Notification.FLAG_ONGOING_EVENT;
         notificationManager.notify(NOTIFY_ID, notify);
+    }
 
+    /**
+     * 描述：关闭通知栏
+     * 参数：context
+     * 返回：无
+     */
+    private fun deleteNotification(context: Context) {
+        var notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIFY_ID);
     }
 
     /**
@@ -197,7 +220,6 @@ class NotificationCourse : BroadcastReceiver() {
         if(!timeList.isEmpty() && showItem >= timeList.size) {
             showItem = timeList.size - 1
         }
-        shiftShow(context)
     }
 
 
