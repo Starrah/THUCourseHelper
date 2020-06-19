@@ -5,7 +5,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
-import cn.starrah.thu_course_helper.utils.configNotificationChannel
 
 fun showRemindNotification(context: Context, time: CalendarTimeDataWithItem) {
     println(NotificationManagerCompat.from(context).getNotificationChannel("remind")!!.importance)

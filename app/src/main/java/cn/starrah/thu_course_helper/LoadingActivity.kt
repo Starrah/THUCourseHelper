@@ -8,6 +8,7 @@ import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.data.database.CREP
+import cn.starrah.thu_course_helper.data.database.CalendarRepository
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
@@ -16,7 +17,7 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
-import cn.starrah.thu_course_helper.utils.configNotificationChannel
+import cn.starrah.thu_course_helper.service.setAllTimelyAlarms
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -51,9 +52,8 @@ class LoadingActivity : AppCompatActivity() {
             val term_id = sp.getString("term_id", null)
 
             try {
-                val errMsg = CREP.initializeDefault(this@LoadingActivity)
-                if (errMsg != null) Toast.makeText(this@LoadingActivity, errMsg, Toast.LENGTH_SHORT)
-                    .show()
+                val currentTerm = CalendarRepository.requestDefaultTerm(this@LoadingActivity)
+                CREP.initializeTerm(this@LoadingActivity, currentTerm)
             }
             catch (e: Exception) {
                 Toast.makeText(
@@ -67,6 +67,8 @@ class LoadingActivity : AppCompatActivity() {
 
             // TODO 测试数据
             loadTestData()
+
+            setAllTimelyAlarms(this@LoadingActivity, false)
 
             val the_intent = Intent()
             the_intent.setClass(this@LoadingActivity, MainActivity::class.java)

@@ -22,7 +22,7 @@ class RemindReceiver() : BroadcastReceiver() {
         val timeId = intent.categories.find { "timeId" in it }!!.substring(6).toInt()
         val pendingResult: PendingResult = goAsync()
         GlobalScope.launch {
-            CREP.initializeDefault(context, true)
+            CREP.initializeDefaultTermIfUninitialized(context, true)
             val time = withContext(Dispatchers.IO) {
                 CREP.DAO.findTimesByIdsNoLive(listOf(timeId)).single()
             }
@@ -43,8 +43,9 @@ class RemindReceiver() : BroadcastReceiver() {
                 CREP.updateTimes(listOf(time))
             }
             else if (correctStartTime != null) {
-                setAlarm(context, time, correctStartTime.first + Duration.ofMinutes(1))
+                setAlarm(context, time, correctStartTime.first + Duration.ofMinutes(1), shouldCancel = true)
             }
+            pendingResult.finish()
         }
     }
 }

@@ -293,9 +293,9 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             applyWebModificationOntoOneItem(old!!, newItem)
         }.map { it.value!! }
 
-        CREP.DAO.deleteItems(toDeleteOnes)
+        CREP.deleteItems(toDeleteOnes)
         for (it in toAddOnes + realModifiedOnes) {
-            CREP.DAO.updateItemAndTimes(it, it.times)
+            CREP.updateItemAndTimes(it, it.times)
         }
 
     }
@@ -568,7 +568,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
 
             val toApplyList = toAddTimes + toUpdateTimes
             if (apply) {
-                CREP.DAO.updateTimes(toApplyList)
+                CREP.updateTimes(toApplyList)
             }
 
             val toReturnList = toApplyList + toReturnButNoItemTimes
@@ -768,7 +768,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             }.toMutableMap()
             val toAddList = list.filter { !tryReuseCalendarItem(it, toDeleteMap) }
 
-            CREP.DAO.deleteItems(toDeleteMap.values.toList())
+            CREP.deleteItems(toDeleteMap.values.toList())
             for (toAddOne in toAddList) {
                 try {
                     CREP.updateItemAndTimes(toAddOne, toAddOne.times)

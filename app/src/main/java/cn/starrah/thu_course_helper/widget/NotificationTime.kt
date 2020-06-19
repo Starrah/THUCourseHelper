@@ -4,10 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -49,6 +46,7 @@ class NotificationTime : BroadcastReceiver() {
         val action = intent.action
         if(action == UPDATE_WIDGET) {
             GlobalScope.launch {
+                CREP.initializeDefaultTermIfUninitialized(context, true)
                 updateData(context)
                 var remoteViews = shiftShow(context)
                 updateNotification(remoteViews, context)

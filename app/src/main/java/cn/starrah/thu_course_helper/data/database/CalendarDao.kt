@@ -309,6 +309,24 @@ abstract class CalendarDao {
     abstract fun findTimesByItem(itemId: Int): LiveData<List<CalendarTimeData>>
 
     /**
+     * 根据日程项查询时间段。
+     *
+     * Notes: 建议直接通过调用[CalendarItemData.queryTimes]得到某个日程下的所有时间段；这与调用本函数是等价的。
+     * @param [itemId] 日程项的id
+     * @return 该日程下所有含时间段（[CalendarTimeData]）的列表
+     */
+    @Transaction
+    @Query(
+        """
+        SELECT CalendarTimeData.rowid, name, type, timeInCourseSchedule, timeInHour, repeatWeeks, 
+            place, comment, item_id, RMDtype, RMDaheadTime, RMDmethod, RMDalarmSound 
+        FROM CalendarTimeData
+        WHERE CalendarTimeData.item_id=:itemId
+    """
+    )
+    abstract fun findTimesByItemNoLive(itemId: Int): List<CalendarTimeData>
+
+    /**
      * 根据时间段查询日程项。
      *
      * Notes: 建议直接通过调用[CalendarTimeData.queryItem]得到时间段对应的日程；这与调用本函数是等价的。
