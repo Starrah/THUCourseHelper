@@ -1,13 +1,17 @@
 package cn.starrah.thu_course_helper.widget
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.app.NotificationCompat
+import cn.starrah.thu_course_helper.MainActivity
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.activity.ItemEditActivity
 import cn.starrah.thu_course_helper.data.database.CREP
@@ -17,11 +21,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 
-class AppWidgetCourse : AppWidgetProvider() {
+
+class NotificationCourse : BroadcastReceiver() {
     private val BUTTON_UP = "button_up"
     private val BUTTON_DOWN = "button_down"
     private val UPDATE_WIDGET = "update_action"
-
+    private val CHANNEL_ID = "notify_course_silent"
+    private val NOTIFY_ID = 0
     //当前时间段数组
     companion object {
         private var timeList: MutableList<CalendarTimeDataWithItem> = mutableListOf()
@@ -36,7 +42,6 @@ class AppWidgetCourse : AppWidgetProvider() {
      * 操作：切换当前显示的元素
      */
     override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
         if (intent == null) return
         val action = intent.action
         if(action == UPDATE_WIDGET) {
@@ -57,26 +62,6 @@ class AppWidgetCourse : AppWidgetProvider() {
                 showItem = timeList.size - 1
             }
             shiftShow(context)
-        }
-    }
-
-
-
-
-    /**
-     * 到达指定的更新时间或者当用户向桌面添加AppWidget时被调用
-     * appWidgetIds:桌面上所有的widget都会被分配一个唯一的ID标识，这个数组就是他们的列表
-     * 调用时间：每隔30分钟会自动调用，进入app时也会调用
-     * 操作：更新数据和绑定按钮事件
-     */
-
-    override fun onUpdate(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
-    ) {
-        GlobalScope.launch {
-            updateData(context)
         }
     }
 
@@ -153,20 +138,50 @@ class AppWidgetCourse : AppWidgetProvider() {
         }
 
         //按钮绑定函数
-        val intent_up = Intent(context, AppWidgetCourse::class.java)
+        val intent_up = Intent(context, NotificationCourse::class.java)
         intent_up.setAction(BUTTON_UP)
         val pendingIntentUp = PendingIntent.getBroadcast(context, 0, intent_up, 0)
         remoteViews.setOnClickPendingIntent(R.id.button_up, pendingIntentUp)
 
-        val intent_down = Intent(context, AppWidgetCourse::class.java)
+        val intent_down = Intent(context, NotificationCourse::class.java)
         intent_down.setAction(BUTTON_DOWN)
         val pendingIntentDown = PendingIntent.getBroadcast(context, 0, intent_down, 0)
         remoteViews.setOnClickPendingIntent(R.id.button_down, pendingIntentDown)
 
-        // 更新appWidget
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val componentName = ComponentName(context, AppWidgetCourse::class.java)
-        appWidgetManager.updateAppWidget(componentName, remoteViews)
+
+
+
+        // 更新通知栏
+        var notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val mChannel = NotificationChannel(
+            CHANNEL_ID,
+            "今日课程",
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        mChannel.description = "今日课程显示"
+        mChannel.enableLights(false)
+        mChannel.lightColor = Color.BLUE
+        mChannel.setSound(null, null)
+        mChannel.enableVibration(false)
+        notificationManager.createNotificationChannel(mChannel)
+
+
+        val mBuilder: NotificationCompat.Builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+        mBuilder.setContent(remoteViews)
+            .setContentIntent(pendingIntent)
+            .setWhen(System.currentTimeMillis())// 通知产生的时间，会在通知信息里显示
+            .setTicker("今日课程")
+            .setPriority(Notification.PRIORITY_DEFAULT)// 设置该通知优先级
+            .setOngoing(true)
+            .setSmallIcon(R.mipmap.ic_launcher);
+        var notify:Notification = mBuilder.build()
+        notify.flags = Notification.FLAG_ONGOING_EVENT;
+        notificationManager.notify(NOTIFY_ID, notify);
+
     }
 
     /**

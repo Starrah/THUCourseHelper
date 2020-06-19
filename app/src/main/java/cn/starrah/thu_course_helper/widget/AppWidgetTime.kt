@@ -32,7 +32,7 @@ class AppWidgetTime : AppWidgetProvider() {
 
     /**
      * 接受广播事件
-     * 调用时间：每次接收到广播都会调用，但是真正有用的只有接收到按钮事件
+     * 调用时间：每次接收到广播都会调用
      * 操作：切换当前显示的元素
      */
     override fun onReceive(context: Context, intent: Intent) {

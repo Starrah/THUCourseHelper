@@ -21,6 +21,8 @@ import cn.starrah.thu_course_helper.utils.shouldSyncExam
 import cn.starrah.thu_course_helper.utils.shouldSyncHomework
 import cn.starrah.thu_course_helper.widget.AppWidgetCourse
 import cn.starrah.thu_course_helper.widget.AppWidgetTime
+import cn.starrah.thu_course_helper.widget.NotificationCourse
+import cn.starrah.thu_course_helper.widget.NotificationTime
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
@@ -123,12 +125,18 @@ class MainActivity : FragmentActivity() {
      */
     override fun onStart() {
         super.onStart()
-        val intent1 = Intent(this, AppWidgetTime::class.java)
-        intent1.setAction("update_action")
-        val intent2 = Intent(this, AppWidgetCourse::class.java)
-        intent2.setAction("update_action")
-        sendBroadcast(intent1)
-        sendBroadcast(intent2)
+        val intent_widget_time = Intent(this, AppWidgetTime::class.java)
+        intent_widget_time.setAction("update_action")
+        val intent_widget_course = Intent(this, AppWidgetCourse::class.java)
+        intent_widget_course.setAction("update_action")
+        val intent_notify_time = Intent(this, NotificationTime::class.java)
+        intent_notify_time.setAction("update_action")
+        val intent_notify_course = Intent(this, NotificationCourse::class.java)
+        intent_notify_course.setAction("update_action")
+        sendBroadcast(intent_widget_time)
+        sendBroadcast(intent_widget_course)
+        sendBroadcast(intent_notify_time)
+        sendBroadcast(intent_notify_course)
     }
 
 
