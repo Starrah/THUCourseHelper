@@ -51,6 +51,7 @@ android {
                             'src/main/res/layout/calendar_item_show',
                             'src/main/res/layout/table',
                             'src/main/res/layout/picker',
+                            'src/main/res/layout/widget',
                             'src/main/res/layout',
                             'src/main/res'
                     ]

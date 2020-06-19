@@ -1,5 +1,6 @@
 package cn.starrah.thu_course_helper
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -18,6 +19,8 @@ import cn.starrah.thu_course_helper.utils.setLastSyncExamDate
 import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
 import cn.starrah.thu_course_helper.utils.shouldSyncExam
 import cn.starrah.thu_course_helper.utils.shouldSyncHomework
+import cn.starrah.thu_course_helper.widget.AppWidgetCourse
+import cn.starrah.thu_course_helper.widget.AppWidgetTime
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
@@ -113,6 +116,19 @@ class MainActivity : FragmentActivity() {
                 onlineSource.tryShouldFixDataFromBackendLaterAfterWrittenToDB(this@MainActivity)
             }
         }
+    }
+
+    /**
+     * 实现intent更新
+     */
+    override fun onStart() {
+        super.onStart()
+        val intent1 = Intent(this, AppWidgetTime::class.java)
+        intent1.setAction("update_action")
+        val intent2 = Intent(this, AppWidgetCourse::class.java)
+        intent2.setAction("update_action")
+        sendBroadcast(intent1)
+        sendBroadcast(intent2)
     }
 
 
