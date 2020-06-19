@@ -165,7 +165,8 @@ class CourseTable : TableFragment() {
             if (theItem.timeInCourseSchedule == null) {
                 var time: TimeInCourseSchedule = theItem.timeInHour!!.toTimeInCourseSchedule()
                 theItem.timeInCourseSchedule = time
-                v = showOneCourse(theWeekDay, theItem)
+                if (theItem.timeInCourseSchedule!!.startBig in 1..CREP.timeRule.bigsCount)
+                    v = showOneCourse(theWeekDay, theItem)
             }
             else
             {

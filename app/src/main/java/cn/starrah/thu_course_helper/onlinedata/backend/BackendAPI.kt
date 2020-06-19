@@ -9,7 +9,7 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindTyp
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.utils.CookiedFuel
 import cn.starrah.thu_course_helper.data.utils.DataInvalidException
-import cn.starrah.thu_course_helper.service.setAlarm
+import cn.starrah.thu_course_helper.remind.setRemindTimerService
 import com.alibaba.fastjson.JSON
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.jsonBody
@@ -100,13 +100,13 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
                     if (key in UPLOAD_PREFERENCE_KEY_LIST) {
                         @Suppress("UNCHECKED_CAST")
                         when (value) {
-                            is String -> putString(key, value)
-                            is Int -> putInt(key, value)
+                            is String  -> putString(key, value)
+                            is Int     -> putInt(key, value)
                             is Boolean -> putBoolean(key, value)
-                            is Long -> putLong(key, value)
-                            is Float -> putFloat(key, value)
-                            is Set<*> -> putStringSet(key, value as Set<String>)
-                            null -> remove(key)
+                            is Long    -> putLong(key, value)
+                            is Float   -> putFloat(key, value)
+                            is Set<*>  -> putStringSet(key, value as Set<String>)
+                            null       -> remove(key)
                         }
                     }
                 }
@@ -118,12 +118,14 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
 
         CREP.DAO.findAllTimes().forEach {
             it.remindData.type = CalendarRemindType.NONE
-            setAlarm(context, it, shouldCancel = true)
+            setRemindTimerService(context, it, shouldCancel = true)
         }
         CREP.DAO.dropAllTables()
         for (one in respObj.calendarData) {
             CREP.DAO.updateItemAndTimes(one, one.times)
-            one.times.forEach { setAlarm(context, it, shouldCancel = true) }
+            one.times.forEach {
+                setRemindTimerService(context, it, shouldCancel = true)
+            }
         }
     }
 }

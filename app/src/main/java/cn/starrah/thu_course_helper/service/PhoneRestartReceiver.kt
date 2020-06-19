@@ -11,7 +11,7 @@ class PhoneRestartReceiver() : BroadcastReceiver() {
         if (intent.action != "android.intent.action.BOOT_COMPLETED") return
         val pendingResult: PendingResult = goAsync()
         GlobalScope.launch {
-            setAllTimelyAlarms(context)
+            initializeAllTimelyIntents(context)
             pendingResult.finish()
         }
     }

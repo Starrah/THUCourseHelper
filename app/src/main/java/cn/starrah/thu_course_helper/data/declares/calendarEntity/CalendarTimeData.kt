@@ -278,7 +278,7 @@ open class CalendarTimeData(
                 assertData(timeInHour != null, "时间定义不能为空！")
                 timeInHour!!.assertValid()
                 assertData(timeInHour!!.date != null, "请选择日期！")
-                assertData(CREP.term.isDateInTerm(timeInCourseSchedule!!.date!!), "所选择的日期不在本学期内！")
+                assertData(CREP.term.isDateInTerm(timeInHour!!.date!!), "所选择的日期不在本学期内！")
             }
             CalendarTimeType.REPEAT_HOUR   -> {
                 assertData(timeInHour != null, "时间定义不能为空！")

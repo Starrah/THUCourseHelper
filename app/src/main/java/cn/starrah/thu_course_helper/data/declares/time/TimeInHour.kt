@@ -84,7 +84,7 @@ data class TimeInHour(
         val (endBig, endOffsetSmall) = _hourToCourseNum(endTime, true)
         var length = -startOffsetSmall
         for (i in startBig until endBig) {
-            length += CREP.timeRule.getBigByNumber(i).smallsCount
+            length += runCatching { CREP.timeRule.getBigByNumber(i).smallsCount }.getOrElse { 1 }
         }
         length += endOffsetSmall
         return TimeInCourseSchedule(

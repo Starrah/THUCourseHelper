@@ -1,4 +1,4 @@
-package cn.starrah.thu_course_helper.service
+package cn.starrah.thu_course_helper.remind
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -19,7 +19,7 @@ class RemindReceiver() : BroadcastReceiver() {
     val MOST_DELAY = Duration.ofMinutes(15)
 
     override fun onReceive(context: Context, intent: Intent) {
-        val timeId = intent.categories.find { "timeId" in it }!!.substring(6).toInt()
+        val timeId = intent.categories.find { "timeId" in it }!!.substring(7).toInt()
         val pendingResult: PendingResult = goAsync()
         GlobalScope.launch {
             CREP.initializeDefaultTermIfUninitialized(context, true)
@@ -43,7 +43,12 @@ class RemindReceiver() : BroadcastReceiver() {
                 CREP.updateTimes(listOf(time))
             }
             else if (correctStartTime != null) {
-                setAlarm(context, time, correctStartTime.first + Duration.ofMinutes(1), shouldCancel = true)
+                setRemindTimerService(
+                    context,
+                    time,
+                    correctStartTime.first + Duration.ofMinutes(1),
+                    shouldCancel = true
+                )
             }
             pendingResult.finish()
         }

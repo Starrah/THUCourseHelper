@@ -6,16 +6,24 @@ import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.widget.Toast
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.remind.setRemindTimerServiceForAll
 import cn.starrah.thu_course_helper.utils.trySyncExam
 import cn.starrah.thu_course_helper.utils.trySyncHomework
 
 suspend fun allAppTask(context: Context) {
     configNotificationChannel(context)
-    setAlarmForAll(context, shouldCancel = false)
     // APP任务，APP每次唤醒（主动唤醒、被动唤醒）都应该执行。
+    // 暂时包括：
+
+    // 设置闹钟计时器
+    setRemindTimerServiceForAll(context, shouldCancel = false)
+
+    // 刷新作业
     if (!trySyncHomework(context)) {
         Toast.makeText(context, R.string.warning_sync_hw_fail, Toast.LENGTH_SHORT).show()
     }
+
+    // 刷新考试
     if (!trySyncExam(context)) {
         Toast.makeText(context, R.string.warning_sync_exam_fail, Toast.LENGTH_SHORT).show()
     }
