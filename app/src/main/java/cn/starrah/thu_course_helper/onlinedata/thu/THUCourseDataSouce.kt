@@ -11,7 +11,6 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.content.edit
-import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.database.CREP
@@ -27,11 +26,12 @@ import cn.starrah.thu_course_helper.data.declares.school.SchoolTermType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.data.utils.*
-import cn.starrah.thu_course_helper.fragment.CaptchaDialog
 import cn.starrah.thu_course_helper.onlinedata.AbstractCourseDataSource
+import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.coroutines.awaitByteArray
 import com.github.kittinunf.fuel.coroutines.awaitString
 import com.github.kittinunf.fuel.coroutines.awaitStringResponse
@@ -119,6 +119,106 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         }
     }
 
+    data class CourseLengthAPIBody(
+        val courseId: String,
+        val name: String,
+        var length: Float? = null,
+        var start: Float? = null
+    )
+
+    suspend fun tryShouldFixDataFromBackendLaterAfterWrittenToDB(context: Context): Boolean {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        val reqStr = sp.getString("needFixXKData_itemJson", null)
+        if (sp.getBoolean("needFixXKData", false) && reqStr != null) {
+            try {
+                withContext(Dispatchers.IO) {
+                    val respBodyList = JSON.parseArray(
+                        CookiedFuel.post("$BACKEND_SITE/courseLength")
+                            .jsonBody(reqStr).awaitString(),
+                        CourseLengthAPIBody::class.java
+                    )
+                    val itemList = CREP.DAO.findAllItems()
+                    val toUpdateOnes = mutableListOf<CalendarTimeData>()
+
+                    for (one in respBodyList) {
+                        val item =
+                            itemList.find { it.detail[CalendarItemLegalDetailKey.COURSEID] == one.courseId }!!
+                        if (one.length != null) item.times.forEach {
+                            it.timeInCourseSchedule!!.lengthSmall = one.length!!
+                        }
+                        if (one.start != null) item.times.forEach {
+                            it.timeInCourseSchedule!!.startOffsetSmall = one.start!!
+                        }
+                        toUpdateOnes += item.times
+                    }
+
+                    CREP.DAO.updateTimes(toUpdateOnes)
+                }
+                sp.edit {
+                    remove("needFixXKData")
+                    remove("needFixXKData_itemJson")
+                }
+                return true // 操作成功
+            }
+            catch (e: Exception) {
+                // 与后端连接失败也不会使得获取课程失败；只是打印一个异常。
+                // 但是，sharedPreference中会记录下当前的itemList和需要稍后连接后端的事情
+                // 并在MainActivity把这个任务launch出去。
+                e.printStackTrace()
+                sp.edit {
+                    putBoolean("needFixXKData", true)
+                    putString("needFixXKData_itemJson", reqStr)
+                }
+                return false // 操作失败
+            }
+        }
+        return true // 不需要操作
+    }
+
+    suspend fun tryFixDataFromBackend(
+        context: Context,
+        itemList: List<CalendarItemDataWithTimes>
+    ): Boolean {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        val reqBodyList = itemList.map {
+            CourseLengthAPIBody(it.detail[CalendarItemLegalDetailKey.COURSEID] ?: "", it.name)
+        }
+        val reqStr = JSON.toJSONString(reqBodyList)
+        try {
+            val respBodyList = JSON.parseArray(
+                CookiedFuel.post("$BACKEND_SITE/courseLength")
+                    .jsonBody(reqStr).awaitString(),
+                CourseLengthAPIBody::class.java
+            )
+            for (one in respBodyList) {
+                val item =
+                    itemList.find { it.detail[CalendarItemLegalDetailKey.COURSEID] == one.courseId }!!
+                if (one.length != null) item.times.forEach {
+                    it.timeInCourseSchedule!!.lengthSmall = one.length!!
+                }
+                if (one.start != null) item.times.forEach {
+                    it.timeInCourseSchedule!!.startOffsetSmall = one.start!!
+                }
+            }
+            sp.edit {
+                remove("needFixXKData")
+                remove("needFixXKData_itemJson")
+            }
+            return true
+        }
+        catch (e: Exception) {
+            // 与后端连接失败也不会使得获取课程失败；只是打印一个异常。
+            // 但是，sharedPreference中会记录下当前的itemList和需要稍后连接后端的事情
+            // 并在MainActivity把这个任务launch出去。
+            e.printStackTrace()
+            sp.edit {
+                putBoolean("needFixXKData", true)
+                putString("needFixXKData_itemJson", reqStr)
+            }
+            return false
+        }
+    }
+
     /**
      * 读取全部课程数据（但不处理）。
      *
@@ -147,7 +247,11 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             }
             if ("该学年学期的选课或退课不在选课进度表中" in rawStr) throw DataInvalidException("当前学期的课程无法从教务系统的数据库中获得。可能是所选学期是将来的学期，或过于久远的过去学期。")
 
-            parseRawZTKB(rawStr, term)
+            val itemList = parseRawZTKB(rawStr, term)
+
+            tryFixDataFromBackend(extra["context"] as Context, itemList)
+
+            itemList
         }
     }
 
@@ -513,7 +617,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         }
     }
 
-    class HomeWorkData<T>(
+    class HomeWorkData(
         val courseNames: List<_ID_Name>,
         val homeworks: Map<String, List<JSONObject>>
     ) {
@@ -970,20 +1074,20 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                             })
                         }
                         val arrangeSmallResult = when (smallPerWeek) {
-                            3    -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
-                            4    -> listOf(2, 2)
-                            5    -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
-                            6    -> {
+                            3 -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
+                            4 -> listOf(2, 2)
+                            5 -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
+                            6 -> {
                                 if (ttsms[0] < 3) listOf(2, 4)
                                 else if (ttsms[1] < 3) listOf(4, 2)
                                 else listOf(3, 3)
                             }
-                            7    -> {
+                            7 -> {
                                 if (ttsms[0] >= 3 && ttsms[0] < ttsms[1]) listOf(3, 4)
                                 else if (ttsms[1] >= 3 && ttsms[0] > ttsms[1]) listOf(4, 3)
                                 else null
                             }
-                            8    -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
+                            8 -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
                             else -> null
                         }
 

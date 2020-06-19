@@ -13,6 +13,7 @@ import cn.starrah.thu_course_helper.fragment.CourseTable
 import cn.starrah.thu_course_helper.fragment.Information
 import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import cn.starrah.thu_course_helper.fragment.TimeTable
+import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
 import cn.starrah.thu_course_helper.utils.setLastSyncExamDate
 import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
 import cn.starrah.thu_course_helper.utils.shouldSyncExam
@@ -106,6 +107,10 @@ class MainActivity : FragmentActivity() {
                     )
                 )
                 setLastSyncExamDate(this@MainActivity)
+            }
+            val onlineSource = CREP.onlineCourseDataSource
+            if (onlineSource is THUCourseDataSouce) {
+                onlineSource.tryShouldFixDataFromBackendLaterAfterWrittenToDB(this@MainActivity)
             }
         }
     }

@@ -10,24 +10,40 @@ import cn.starrah.thu_course_helper.data.utils.CookiedFuel
 import cn.starrah.thu_course_helper.data.utils.DataInvalidException
 import com.alibaba.fastjson.JSON
 import com.github.kittinunf.fuel.core.Headers
+import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.coroutines.awaitString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.PrintWriter
+import java.io.StringWriter
 
-data class TermAPIResp(val termData: SchoolTerm, val termList: List<TermDescription>? = null, val currentTermId: String? = null)
+data class TermAPIResp(
+    val termData: SchoolTerm,
+    val termList: List<TermDescription>? = null,
+    val currentTermId: String? = null
+)
+
 data class TermDescription(val id: String, val name: String)
+
 suspend fun BackendAPITermData(id: String? = null): TermAPIResp {
     val s = CookiedFuel.get("$BACKEND_SITE/term", id?.let { listOf("id" to id) }).awaitString()
     return JSON.parseObject(s, TermAPIResp::class.java)
 }
 
 data class CheckVersionAPIResp(val versionName: String, val url: String)
+
 suspend fun BackendAPICheckVersion(): CheckVersionAPIResp {
     val s = CookiedFuel.get("$BACKEND_SITE/version_check").awaitString()
     return JSON.parseObject(s, CheckVersionAPIResp::class.java)
 }
 
-val UPLOAD_PREFERENCE_KEY_LIST = listOf("sync_learnx_homeworks", "course_show_type", "course_show_days", "time_show_days", "stay_notice")
+val UPLOAD_PREFERENCE_KEY_LIST = listOf(
+    "sync_hmex",
+    "course_show_type",
+    "course_show_days",
+    "time_show_days",
+    "stay_notice"
+)
 
 suspend fun BackendAPIUploadMyData(context: Context, authentication: Any?) {
     val sp = PreferenceManager.getDefaultSharedPreferences(context)
@@ -42,8 +58,7 @@ suspend fun BackendAPIUploadMyData(context: Context, authentication: Any?) {
         }
 
         CookiedFuel.post("$BACKEND_SITE/uploadUserData")
-            .header(Headers.CONTENT_TYPE to "application/json")
-            .body(
+            .jsonBody(
                 JSON.toJSONString(
                     mapOf(
                         "authentication" to authentication,
@@ -61,8 +76,7 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
 
     withContext(Dispatchers.IO) {
         val respStr = CookiedFuel.post("$BACKEND_SITE/downloadUserData")
-            .header(Headers.CONTENT_TYPE to "application/json")
-            .body(
+            .jsonBody(
                 JSON.toJSONString(
                     mapOf(
                         "authentication" to authentication,
@@ -82,6 +96,7 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
             sp.edit {
                 for ((key, value) in respObj.preference) {
                     if (key in UPLOAD_PREFERENCE_KEY_LIST) {
+                        @Suppress("UNCHECKED_CAST")
                         when (value) {
                             is String -> putString(key, value)
                             is Int -> putInt(key, value)
@@ -105,3 +120,11 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
         }
     }
 }
+
+suspend fun BackendAPISubmitLog(message: String) {
+    CookiedFuel.post("$BACKEND_SITE/log").header(Headers.CONTENT_TYPE, "text/plain")
+        .body(message).awaitString()
+}
+
+suspend fun BackendAPISubmitLog(e: Throwable) =
+    BackendAPISubmitLog(StringWriter().also { e.printStackTrace(PrintWriter(it)) }.toString())
