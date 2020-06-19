@@ -5,9 +5,11 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
+import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindType
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.utils.CookiedFuel
 import cn.starrah.thu_course_helper.data.utils.DataInvalidException
+import cn.starrah.thu_course_helper.service.setAlarm
 import com.alibaba.fastjson.JSON
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.jsonBody
@@ -114,9 +116,14 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
         if (respObj.calendarData == null) throw DataInvalidException("服务器上不存在备份的数据！")
         else if (respObj.calendarData.isEmpty()) return@withContext
 
+        CREP.DAO.findAllTimes().forEach {
+            it.remindData.type = CalendarRemindType.NONE
+            setAlarm(context, it, shouldCancel = true)
+        }
         CREP.DAO.dropAllTables()
         for (one in respObj.calendarData) {
-            CREP.updateItemAndTimes(one)
+            CREP.DAO.updateItemAndTimes(one, one.times)
+            one.times.forEach { setAlarm(context, it, shouldCancel = true) }
         }
     }
 }

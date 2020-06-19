@@ -1,8 +1,14 @@
 package cn.starrah.thu_course_helper.data.database
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.widget.Toast
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.preference.PreferenceManager
+import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.SPRING2019TERMJSON
 import cn.starrah.thu_course_helper.data.database.CalendarRepository.initializeTerm
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.*
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
@@ -14,10 +20,19 @@ import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import cn.starrah.thu_course_helper.onlinedata.AbstractCourseDataSource
 import cn.starrah.thu_course_helper.onlinedata.CourseDataSourceRegistry
+import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
+import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPICheckVersion
+import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPITermData
+import cn.starrah.thu_course_helper.onlinedata.backend.TermDescription
+import cn.starrah.thu_course_helper.service.setAlarm
+import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Period
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 /**
  * 本类是获取各类数据的接口。通过设置学期[initializeTerm]，自动打开对应的数据库；
@@ -53,24 +68,131 @@ object CalendarRepository {
     val timeRule: SchoolTimeRule
         get() = term.timeRule
 
+    private lateinit var applicationContext: Context
+
     /**
      * 可以在主线程中调用。
      *
      * 设置（或变更）当前的所选学期。
-     * 在调用Repository进行任何操作之前，必须保证[initializeTerm]被调用过。
+     *
+     * 在调用Repository进行任何操作之前，必须保证它被初始化过。
      */
     suspend fun initializeTerm(context: Context, term: SchoolTerm) {
+        if (initialized && term == this@CalendarRepository.term) return // 如果term对象没变，则直接返回、不进行任何操作
         withContext(Dispatchers.IO) {
-            if (initialized && term === this@CalendarRepository.term) return@withContext // 如果term对象没变，则直接返回、不进行任何操作
             term.assertValidResetMsg { "内置的学期数据不合法：$it" }
             this@CalendarRepository.term = term
-            this@CalendarRepository.onlineCourseDataSource = CourseDataSourceRegistry[term.schoolName]
+            this@CalendarRepository.onlineCourseDataSource =
+                CourseDataSourceRegistry[term.schoolName]
+            applicationContext = context.applicationContext
             // 如果之前初始化过，则把旧的数据库关闭掉以防资源泄露。
             if (initialized) database.close()
             database = CalendarDatabase.getDatabaseInstance(context, term.dbName)
             DAO = database.Dao()
             initialized = true
         }
+    }
+
+    suspend fun requestDefaultTerm(context: Context, dontRequestBackend: Boolean = false): SchoolTerm {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        var currentTerm = sp.getString("currentTerm", null)
+            ?.let { JSON.parseObject(it, SchoolTerm::class.java) }
+
+        if (!dontRequestBackend || currentTerm == null) {
+            val version = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+            val lastStartVersion = sp.getString("lastStartVersion", null)
+            val lastSyncDataTime = sp.getString("lastSyncDataTime", null)
+                ?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE) }
+            val lastSyncDataTimePassed = lastSyncDataTime?.let {
+                Period.between(it, LocalDate.now()).get(ChronoUnit.DAYS).toInt()
+            } ?: 100000
+            val lastHandChangeTermTime = sp.getString("lastHandChangeTermTime", null)
+                ?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE) }
+            val lastHandChangeTermTimePassed = lastHandChangeTermTime?.let {
+                Period.between(it, LocalDate.now()).get(ChronoUnit.DAYS).toInt()
+            } ?: 100000
+            val term_id = sp.getString("term_id", null)
+
+            val SYNC_TERM_INTERVAL_DAYS = 7
+            val HAND_CHANGE_KEEP_DAYS = 7
+            val needRequestOnlineData: Int =
+                // 请求学期数据，触发条件：
+                if ((currentTerm == null || currentTerm.termId != term_id) || //本地无有效学期数据
+                    version != lastStartVersion || // 发生了版本更新
+                    (currentTerm.endInclusiveDate < LocalDate.now() && lastHandChangeTermTimePassed >= HAND_CHANGE_KEEP_DAYS) || // 当前学期已结束，并且距离上一次手动修改学期的时间已经超过7天
+                    (lastSyncDataTimePassed >= SYNC_TERM_INTERVAL_DAYS && lastHandChangeTermTimePassed >= HAND_CHANGE_KEEP_DAYS) // 距离上次刷新数据和距离上次手动更改学期都过去了7天
+                ) 2 // 应当更新学期列表和当前学期数据
+                else if (lastSyncDataTimePassed >= SYNC_TERM_INTERVAL_DAYS && lastHandChangeTermTimePassed < HAND_CHANGE_KEEP_DAYS) 1 // 应当只更新学期列表、不更新学期数据
+                else 0 // 不应当更新
+
+            if (BACKEND_SITE == "") {
+                // TODO 在开发状态下、没有后端服务器的情况，就读取本地字符串数据.正式版应当删掉此处
+                sp.edit {
+                    putString("available_terms", JSON.toJSONString(listOf<TermDescription>()))
+                }
+                currentTerm = JSON.parseObject(SPRING2019TERMJSON, SchoolTerm::class.java)!!
+            }
+            else if (needRequestOnlineData > 0) {
+                try {
+                    val resp = BackendAPITermData()
+                    val respVersion = BackendAPICheckVersion() // 捎带检查版本
+                    sp.edit {
+                        // 任何needRequestOnlineData非0的情况下，均需要刷新available_terms列表
+                        putString("available_terms", JSON.toJSONString(resp.termList))
+                        // 只有在needRequestOnlineData值为2的情况下要根据网络数据更新当前学期选择
+                        if (needRequestOnlineData >= 2) {
+                            putString("term_id", resp.currentTermId)
+                            putString("currentTerm", JSON.toJSONString(resp.termData))
+                            currentTerm = resp.termData
+                        }
+                        putString(
+                            "lastSyncDataTime",
+                            LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+                        )
+                        putString("lastStartVersion", version)
+                        putString("latest_version", respVersion.versionName)
+                        putString("latest_version_url", respVersion.url)
+                    }
+                }
+                catch (e: Exception) {
+                    e.printStackTrace()
+                    //操作失败，显示错误提示；如果currentTerm为空，则应当同时退出程序。
+                    if (currentTerm != null) {
+                        Toast.makeText(
+                            context,
+                            context.resources.getString(R.string.errmsg_change_term_fail),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    else {
+                        throw Exception(context.resources.getString(R.string.errmsg_change_term_fail_exit))
+                    }
+                }
+            }
+        }
+        return currentTerm ?: throw Exception(context.resources.getString(R.string.errmsg_change_term_fail_exit))
+    }
+
+    /**
+     * 可以在主线程中调用。
+     *
+     * 如果[CalendarRepository]未初始化，则只需传入[Context]，即可初始化[CalendarRepository]为当前学期。
+     *
+     * 如果[CalendarRepository]已初始化，调用该函数不会产生任何效果；否则，则会按照默认策略初始化学期数据，
+     * 具体包含：如果已经进入新学期就自动切换为新学期、每隔几天联网刷新网络上的学期数据，等等。
+     *
+     * 在调用Repository进行任何操作之前，必须保证它被初始化过。
+     *
+     * @param [context] [Context]
+     * @param [dontRequestBackend] 如果为true，则只要当前学期在[SharedPreference]中有数据，就不会尝试联网获取数据。
+     *
+     * @return 消息，表示从网络加载数据是否成功等等。本函数只要顺利返回就说明初始化一定是成功完成了的；
+     * 返回值除非有特殊需要，否则可以忽略。
+     */
+    suspend fun initializeDefaultTermIfUninitialized(context: Context, dontRequestBackend: Boolean = false) {
+        if (CREP.initialized) return
+        val currentTerm = requestDefaultTerm(context, dontRequestBackend)
+        CREP.initializeTerm(context, currentTerm)
     }
 
     /**
@@ -120,6 +242,7 @@ object CalendarRepository {
         withContext(Dispatchers.IO) {
             times.forEach { it.assertValid() }
             DAO.updateTimes(times)
+            times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
         }
     }
 
@@ -160,6 +283,7 @@ object CalendarRepository {
         withContext(Dispatchers.IO) {
             item.assertValidWithTimes(times)
             DAO.updateTimesInItem(times, item.id)
+            times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
         }
     }
 
@@ -179,6 +303,7 @@ object CalendarRepository {
         withContext(Dispatchers.IO) {
             item.assertValidWithTimes(times)
             DAO.updateItemAndTimes(item, times)
+            times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
         }
     }
 
@@ -269,6 +394,11 @@ object CalendarRepository {
      */
     suspend fun deleteItems(items: List<CalendarItemData>) {
         return withContext(Dispatchers.IO) {
+            for (item in items){
+                val times = if (item is CalendarItemDataWithTimes) item.times
+                else DAO.findTimesByItemNoLive(item.id)
+                times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
+            }
             DAO.deleteItems(items)
         }
     }
@@ -282,6 +412,7 @@ object CalendarRepository {
     suspend fun deleteTimes(times: List<CalendarTimeData>) {
         return withContext(Dispatchers.IO) {
             DAO.deleteTimes(times)
+            times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
         }
     }
 
@@ -321,7 +452,11 @@ object CalendarRepository {
         exactEqual: Boolean = false
     ): LiveData<List<CalendarItemDataWithTimes>> {
         return withContext(Dispatchers.IO) {
-            AttachedLiveData<List<CalendarItemDataWithTimes>, List<CalendarItemDataWithTimes>>(DAO.findItemsSpecifiedDetailFulltext(word)) { newValue, old ->
+            AttachedLiveData<List<CalendarItemDataWithTimes>, List<CalendarItemDataWithTimes>>(
+                DAO.findItemsSpecifiedDetailFulltext(
+                    word
+                )
+            ) { newValue, old ->
                 newValue.filter {
                     val dataValue = it.detail[detailKey] ?: return@filter false
                     if (exactEqual) word == dataValue else word in dataValue
@@ -358,7 +493,10 @@ object CalendarRepository {
      * Implementation Notes: 调用[matchItemsSpecifiedDetailWord]，查找说明FROM_WEB字段含有"learn"的。
      */
     suspend fun helper_findHomeworkItems(): List<CalendarItemDataWithTimes> {
-        return matchItemsSpecifiedDetailWord(CalendarItemLegalDetailKey.FROM_WEB, "learn").getNotNullValue().filter {
+        return matchItemsSpecifiedDetailWord(
+            CalendarItemLegalDetailKey.FROM_WEB,
+            "learn"
+        ).getNotNullValue().filter {
             it.type == CalendarItemType.OTHER
         }
     }
@@ -388,7 +526,8 @@ object CalendarRepository {
             .map { Pair(it, it.todayHappenTime) }.filter {
                 it.second != null && (!onlyCourse || it.first.calendarItem.type == CalendarItemType.COURSE)
             }.sortedBy { it.second!!.first }
-        val index = if (times.isEmpty()) -1 else {
+        val index = if (times.isEmpty()) -1
+        else {
             val now = LocalDateTime.now()
             var cur = 0
             for (time in times) {

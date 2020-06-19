@@ -47,6 +47,7 @@ class NotificationCourse : BroadcastReceiver() {
         val action = intent.action
         if(action == UPDATE_WIDGET) {
             GlobalScope.launch {
+                CREP.initializeDefaultTermIfUninitialized(context, true)
                 updateData(context)
                 var remoteViews = shiftShow(context)
                 updateNotification(remoteViews, context)

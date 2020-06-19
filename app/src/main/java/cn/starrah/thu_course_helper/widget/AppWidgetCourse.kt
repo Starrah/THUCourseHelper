@@ -41,6 +41,7 @@ class AppWidgetCourse : AppWidgetProvider() {
         val action = intent.action
         if(action == UPDATE_WIDGET) {
             GlobalScope.launch {
+                CREP.initializeDefaultTermIfUninitialized(context, true)
                 updateData(context)
                 shiftShow(context)
             }
