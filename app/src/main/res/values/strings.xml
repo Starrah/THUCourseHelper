@@ -46,7 +46,15 @@
     <!--时间节点-->
     <string name="time_point">时间</string>
 
-
+    <!--信息显示-->
+    <string name="show_calendar">查看校历</string>
+    <string name="show_time_point">查看选退课时间安排</string>
+    <string name="show_classroom">查看空教室</string>
+    <string name="show_self_study">查看研讨间信息</string>
+    <string name="show_homework">查看作业</string>
+    <string name="show_exam">查看考试</string>
+    <string name="show_homework_title">当前所有作业</string>
+    <string name="show_exam_title">本学期所有考试</string>
 
 
     <!--设置界面-->

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ScrollView
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.TableFragment
@@ -17,6 +18,8 @@ import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.DayOfWeek
+import java.time.Duration
+import java.time.LocalTime
 
 
 class TimeTable : TableFragment() {
@@ -131,6 +134,15 @@ class TimeTable : TableFragment() {
         }
 
         super.onStart()
+    }
+
+    /**
+     * 描述：设置初始位置
+     * 参数：无
+     * 返回：无
+     */
+    override fun setOriginalPlace() {
+        setOriginalPlaceHour()
     }
 
 }

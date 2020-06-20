@@ -63,6 +63,13 @@ class AppWidgetCourse : AppWidgetProvider() {
     }
 
 
+    override fun onEnabled(context: Context?) {
+        super.onEnabled(context)
+        GlobalScope.launch {
+            updateData(context!!)
+            shiftShow(context!!)
+        }
+    }
 
 
     /**
@@ -79,6 +86,7 @@ class AppWidgetCourse : AppWidgetProvider() {
     ) {
         GlobalScope.launch {
             updateData(context)
+            shiftShow(context)
         }
     }
 

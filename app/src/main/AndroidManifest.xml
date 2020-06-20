@@ -27,6 +27,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".LoadingActivity" />
         </activity>
+
         <activity android:name=".activity.ItemShowActivity"
             android:label = "Item Show Activity"
             android:parentActivityName=".MainActivity">
@@ -34,6 +35,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+
         <activity android:name=".activity.ItemEditActivity"
             android:label = "Item Edit Activity"
             android:parentActivityName=".MainActivity">
@@ -42,7 +44,24 @@
                 android:value=".MainActivity" />
         </activity>
 
-        <receiver android:name=".widget.AppWidgetTime" >
+        <activity android:name=".information.ExamShowActivity"
+            android:label = "Exam Show Activity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity android:name=".information.HomeworkShowActivity"
+            android:label = "Homework Show Activity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <receiver android:name=".widget.AppWidgetTime"
+            android:label="日程小部件">
         <intent-filter>
             <action android:name="button_up" />
             <action android:name="button_down" />
@@ -54,7 +73,8 @@
             android:resource="@xml/app_widget_time" />
         </receiver>
 
-        <receiver android:name=".widget.AppWidgetCourse" >
+        <receiver android:name=".widget.AppWidgetCourse"
+            android:label="课程小部件">
             <intent-filter>
                 <action android:name="button_up" />
                 <action android:name="button_down" />
