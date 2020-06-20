@@ -3,12 +3,15 @@ package cn.starrah.thu_course_helper.fragment
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.*
+import cn.starrah.thu_course_helper.MainActivity
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.onlinedata.backend.*
@@ -33,6 +36,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var pf_feedback: Preference
     lateinit var pf_backup: ListPreference
     lateinit var pf_stay_notice: ListPreference
+    lateinit var pf_background:ListPreference
     val spListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
         if (key == "login_status" || key == "login_force_update") {
             val login_status = sp.getInt("login_status", 0)
@@ -326,6 +330,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
                 true
             }
+
+        pf_background = findPreference("background_choice")!!
+        pf_background.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { pf, newValue ->
+                //setBackground()
+                Toast.makeText(
+                    activity,
+                    "请重启小程序，使得背景生效！",
+                    Toast.LENGTH_SHORT
+                ).show()
+                true
+            }
     }
 
     /**
@@ -381,5 +397,28 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onResume() {
         super.onResume()
         sp.registerOnSharedPreferenceChangeListener(spListener)
+    }
+
+    /**
+     * 描述：根据设置信息，加载背景图片
+     * 参数：无
+     * 返回：无
+     */
+    fun setBackground() {
+        val sp = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+        val settings = sp.getString("background_choice", resources.getString(R.string.bg_blank))
+        var background: Drawable? = null
+        try {
+            background = MainActivity.mapBackground.get(settings)
+        }
+        catch (e: java.lang.Exception) {
+            background = null
+        }
+        if(background == null) {
+            background = resources.getDrawable(R.color.colorWhite)
+        }
+
+        var layout = requireActivity().findViewById<FrameLayout>(R.id.frame_page)
+        layout.background = background
     }
 }

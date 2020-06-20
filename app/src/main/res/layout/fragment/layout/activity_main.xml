@@ -14,7 +14,8 @@
         android:id="@+id/frame_page"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:background="@color/colorWhite"/>
 
     <!--Toolbar-->
     <LinearLayout

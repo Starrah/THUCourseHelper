@@ -144,4 +144,16 @@
     <string name="notification_channel_remind_name">日程定时提醒</string>
 
     <string name="notification_remind_prefix">提醒-</string>
+
+    <!-- 背景设置 -->
+    <string name="background_choice_title">背景设置</string>
+    <string name="bg_blank">空白</string>
+    <string name="bg_autumn">秋叶</string>
+    <string name="bg_desert">沙漠</string>
+    <string name="bg_grass">草原</string>
+    <string name="bg_forest">森林</string>
+    <string name="bg_river">河流</string>
+    <string name="bg_sea">峡湾</string>
+    <string name="bg_winter">冬雪</string>
+
 </resources>
