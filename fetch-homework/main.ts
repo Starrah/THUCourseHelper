@@ -7,10 +7,10 @@ let courses: CourseInfo[];
 
 declare var java: any;
 
-async function core(username, password) {
+async function core(username, password, semesterId) {
     if (!helper) helper = new Learn2018Helper({provider: () => {return {username , password};}});
-    if (!semester) semester = await helper.getCurrentSemester();
-    if (!courses) courses = await helper.getCourseList(semester.id);
+    if (!semesterId) semesterId = (await helper.getCurrentSemester()).id;
+    if (!courses) courses = await helper.getCourseList(semesterId);
     const homeworks = await helper.getAllContents(courses.map(value => value.id), ContentType.HOMEWORK);
     const courseNames = courses.map(value => { return {
         name: value.name,
@@ -23,8 +23,8 @@ function homeworkSuccessCb(data) {
     java.homeworkData(JSON.stringify(data));
 }
 
-function getHomework(username, password) {
-    core(username, password).then(data => homeworkSuccessCb(data))
+function getHomework(username, password, semesterId) {
+    core(username, password, semesterId).then(data => homeworkSuccessCb(data))
 }
 
 //@ts-ignore

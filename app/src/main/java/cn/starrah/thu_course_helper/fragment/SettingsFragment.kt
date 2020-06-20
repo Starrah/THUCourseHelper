@@ -14,14 +14,12 @@ import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.onlinedata.backend.*
 import cn.starrah.thu_course_helper.utils.setLastSyncExamDate
 import cn.starrah.thu_course_helper.utils.setLastSyncHomeworkDatetime
-import cn.starrah.thu_course_helper.utils.shouldSyncExam
 import cn.starrah.thu_course_helper.utils.startDownloadIntent
 import cn.starrah.thu_course_helper.widget.NotificationCourse
 import cn.starrah.thu_course_helper.widget.NotificationTime
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
@@ -159,7 +157,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     }
                     else {
                         // 删除现存的所有作业数据
-                        CREP.deleteItems(CREP.helper_findHomeworkItems())
+                        CREP.deleteItems(CREP.helper_findDatabaseHomeworkItems())
                     }
                     if (resources.getString(R.string.settings_open_sync_exam) in newValue as Set<String> &&
                         sp.getInt("login_status", 0) == 2) {

@@ -353,7 +353,10 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             val rawStr = getHomework(
                 extra["activity"] as Activity,
                 extra["username"] as String,
-                extra["password"] as String
+                extra["password"] as String,
+                mapOf(
+                    "term" to term
+                )
             )
             val onlyUnsubmitted: Boolean = extra["onlyUnsubmitted"] as? Boolean ?: true
             val apply: Boolean = extra["apply"] as? Boolean ?: false
@@ -652,12 +655,13 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
 
     @Suppress("UNUSED_PARAMETER")
     @SuppressLint("InflateParams", "SetJavaScriptEnabled")
-    private suspend fun getHomework(
+    suspend fun getHomework(
         activity: Activity,
         username: String,
         password: String,
-        extra: Map<String, Any>? = null
+        extra: Map<String, Any> = mapOf()
     ): String {
+        val semesterId = calculateTermStrInXK(extra["term"] as SchoolTerm)
         val webView =
             LayoutInflater.from(activity).inflate(R.layout.homework_webview, null) as WebView
         WebView.setWebContentsDebuggingEnabled(true)
@@ -671,7 +675,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 super.onPageFinished(view, url)
                 if (!loadFirstSuccess) {
                     loadFirstSuccess = true
-                    webView.evaluateJavascript("getHomework(\"$username\", \"$password\")", null)
+                    webView.evaluateJavascript("getHomework(\"$username\", \"$password\", \"$semesterId\")", null)
                 }
             }
         }
@@ -681,6 +685,10 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 @JavascriptInterface
                 fun homeworkData(data: String) {
                     continuation.resume(data)
+                }
+                @JavascriptInterface
+                fun log(data: String) {
+                    println(data)
                 }
             }
             webView.addJavascriptInterface(javaObj, "java")
@@ -762,7 +770,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         }
 
         withContext(Dispatchers.IO) {
-            val oldHomework = CREP.helper_findHomeworkItems()
+            val oldHomework = CREP.helper_findDatabaseHomeworkItems()
             val toDeleteMap = oldHomework.associateBy {
                 it.detail[CalendarItemLegalDetailKey.FROM_WEB] ?: ""
             }.toMutableMap()

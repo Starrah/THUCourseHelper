@@ -1,5 +1,6 @@
 package cn.starrah.thu_course_helper.data.database
 
+import android.app.Activity
 import android.content.Context
 import android.widget.Toast
 import androidx.core.content.edit
@@ -22,6 +23,7 @@ import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPICheckVersion
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPITermData
 import cn.starrah.thu_course_helper.onlinedata.backend.TermDescription
+import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
 import cn.starrah.thu_course_helper.remind.setRemindTimerService
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.Dispatchers
@@ -511,11 +513,32 @@ object CalendarRepository {
     }
 
     /**
-     * 获取所有的作业类型的日程。
+     * 获取所有的作业类型的日程（从网络）。
+     *
+     * Implementation Notes: 调用[AbstractCourseDataSource]。
+     */
+    @Suppress("UNCHECKED_CAST")
+    suspend fun helper_findHomeworkItems(activity: Activity): List<CalendarItemDataWithTimes> {
+        val sp = PreferenceManager.getDefaultSharedPreferences(activity)
+        val resAPI = CREP.onlineCourseDataSource!!.loadData(
+            CREP.term, mapOf(
+                "homework" to true,
+                "activity" to activity,
+                "username" to sp.getString("login_name", null)!!,
+                "password" to CREP.getUserPassword(activity),
+                "onlyUnsubmitted" to true,
+                "apply" to false
+            )
+        )
+        return resAPI as List<CalendarItemDataWithTimes>
+    }
+
+    /**o
+     * 获取所有的作业类型的日程（从数据库中）。
      *
      * Implementation Notes: 调用[matchItemsSpecifiedDetailWord]，查找说明FROM_WEB字段含有"learn"的。
      */
-    suspend fun helper_findHomeworkItems(): List<CalendarItemDataWithTimes> {
+    suspend fun helper_findDatabaseHomeworkItems(): List<CalendarItemDataWithTimes> {
         return matchItemsSpecifiedDetailWord(
             CalendarItemLegalDetailKey.FROM_WEB,
             "learn"
@@ -525,11 +548,30 @@ object CalendarRepository {
     }
 
     /**
-     * 获取所有的期末考试类型的时间段。
+     * 获取所有的期末考试类型的时间段（从网络）。
+     *
+     * Implementation Notes: 调用[AbstractCourseDataSource]。
+     */
+    @Suppress("UNCHECKED_CAST")
+    suspend fun helper_findFinalExamTimes(context: Context): List<CalendarTimeDataWithItem> {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        val respAPI = CREP.onlineCourseDataSource!!.loadData(
+            CREP.term, mapOf(
+                "exam" to true,
+                "username" to sp.getString("login_name", null)!!,
+                "password" to CREP.getUserPassword(context),
+                "apply" to false
+            )
+        )
+        return respAPI as List<CalendarTimeDataWithItem>
+    }
+
+    /**
+     * 获取所有的期末考试类型的时间段（从数据库中）。
      *
      * Implementation Notes: 调用[matchTimesSpecifiedNameAndItemType]，查找所有名称字段为"期末考试"、且日程类型为"课程"的。
      */
-    suspend fun helper_findFinalExamTimes(): List<CalendarTimeDataWithItem> {
+    suspend fun helper_findDatabaseFinalExamTimes(): List<CalendarTimeDataWithItem> {
         return matchTimesSpecifiedNameAndItemType("期末考试", CalendarItemType.COURSE).getNotNullValue()
     }
 
