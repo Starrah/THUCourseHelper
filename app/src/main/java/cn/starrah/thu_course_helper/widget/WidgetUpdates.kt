@@ -1,13 +1,9 @@
-package cn.starrah.thu_course_helper.utils
+package cn.starrah.thu_course_helper.widget
 
 import android.content.Context
 import android.content.Intent
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
-import cn.starrah.thu_course_helper.widget.AppWidgetCourse
-import cn.starrah.thu_course_helper.widget.AppWidgetTime
-import cn.starrah.thu_course_helper.widget.NotificationCourse
-import cn.starrah.thu_course_helper.widget.NotificationTime
 
 //小部件-通知栏更新函数
 
@@ -17,7 +13,7 @@ fun Context.updateWidgetsAndNotification() {
 
     //按照设置更新通知栏
     val sp = PreferenceManager.getDefaultSharedPreferences(this)
-    val notifications_settings = sp.getString("stay_notice", null)
+    val notifications_settings = sp.getString("stay_notice", resources.getString(R.string.settings_stay_notice_no))
     if(notifications_settings == resources.getString(R.string.settings_stay_notice_no)) {
         cancelNotificationCourse()
         cancelNotificationTime()
@@ -27,7 +23,7 @@ fun Context.updateWidgetsAndNotification() {
         cancelNotificationTime()
     }
     else {
-        updateNotificationCourse()
+        cancelNotificationCourse()
         updateNotificationTime()
     }
 }

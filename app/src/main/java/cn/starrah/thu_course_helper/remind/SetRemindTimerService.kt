@@ -1,22 +1,17 @@
-package cn.starrah.thu_course_helper.service
+package cn.starrah.thu_course_helper.remind
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
-import android.content.pm.PackageManager
-import android.net.Uri
 import cn.starrah.thu_course_helper.data.constants.THE_ZONE
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
-import java.util.*
 
-fun setAlarm(context: Context, time: CalendarTimeData, baseTime: LocalDateTime = LocalDateTime.now(), shouldCancel: Boolean = true): Boolean {
+fun setRemindTimerService(context: Context, time: CalendarTimeData, baseTime: LocalDateTime = LocalDateTime.now(), shouldCancel: Boolean = true): Boolean {
     val nextRemindTime = time.getNextRemindTime(baseTime)
     if (nextRemindTime != null) {
         val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -44,10 +39,12 @@ fun setAlarm(context: Context, time: CalendarTimeData, baseTime: LocalDateTime =
     return false
 }
 
-suspend fun setAlarmForAll(context: Context, shouldCancel: Boolean = true) {
+suspend fun setRemindTimerServiceForAll(context: Context, shouldCancel: Boolean = true) {
     val allTimes = withContext(Dispatchers.IO) {
         CREP.DAO.findAllTimes()
     }
-    val haveAlarm = allTimes.any { setAlarm(context, it, shouldCancel = shouldCancel) }
+    val haveAlarm = allTimes.any {
+        setRemindTimerService(context, it, shouldCancel = shouldCancel)
+    }
     println("haveAlarm: $haveAlarm")
 }

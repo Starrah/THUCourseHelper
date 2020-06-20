@@ -171,7 +171,7 @@ class NotificationCourse : BroadcastReceiver() {
         val mChannel = NotificationChannel(
             CHANNEL_ID,
             "今日课程",
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_MIN
         )
         mChannel.description = "今日课程显示"
         mChannel.enableLights(false)
@@ -189,9 +189,10 @@ class NotificationCourse : BroadcastReceiver() {
             .setContentIntent(pendingIntent)
             .setWhen(System.currentTimeMillis())// 通知产生的时间，会在通知信息里显示
             .setTicker("今日课程")
-            .setPriority(Notification.PRIORITY_DEFAULT)// 设置该通知优先级
+            .setPriority(Notification.PRIORITY_MIN)// 设置该通知优先级
             .setOngoing(true)
-            .setSmallIcon(R.mipmap.ic_launcher);
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
         var notify:Notification = mBuilder.build()
         notify.flags = Notification.FLAG_ONGOING_EVENT;
         notificationManager.notify(NOTIFY_ID, notify);

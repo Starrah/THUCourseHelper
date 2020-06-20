@@ -1,8 +1,6 @@
 package cn.starrah.thu_course_helper.data.database
 
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -24,7 +22,7 @@ import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPICheckVersion
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPITermData
 import cn.starrah.thu_course_helper.onlinedata.backend.TermDescription
-import cn.starrah.thu_course_helper.service.setAlarm
+import cn.starrah.thu_course_helper.remind.setRemindTimerService
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -93,7 +91,10 @@ object CalendarRepository {
         }
     }
 
-    suspend fun requestDefaultTerm(context: Context, dontRequestBackend: Boolean = false): SchoolTerm {
+    suspend fun requestDefaultTerm(
+        context: Context,
+        dontRequestBackend: Boolean = false
+    ): SchoolTerm {
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
         var currentTerm = sp.getString("currentTerm", null)
             ?.let { JSON.parseObject(it, SchoolTerm::class.java) }
@@ -170,7 +171,8 @@ object CalendarRepository {
                 }
             }
         }
-        return currentTerm ?: throw Exception(context.resources.getString(R.string.errmsg_change_term_fail_exit))
+        return currentTerm
+            ?: throw Exception(context.resources.getString(R.string.errmsg_change_term_fail_exit))
     }
 
     /**
@@ -189,7 +191,10 @@ object CalendarRepository {
      * @return 消息，表示从网络加载数据是否成功等等。本函数只要顺利返回就说明初始化一定是成功完成了的；
      * 返回值除非有特殊需要，否则可以忽略。
      */
-    suspend fun initializeDefaultTermIfUninitialized(context: Context, dontRequestBackend: Boolean = false) {
+    suspend fun initializeDefaultTermIfUninitialized(
+        context: Context,
+        dontRequestBackend: Boolean = false
+    ) {
         if (CREP.initialized) return
         val currentTerm = requestDefaultTerm(context, dontRequestBackend)
         CREP.initializeTerm(context, currentTerm)
@@ -242,7 +247,13 @@ object CalendarRepository {
         withContext(Dispatchers.IO) {
             times.forEach { it.assertValid() }
             DAO.updateTimes(times)
-            times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
+            times.forEach {
+                setRemindTimerService(
+                    applicationContext,
+                    it,
+                    shouldCancel = true
+                )
+            }
         }
     }
 
@@ -283,7 +294,13 @@ object CalendarRepository {
         withContext(Dispatchers.IO) {
             item.assertValidWithTimes(times)
             DAO.updateTimesInItem(times, item.id)
-            times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
+            times.forEach {
+                setRemindTimerService(
+                    applicationContext,
+                    it,
+                    shouldCancel = true
+                )
+            }
         }
     }
 
@@ -303,7 +320,9 @@ object CalendarRepository {
         withContext(Dispatchers.IO) {
             item.assertValidWithTimes(times)
             DAO.updateItemAndTimes(item, times)
-            times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
+            times.forEach {
+                setRemindTimerService(applicationContext, it, shouldCancel = true)
+            }
         }
     }
 
@@ -394,10 +413,12 @@ object CalendarRepository {
      */
     suspend fun deleteItems(items: List<CalendarItemData>) {
         return withContext(Dispatchers.IO) {
-            for (item in items){
+            for (item in items) {
                 val times = if (item is CalendarItemDataWithTimes) item.times
                 else DAO.findTimesByItemNoLive(item.id)
-                times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
+                times.forEach {
+                    setRemindTimerService(applicationContext, it, shouldCancel = true)
+                }
             }
             DAO.deleteItems(items)
         }
@@ -412,7 +433,9 @@ object CalendarRepository {
     suspend fun deleteTimes(times: List<CalendarTimeData>) {
         return withContext(Dispatchers.IO) {
             DAO.deleteTimes(times)
-            times.forEach { setAlarm(applicationContext, it, shouldCancel = true) }
+            times.forEach {
+                setRemindTimerService(applicationContext, it, shouldCancel = true)
+            }
         }
     }
 
@@ -525,16 +548,16 @@ object CalendarRepository {
         val times = findTimesByDays(listOf(LocalDate.now())).getNotNullValue()
             .map { Pair(it, it.todayHappenTime) }.filter {
                 it.second != null && (!onlyCourse || it.first.calendarItem.type == CalendarItemType.COURSE)
-            }.sortedBy { it.second!!.first }
+            }.sortedBy { it.second!!.second }
         val index = if (times.isEmpty()) -1
         else {
             val now = LocalDateTime.now()
             var cur = 0
             for (time in times) {
-                if (time.second!!.first > now) break
+                if (time.second!!.second >= now) break
                 cur++
             }
-            if (cur - 1 >= 0) cur - 1 else 0
+            cur.coerceAtMost(times.size - 1)
         }
         return Pair(times.map { it.first }, index)
     }

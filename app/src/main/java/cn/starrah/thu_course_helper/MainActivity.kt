@@ -15,7 +15,7 @@ import cn.starrah.thu_course_helper.fragment.SettingsFragment
 import cn.starrah.thu_course_helper.fragment.TimeTable
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
 import cn.starrah.thu_course_helper.service.allAppTask
-import cn.starrah.thu_course_helper.utils.*
+import cn.starrah.thu_course_helper.widget.updateWidgetsAndNotification
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 

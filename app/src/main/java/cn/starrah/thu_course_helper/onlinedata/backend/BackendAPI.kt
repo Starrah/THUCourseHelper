@@ -9,8 +9,9 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindTyp
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.utils.CookiedFuel
 import cn.starrah.thu_course_helper.data.utils.DataInvalidException
-import cn.starrah.thu_course_helper.service.setAlarm
+import cn.starrah.thu_course_helper.remind.setRemindTimerService
 import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson.JSONObject
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.coroutines.awaitString
@@ -100,13 +101,13 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
                     if (key in UPLOAD_PREFERENCE_KEY_LIST) {
                         @Suppress("UNCHECKED_CAST")
                         when (value) {
-                            is String -> putString(key, value)
-                            is Int -> putInt(key, value)
+                            is String  -> putString(key, value)
+                            is Int     -> putInt(key, value)
                             is Boolean -> putBoolean(key, value)
-                            is Long -> putLong(key, value)
-                            is Float -> putFloat(key, value)
-                            is Set<*> -> putStringSet(key, value as Set<String>)
-                            null -> remove(key)
+                            is Long    -> putLong(key, value)
+                            is Float   -> putFloat(key, value)
+                            is Set<*>  -> putStringSet(key, value as Set<String>)
+                            null       -> remove(key)
                         }
                     }
                 }
@@ -118,12 +119,14 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
 
         CREP.DAO.findAllTimes().forEach {
             it.remindData.type = CalendarRemindType.NONE
-            setAlarm(context, it, shouldCancel = true)
+            setRemindTimerService(context, it, shouldCancel = true)
         }
         CREP.DAO.dropAllTables()
         for (one in respObj.calendarData) {
             CREP.DAO.updateItemAndTimes(one, one.times)
-            one.times.forEach { setAlarm(context, it, shouldCancel = true) }
+            one.times.forEach {
+                setRemindTimerService(context, it, shouldCancel = true)
+            }
         }
     }
 }
@@ -135,3 +138,38 @@ suspend fun BackendAPISubmitLog(message: String) {
 
 suspend fun BackendAPISubmitLog(e: Throwable) =
     BackendAPISubmitLog(StringWriter().also { e.printStackTrace(PrintWriter(it)) }.toString())
+
+/**
+ * 获取信息页面的资源列表。
+ *
+ * 返回的是[List]<[JSONObject]>，其中每个[JSONObject]，要么形如：
+ * {
+"name": "选课时间安排",
+"url": "https://xxxxx"
+}
+ *
+ * 要么形如：
+ * {
+"name": "教室情况",
+"children": \[
+{
+"name": "六教",
+"url": "https://xxxxx"
+},
+{
+"name": "五教",
+"url": "https://xxxxx"
+},
+{
+"name": "四教",
+"url": "https://xxxxx"
+}
+]
+}
+ *
+ * 分别表示有二级选项和无二级选项的情况。
+ */
+suspend fun BackendAPIInfo(): List<JSONObject> {
+    val s = CookiedFuel.get("$BACKEND_SITE/infoList").awaitString()
+    return JSON.parseArray(s).map { it as JSONObject }
+}

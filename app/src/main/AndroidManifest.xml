@@ -107,7 +107,7 @@
         </receiver>
 
 
-        <receiver android:name=".service.RemindReceiver">
+        <receiver android:name=".remind.RemindReceiver">
             <intent-filter>
                 <action android:name="cn.starrah.thu_course_helper.remind" />
             </intent-filter>
@@ -119,7 +119,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".service.UpdateWidgetsRecevier">
+        <receiver android:name=".widget.UpdateWidgetsRecevier">
             <intent-filter>
                 <action android:name="cn.starrah.thu_course_helper.updateWidgets" />
             </intent-filter>

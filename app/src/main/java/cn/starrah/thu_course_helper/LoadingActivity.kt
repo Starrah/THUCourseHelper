@@ -17,7 +17,7 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
-import cn.starrah.thu_course_helper.service.setAllTimelyAlarms
+import cn.starrah.thu_course_helper.service.initializeAllTimelyIntents
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -68,7 +68,7 @@ class LoadingActivity : AppCompatActivity() {
             // TODO 测试数据
             loadTestData()
 
-            setAllTimelyAlarms(this@LoadingActivity, false)
+            initializeAllTimelyIntents(this@LoadingActivity, false)
 
             val the_intent = Intent()
             the_intent.setClass(this@LoadingActivity, MainActivity::class.java)

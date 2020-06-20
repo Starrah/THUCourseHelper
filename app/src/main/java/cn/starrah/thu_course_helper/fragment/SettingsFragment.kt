@@ -323,7 +323,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     cancelNotificationTime()
                 }
                 else {
-                    updateNotificationCourse()
+                    cancelNotificationCourse()
                     updateNotificationTime()
                 }
                 true
