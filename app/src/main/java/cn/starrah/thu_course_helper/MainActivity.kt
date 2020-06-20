@@ -31,6 +31,7 @@ class MainActivity : FragmentActivity() {
 
     //字符串和背景图片的对应关系
     companion object {
+        var bgSettings:Drawable? = null
         var mapBackground: MutableMap<String, Drawable> = mutableMapOf()
     }
 
@@ -46,6 +47,7 @@ class MainActivity : FragmentActivity() {
      * 返回：无
      */
     fun loadMapBackground() {
+        bgSettings = resources.getDrawable(R.color.colorWhite)
         mapBackground.clear()
         var string1 = resources.getString(R.string.bg_blank)
         var bg1 = resources.getDrawable(R.color.colorWhite)
@@ -114,6 +116,7 @@ class MainActivity : FragmentActivity() {
                 when (item.getItemId()) {
                     R.id.navigation_course_table -> {
                         supportFragmentManager.inTransaction {
+                            setInitialBackground()
                             replace(R.id.frame_page, CourseTable())
                         }
                         return true
@@ -121,6 +124,7 @@ class MainActivity : FragmentActivity() {
 
                     R.id.navigation_time_table   -> {
                         supportFragmentManager.inTransaction {
+                            setInitialBackground()
                             replace(R.id.frame_page, TimeTable())
                         }
                         return true
@@ -128,12 +132,15 @@ class MainActivity : FragmentActivity() {
 
                     R.id.navigation_information  -> {
                         supportFragmentManager.inTransaction {
+                            setInitialBackground()
                             replace(R.id.frame_page, Information())
                         }
                         return true
                     }
                     R.id.navigation_settings     -> {
                         supportFragmentManager.inTransaction {
+                            var layout = findViewById<FrameLayout>(R.id.frame_page)
+                            layout.background = bgSettings
                             replace(R.id.frame_page, SettingsFragment())
                         }
                         return true

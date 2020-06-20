@@ -6,6 +6,9 @@ import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.content.edit
@@ -110,9 +113,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+
     @Suppress("USELESS_CAST", "UNCHECKED_CAST")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
+
+
+
         sp = preferenceManager.sharedPreferences
 
         pf_login = findPreference<Preference>("login_status")!!
