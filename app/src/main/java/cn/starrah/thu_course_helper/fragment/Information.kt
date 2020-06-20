@@ -8,7 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.information.ClassroomShowActivity
@@ -18,6 +20,7 @@ import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPIInfo
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class Information : Fragment() {
 
@@ -26,6 +29,7 @@ class Information : Fragment() {
 
     companion object {
         public final var INTENT_JSON = "intent_json"
+        private var jsonItem: List<JSONObject>? = null
     }
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,7 +44,13 @@ class Information : Fragment() {
         buttonPlace = requireActivity().findViewById(R.id.information_place)
         buttonPlace.removeAllViews()
         lifecycleScope.launch {
-            loadFromBackend()
+            try {
+                loadFromBackend()
+            }
+            catch(e:Exception) {
+                Toast.makeText(requireActivity() as FragmentActivity, e.message, Toast.LENGTH_LONG)
+                    .show()
+            }
             loadOriginalButtons()
         }
 
@@ -52,9 +62,10 @@ class Information : Fragment() {
      */
     suspend fun loadFromBackend() {
         var string_classroom = requireActivity().getString(R.string.show_classroom)
-        var all_data = BackendAPIInfo()
-
-        for(item in all_data) {
+        if(jsonItem == null) {
+            jsonItem = BackendAPIInfo()
+        }
+        for(item in jsonItem!!) {
             if((string_classroom.equals(item["name"] as? String)) && (item["children"] as? JSONArray != null)) {
                 classroomJSONItem = item["children"] as JSONArray
             }
@@ -100,10 +111,16 @@ class Information : Fragment() {
         var string_classroom = requireActivity().getString(R.string.show_classroom)
         button_classroom.setText("查看" + string_classroom)
         button_classroom.setOnClickListener(View.OnClickListener {
-            var json_string:String = classroomJSONItem.toString()
-            var intent = Intent(requireActivity(), ClassroomShowActivity::class.java)
-            intent.putExtra(INTENT_JSON, json_string)
-            requireActivity().startActivity(intent)
+            if(classroomJSONItem != null) {
+                var json_string: String = classroomJSONItem.toString()
+                var intent = Intent(requireActivity(), ClassroomShowActivity::class.java)
+                intent.putExtra(INTENT_JSON, json_string)
+                requireActivity().startActivity(intent)
+            }
+            else {
+                Toast.makeText(requireActivity() as FragmentActivity, "网络异常，加载空教室失败！", Toast.LENGTH_LONG)
+                    .show()
+            }
         })
         buttonPlace.addView(button_classroom_place)
 
