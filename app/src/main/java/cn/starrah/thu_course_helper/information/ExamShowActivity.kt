@@ -63,7 +63,7 @@ class ExamShowActivity : AppCompatActivity(){
      */
     suspend fun getData() {
         //数据获取
-        var the_item = CREP.helper_findFinalExamTimes()
+        var the_item = CREP.helper_findFinalExamTimes(this)
         showItem.addAll(the_item)
     }
 
