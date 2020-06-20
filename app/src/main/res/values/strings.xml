@@ -53,6 +53,8 @@
     <string name="show_self_study">查看研讨间信息</string>
     <string name="show_homework">查看作业</string>
     <string name="show_exam">查看考试</string>
+    <string name="show_homework_title">当前所有作业</string>
+    <string name="show_exam_title">本学期所有考试</string>
 
 
     <!--设置界面-->

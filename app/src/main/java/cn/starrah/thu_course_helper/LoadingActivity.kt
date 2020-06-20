@@ -64,8 +64,6 @@ class LoadingActivity : AppCompatActivity() {
                 delay(3000)
                 exitProcess(0)
             }
-
-            // TODO 测试数据
             loadTestData()
 
             initializeAllTimelyIntents(this@LoadingActivity, false)
@@ -84,6 +82,7 @@ class LoadingActivity : AppCompatActivity() {
     }
 
 
+    //TODO 生成模拟的作业，考试数据，正式版应该删除
     /**
     描述:测试函数，上传初始化日程
      */
@@ -91,112 +90,81 @@ class LoadingActivity : AppCompatActivity() {
 
         val detail1: MutableMap<CalendarItemLegalDetailKey, String> =
             mutableMapOf<CalendarItemLegalDetailKey, String>()
-        detail1[CalendarItemLegalDetailKey.COURSEID] = "114514"
-        detail1[CalendarItemLegalDetailKey.COMMENT] = "3学分硬课"
-        val item1: CalendarItemData = CalendarItemData(id = 1, name = "数据库", detail = detail1)
+        detail1[CalendarItemLegalDetailKey.FROM_WEB] = "23,learn"
+        detail1[CalendarItemLegalDetailKey.COMMENT] = "网络学堂作业"
+        val item1: CalendarItemData = CalendarItemData(id = 301, name = "展示视频提交", type = CalendarItemType.OTHER, detail = detail1)
 
         val detail2: MutableMap<CalendarItemLegalDetailKey, String> =
             mutableMapOf<CalendarItemLegalDetailKey, String>()
-        detail2[CalendarItemLegalDetailKey.TEACHER] = "王继良"
-        detail2[CalendarItemLegalDetailKey.COMMENT] = "大作业写不完了qwqwqwqwqwqwqwq，sgltcltcl"
-
-        val item2: CalendarItemData = CalendarItemData(id = 2, name = "移动软件开发", detail = detail2)
+        detail2[CalendarItemLegalDetailKey.FROM_WEB] = "21,learn"
+        detail2[CalendarItemLegalDetailKey.COMMENT] = "网络学堂作业"
+        val item2: CalendarItemData = CalendarItemData(id = 302, name = "最终提交", type = CalendarItemType.OTHER, detail = detail1)
 
         val detail3: MutableMap<CalendarItemLegalDetailKey, String> =
             mutableMapOf<CalendarItemLegalDetailKey, String>()
-        detail3[CalendarItemLegalDetailKey.ORGANIZATION] = "软件学院学生会"
-        detail3[CalendarItemLegalDetailKey.COMMENT] = "并没有这种时间的社工，我单纯测试一下"
+        detail3[CalendarItemLegalDetailKey.FROM_WEB] = "25,learn"
+        detail3[CalendarItemLegalDetailKey.COMMENT] = "网络学堂作业"
+        val item3: CalendarItemData = CalendarItemData(id = 303, name = "最终提交", type = CalendarItemType.OTHER, detail = detail1)
 
-        val item3: CalendarItemData = CalendarItemData(
-            id = 3,
-            name = "社工",
-            type = CalendarItemType.SOCIALWORK,
-            detail = detail3
-        )
+        val detail4: MutableMap<CalendarItemLegalDetailKey, String> =
+            mutableMapOf<CalendarItemLegalDetailKey, String>()
+        detail4[CalendarItemLegalDetailKey.FROM_WEB] = "29,learn"
+        detail4[CalendarItemLegalDetailKey.COMMENT] = "网络学堂作业"
+        val item4: CalendarItemData = CalendarItemData(id = 304, name = "作业补交", type = CalendarItemType.OTHER, detail = detail1)
 
-        val time1: TimeInCourseSchedule = TimeInCourseSchedule(
-            startBig = 6,
-            startOffsetSmall = 0.0f,
-            lengthSmall = 2.0f,
-            date = LocalDate.parse("2020-05-19"),
-            dayOfWeek = LocalDate.parse("2020-05-19").dayOfWeek
+        val time1: TimeInHour = TimeInHour(
+            startTime = LocalTime.parse("14:53"),
+            endTime = LocalTime.parse("14:53"),
+            dayOfWeek = DayOfWeek.SUNDAY,
+            date = LocalDate.parse("2020-06-21")
         )
         val data1: CalendarTimeData = CalendarTimeData(
-            name = "摸鱼", type = CalendarTimeType.SINGLE_COURSE
-            , timeInCourseSchedule = time1, item_id = 1, place = "李文正馆"
+            name = "移动软件开发", type = CalendarTimeType.POINT
+            , timeInHour = time1, item_id = 301, comment = "未提交"
         )
 
-        val time2: TimeInCourseSchedule = TimeInCourseSchedule(
-            dayOfWeek = DayOfWeek.TUESDAY, startBig = 2, startOffsetSmall = 0.0f,
-            lengthSmall = 3.0f
+        val time2: TimeInHour = TimeInHour(
+            startTime = LocalTime.parse("23:59"),
+            endTime = LocalTime.parse("23:59"),
+            dayOfWeek = DayOfWeek.SUNDAY,
+            date = LocalDate.parse("2020-06-21")
         )
         val data2: CalendarTimeData = CalendarTimeData(
-            name = "上课", type = CalendarTimeType.REPEAT_COURSE
-            , timeInCourseSchedule = time2, repeatWeeks = mutableListOf(14, 15, 16), item_id = 1
+            name = "移动软件开发", type = CalendarTimeType.POINT
+            , timeInHour = time2, item_id = 302, comment = "未提交"
         )
-
-        val list1 = listOf<CalendarTimeData>(data1, data2)
-
-
-        val time3: TimeInCourseSchedule = TimeInCourseSchedule(
-            startBig = 5,
-            startOffsetSmall = 0.0f,
-            lengthSmall = 2.0f,
-            date = LocalDate.parse("2020-05-20"),
-            dayOfWeek = LocalDate.parse("2020-05-20").dayOfWeek
+        val time3: TimeInHour = TimeInHour(
+            startTime = LocalTime.parse("14:53"),
+            endTime = LocalTime.parse("14:53"),
+            dayOfWeek = DayOfWeek.SATURDAY,
+            date = LocalDate.parse("2020-06-20")
         )
         val data3: CalendarTimeData = CalendarTimeData(
-            name = "摸鱼", type = CalendarTimeType.SINGLE_COURSE
-            , timeInCourseSchedule = time3, item_id = 2, comment = "不能再摸鱼了qwqquq"
+            name = "数据库原理", type = CalendarTimeType.POINT
+            , timeInHour = time3, item_id = 303, comment = "已提交"
         )
 
-        val time4: TimeInCourseSchedule = TimeInCourseSchedule(
-            dayOfWeek = DayOfWeek.WEDNESDAY, startBig = 2, startOffsetSmall = 0.0f,
-            lengthSmall = 2.0f
+        val time4: TimeInHour = TimeInHour(
+            startTime = LocalTime.parse("23:59"),
+            endTime = LocalTime.parse("23:59"),
+            dayOfWeek = DayOfWeek.SATURDAY,
+            date = LocalDate.parse("2020-06-20")
         )
         val data4: CalendarTimeData = CalendarTimeData(
-            name = "上课", type = CalendarTimeType.REPEAT_COURSE
-            , timeInCourseSchedule = time4, repeatWeeks = mutableListOf(14, 15, 16), item_id = 2
+            name = "人工智能导论", type = CalendarTimeType.POINT
+            , timeInHour = time4, item_id = 304, comment = "已提交"
         )
 
-        val list2 = listOf<CalendarTimeData>(data3, data4)
-
-
-        val time5: TimeInCourseSchedule = TimeInCourseSchedule(
-            startBig = 6,
-            startOffsetSmall = 0.0f,
-            lengthSmall = 3.0f,
-            date = LocalDate.parse("2020-05-21"),
-            dayOfWeek = LocalDate.parse("2020-05-21").dayOfWeek
-        )
-        val data5: CalendarTimeData = CalendarTimeData(
-            name = "摸鱼", type = CalendarTimeType.SINGLE_COURSE
-            , timeInCourseSchedule = time5, item_id = 3
-        )
-
-        val time6: TimeInCourseSchedule = TimeInCourseSchedule(
-            dayOfWeek = DayOfWeek.THURSDAY, startBig = 3, startOffsetSmall = 0.0f,
-            lengthSmall = 3.0f
-        )
-        val data6: CalendarTimeData = CalendarTimeData(
-            name = "开会", type = CalendarTimeType.REPEAT_COURSE
-            , timeInCourseSchedule = time6, repeatWeeks = mutableListOf(12, 14, 16), item_id = 3
-        )
-
-        val time7: TimeInHour = TimeInHour(
-            startTime = LocalTime.parse("08:00"), endTime = LocalTime.parse("09:30"),
-            dayOfWeek = LocalDate.parse("2020-05-24").dayOfWeek
-        )
-        val data7: CalendarTimeData = CalendarTimeData(
-            name = "吃kebab", type = CalendarTimeType.REPEAT_HOUR
-            , timeInHour = time7, item_id = 3, repeatWeeks = mutableListOf(12, 14, 15, 16)
-        )
-        val list3 = listOf<CalendarTimeData>(data5, data6, data7)
+        val list1 = listOf<CalendarTimeData>(data1)
+        var list2 = listOf<CalendarTimeData>(data2)
+        var list3 = listOf<CalendarTimeData>(data3)
+        var list4 = listOf<CalendarTimeData>(data4)
 
 
         CREP.updateItemAndTimes(item1, list1)
         CREP.updateItemAndTimes(item2, list2)
         CREP.updateItemAndTimes(item3, list3)
+        CREP.updateItemAndTimes(item4, list4)
 
 
     }

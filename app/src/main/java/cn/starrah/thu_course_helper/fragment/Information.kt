@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.TableFragment
 import cn.starrah.thu_course_helper.activity.ItemEditActivity
+import cn.starrah.thu_course_helper.information.ExamShowActivity
+import cn.starrah.thu_course_helper.information.HomeworkShowActivity
 import kotlinx.coroutines.launch
 
 
@@ -65,17 +67,15 @@ class Information : Fragment() {
         //显示作业
         var button_homework: Button = requireActivity().findViewById(R.id.show_homework)
         button_homework.setOnClickListener(View.OnClickListener {
-            //var intent = Intent(requireActivity(), ItemEditActivity::class.java)
-            //intent.putExtra(TableFragment.EXTRA_MESSAGE, -1)
-            //requireActivity().startActivity(intent)
+            var intent = Intent(requireActivity(), HomeworkShowActivity::class.java)
+            requireActivity().startActivity(intent)
         })
 
-        //显示校历
+        //显示考试
         var button_exam: Button = requireActivity().findViewById(R.id.show_exam)
         button_exam.setOnClickListener(View.OnClickListener {
-            //var intent = Intent(requireActivity(), ItemEditActivity::class.java)
-            //intent.putExtra(TableFragment.EXTRA_MESSAGE, -1)
-            //requireActivity().startActivity(intent)
+            var intent = Intent(requireActivity(), ExamShowActivity::class.java)
+            requireActivity().startActivity(intent)
         })
     }
 }
