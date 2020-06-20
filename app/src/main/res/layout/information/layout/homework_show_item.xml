@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<!--编辑/添加一个时间段-->
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/colorGreyBG"
+    android:layout_marginVertical="20dp">
+
+
+    <!--名称-->
+    <LinearLayout style="@style/layout_title_time_show">
+        <TextView style="@style/title_time_show"
+            android:id="@+id/time_show_name"/>
+    </LinearLayout>
+
+    <!--课程名-->
+    <LinearLayout style="@style/layout_time_show">
+        <TextView style="@style/icon_time_show"
+            android:drawableLeft="@drawable/icon_item"
+            android:text =""/>
+        <TextView style="@style/input_time_show"
+            android:id="@+id/time_show_course_name"/>
+    </LinearLayout>
+
+    <!--日期，类似第14周周五（5月22日）或者前八周 周五这种-->
+    <LinearLayout style="@style/layout_time_show">
+        <TextView style="@style/icon_time_show"
+            android:drawableLeft="@drawable/icon_date"
+            android:text =""/>
+        <TextView style="@style/input_time_show"
+            android:id="@+id/time_show_date"/>
+    </LinearLayout>
+
+    <!--时间，类似8:00-9:30-->
+    <LinearLayout style="@style/layout_time_show">
+        <TextView style="@style/icon_time_show"
+            android:drawableLeft="@drawable/icon_item"
+            android:text =""/>
+        <TextView style="@style/input_time_show"
+            android:id="@+id/time_show_time"/>
+    </LinearLayout>
+
+
+
+</LinearLayout>
