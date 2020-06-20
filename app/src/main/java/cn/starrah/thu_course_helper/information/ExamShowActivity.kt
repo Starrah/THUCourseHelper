@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.TableFragment
@@ -28,6 +29,7 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -44,7 +46,13 @@ class ExamShowActivity : AppCompatActivity(){
         setContentView(R.layout.exam_show)
 
         lifecycleScope.launch {
-            getData()
+            try {
+                getData()
+            }
+            catch (e:Exception) {
+                Toast.makeText(this@ExamShowActivity, e.message, Toast.LENGTH_LONG)
+                    .show()
+            }
             sortData()
             showData()
         }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.R
@@ -18,6 +19,7 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import kotlinx.android.synthetic.main.calendar_time_edit.*
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -34,7 +36,13 @@ class HomeworkShowActivity: AppCompatActivity() {
         setContentView(R.layout.homework_show)
 
         lifecycleScope.launch {
-            getData()
+            try {
+                getData()
+            }
+            catch (e: Exception) {
+                Toast.makeText(this@HomeworkShowActivity, e.message, Toast.LENGTH_LONG)
+                    .show()
+            }
             sortData()
             showData()
         }
