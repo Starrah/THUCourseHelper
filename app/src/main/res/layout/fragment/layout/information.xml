@@ -1,44 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
 
     <LinearLayout
+        android:id="@+id/information_place"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Information"
-        android:gravity="center"
-        android:orientation="vertical">
-        <Button
-            style="@style/information_button"
-            android:layout_height="wrap_content"
-            android:id="@+id/show_calendar"
-            android:text="@string/show_calendar" />
-        <Button
-            style="@style/information_button"
-            android:layout_height="wrap_content"
-            android:id="@+id/show_time_point"
-            android:text="@string/show_time_point" />
-        <Button
-            style="@style/information_button"
-            android:layout_height="wrap_content"
-            android:id="@+id/show_classroom"
-            android:text="@string/show_classroom" />
-        <Button
-            style="@style/information_button"
-            android:layout_height="wrap_content"
-            android:id="@+id/show_self_study"
-            android:text="@string/show_self_study" />
-        <Button
-            style="@style/information_button"
-            android:layout_height="wrap_content"
-            android:id="@+id/show_homework"
-            android:text="@string/show_homework" />
-        <Button
-            style="@style/information_button"
-            android:layout_height="wrap_content"
-            android:id="@+id/show_exam"
-            android:text="@string/show_exam" />
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="80dp"
+        android:orientation="vertical"
+        android:divider="@drawable/divider_button"
+        android:showDividers="middle">
+
     </LinearLayout>
-</RelativeLayout>
+</LinearLayout>

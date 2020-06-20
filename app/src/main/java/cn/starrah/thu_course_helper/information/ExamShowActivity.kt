@@ -35,9 +35,6 @@ class ExamShowActivity : AppCompatActivity(){
 
     private var showItem: ArrayList<CalendarTimeDataWithItem> = arrayListOf()
 
-
-
-
     /**
      * 描述：初始化
      * @param savedInstanceState 存储的data
@@ -45,9 +42,6 @@ class ExamShowActivity : AppCompatActivity(){
     protected override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.exam_show)
-
-
-        val intent = intent
 
         lifecycleScope.launch {
             getData()
@@ -63,7 +57,7 @@ class ExamShowActivity : AppCompatActivity(){
      */
     suspend fun getData() {
         //数据获取
-        var the_item = CREP.helper_findFinalExamTimes()
+        var the_item = CREP.helper_findFinalExamTimes(this)
         showItem.addAll(the_item)
     }
 

@@ -49,7 +49,7 @@
     <!--信息显示-->
     <string name="show_calendar">查看校历</string>
     <string name="show_time_point">查看选退课时间安排</string>
-    <string name="show_classroom">查看空教室</string>
+    <string name="show_classroom">教室情况</string>
     <string name="show_self_study">查看研讨间信息</string>
     <string name="show_homework">查看作业</string>
     <string name="show_exam">查看考试</string>

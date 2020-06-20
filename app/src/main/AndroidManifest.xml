@@ -60,6 +60,14 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <activity android:name=".information.ClassroomShowActivity"
+            android:label = "Classroom Show Activity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
         <receiver android:name=".widget.AppWidgetTime"
             android:label="日程小部件">
         <intent-filter>
