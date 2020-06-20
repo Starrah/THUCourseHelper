@@ -64,7 +64,7 @@ class LoadingActivity : AppCompatActivity() {
                 delay(3000)
                 exitProcess(0)
             }
-            loadTestData()
+            //loadTestData()
 
             initializeAllTimelyIntents(this@LoadingActivity, false)
 
@@ -126,7 +126,7 @@ class LoadingActivity : AppCompatActivity() {
         val time2: TimeInHour = TimeInHour(
             startTime = LocalTime.parse("23:59"),
             endTime = LocalTime.parse("23:59"),
-            dayOfWeek = DayOfWeek.SUNDAY,
+            dayOfWeek = DayOfWeek.SATURDAY,
             date = LocalDate.parse("2020-06-21")
         )
         val data2: CalendarTimeData = CalendarTimeData(

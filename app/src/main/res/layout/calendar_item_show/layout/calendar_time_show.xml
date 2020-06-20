@@ -28,7 +28,7 @@
     <!--时间，类似8:00-9:30-->
     <LinearLayout style="@style/layout_time_show">
         <TextView style="@style/icon_time_show"
-            android:drawableLeft="@drawable/icon_item"
+            android:drawableLeft="@drawable/icon_time"
             android:text =""/>
         <TextView style="@style/input_time_show"
             android:id="@+id/time_show_time"/>

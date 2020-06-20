@@ -28,7 +28,7 @@ class HomeworkShowActivity: AppCompatActivity() {
 
     /**
      * 描述：初始化
-     * @param savedInstanceState 存储的data，其实只有待显示活动的ID
+     * @param savedInstanceState 存储的data
      */
     protected override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +43,7 @@ class HomeworkShowActivity: AppCompatActivity() {
 
 
     /**
-     * 描述：根据id从数据库获取数据，id是类变量showID，读取的数据存在showItem里
+     * 描述：从数据库获取数据，读取的数据存在showItem里
      * 参数：无
      * 返回：无
      */
@@ -69,8 +69,8 @@ class HomeworkShowActivity: AppCompatActivity() {
                 item_finished.add(item)
             }
         }
-        item_unfinished.sortBy { it.times.get(0).timeInHour!!.startTime }
-        item_finished.sortBy { it.times.get(0).timeInHour!!.startTime }
+        item_unfinished.sortBy { LocalDateTime.of(it.times.get(0).timeInHour!!.date, it.times.get(0).timeInHour!!.startTime) }
+        item_finished.sortBy { LocalDateTime.of(it.times.get(0).timeInHour!!.date, it.times.get(0).timeInHour!!.startTime) }
         showItem.clear()
         showItem.addAll(item_unfinished)
         showItem.addAll(item_finished)
