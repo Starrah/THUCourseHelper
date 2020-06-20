@@ -136,4 +136,6 @@
     <string name="notification_channel_remind_name">日程定时提醒</string>
 
     <string name="notification_remind_prefix">提醒-</string>
+
+    <string name="error_alarm_not_supported">对不起，您的手机当前暂不支持设置闹钟形式的提醒。您可以改为设置通知形式的提醒，或通过提交反馈、提供您的设备型号等信息来建议我们做出改进。</string>
 </resources>
