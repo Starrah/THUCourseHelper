@@ -848,6 +848,12 @@ abstract class TableFragment : Fragment(){
         var current_time = Duration.between(LocalTime.parse("00:00"), LocalTime.now())
         var current_place = GetPlaceByDuration(current_time).toInt()
         var layout: ScrollView = requireActivity().findViewById(R.id.main_scroll)
+        if(current_place >= 200) {
+            current_place -= 200
+        }
+        else {
+            current_place = 0
+        }
         layout.post(Runnable { layout.scrollTo(0, current_place) })
     }
 
@@ -858,10 +864,22 @@ abstract class TableFragment : Fragment(){
         var current_time = LocalTime.now()
         var time_in_hour = TimeInHour(startTime = current_time, endTime = current_time, dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now())
         var time_in_course = time_in_hour.toTimeInCourseSchedule()
+        if(time_in_course.startBig <= 0) {
+            time_in_course.startBig = 1
+        }
+        else if(time_in_course.startBig > 6) {
+            time_in_course.startBig = 6
+        }
         var start_small: Float =
             CREP.timeRule.getStartSmallIndex(time_in_course.startBig) + time_in_course.startOffsetSmall
         var current_place = (LayoutConstants.HeightPerSmall * start_small).toInt()
         var layout: ScrollView = requireActivity().findViewById(R.id.main_scroll)
+        if(current_place >= 200) {
+            current_place -= 200
+        }
+        else {
+            current_place = 0
+        }
         layout.post(Runnable { layout.scrollTo(0, current_place) })
     }
 
