@@ -11,17 +11,22 @@ import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.information.ClassroomShowActivity
 import cn.starrah.thu_course_helper.information.ExamShowActivity
 import cn.starrah.thu_course_helper.information.HomeworkShowActivity
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPIInfo
+import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
 import kotlinx.coroutines.launch
 
 class Information : Fragment() {
 
     private lateinit var buttonPlace: LinearLayout
-    private lateinit var classroomJSONItem:List<JSONObject>
+    private var classroomJSONItem: JSONArray = JSONArray()
 
+    companion object {
+        public final var INTENT_JSON = "intent_json"
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,8 +44,6 @@ class Information : Fragment() {
             loadOriginalButtons()
         }
 
-
-
     }
 
     /**
@@ -52,8 +55,8 @@ class Information : Fragment() {
         var all_data = BackendAPIInfo()
 
         for(item in all_data) {
-            if((string_classroom.equals(item["name"] as? String)) && (item["children"] as? List<JSONObject> != null)) {
-                classroomJSONItem = item["children"] as List<JSONObject>
+            if((string_classroom.equals(item["name"] as? String)) && (item["children"] as? JSONArray != null)) {
+                classroomJSONItem = item["children"] as JSONArray
             }
             else {
                 var name:String? = item["name"] as? String
@@ -76,7 +79,8 @@ class Information : Fragment() {
         var button:Button = button_place.findViewById(R.id.button_this)
         button.setText("查看" + name)
         button.setOnClickListener(View.OnClickListener {
-            val intent = Intent()
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.addCategory(Intent.CATEGORY_DEFAULT)
             intent.data = Uri.parse(url)
             startActivity(intent)
         })
@@ -96,7 +100,10 @@ class Information : Fragment() {
         var string_classroom = requireActivity().getString(R.string.show_classroom)
         button_classroom.setText("查看" + string_classroom)
         button_classroom.setOnClickListener(View.OnClickListener {
-
+            var json_string:String = classroomJSONItem.toString()
+            var intent = Intent(requireActivity(), ClassroomShowActivity::class.java)
+            intent.putExtra(INTENT_JSON, json_string)
+            requireActivity().startActivity(intent)
         })
         buttonPlace.addView(button_classroom_place)
 

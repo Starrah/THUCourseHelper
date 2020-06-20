@@ -33,27 +33,39 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:textSize="20dp"
-            android:text="@string/show_exam_title"/>
+            android:text="@string/show_classroom"/>
     </LinearLayout>
 
-
-
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1">
-        <!--放新时间的位置-->
-        <LinearLayout
+        android:layout_marginVertical="20dp"
+        android:layout_marginHorizontal="80dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:background="@color/colorGreyBG">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="10dp"
+            android:gravity="center"
+            android:text="搜索"/>
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:id="@+id/new_exam_place_show"
-            android:layout_marginHorizontal="30dp"
-            android:divider="@drawable/divider"
-            android:showDividers="middle">
+            android:gravity="center"
+            android:id="@+id/search_place"
+            android:text=""/>
+    </LinearLayout>
 
-        </LinearLayout>
-    </ScrollView>
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:columnCount="5"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:id="@+id/button_place">
+    </GridLayout>
 
 
 </LinearLayout>

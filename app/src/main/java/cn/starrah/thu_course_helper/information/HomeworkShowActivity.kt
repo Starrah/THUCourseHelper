@@ -25,7 +25,6 @@ import java.time.format.DateTimeFormatter
 class HomeworkShowActivity: AppCompatActivity() {
     private var showItem: ArrayList<CalendarItemDataWithTimes> = arrayListOf()
 
-
     /**
      * 描述：初始化
      * @param savedInstanceState 存储的data
