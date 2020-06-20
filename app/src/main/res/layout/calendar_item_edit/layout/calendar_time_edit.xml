@@ -192,15 +192,6 @@
             android:id="@+id/time_edit_remind_repeat"/>
     </LinearLayout>
 
-    <!--提醒提前时间-->
-    <LinearLayout style="@style/layout"
-        android:id="@+id/time_edit_remind_time_place">
-        <TextView style="@style/define"
-            android:drawableLeft="@drawable/icon_day"
-            android:text ="@string/time_remind_time"/>
-        <TextView style="@style/input"
-            android:id="@+id/time_edit_remind_time"/>
-    </LinearLayout>
 
     <!--提醒方式-->
     <LinearLayout style="@style/layout"

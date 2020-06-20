@@ -311,13 +311,13 @@ class ItemShowActivity : AppCompatActivity(){
         //提醒
         var time_remind:String = ""
         var time_remind_type_string:String = "" + time.remindData.method.chineseName
-        var time_remind_time_string:String = "提前" + time.remindData.aheadTime.toMinutes() + "分钟"
+        var time_remind_time_string:String = ItemEditActivity.getAheadTimeString(time.remindData.aheadTime)
         if(time.remindData.type == CalendarRemindType.NONE) {
             time_remind = "未设置提醒"
         }
         else{
             var time_remind_repeat_string:String = time.remindData.type.chineseName
-            time_remind = time_remind_time_string + "， "+ time_remind_type_string + "， " +  time_remind_repeat_string
+            time_remind = "提前" + time_remind_time_string + "，"+ time_remind_type_string + "，" +  time_remind_repeat_string
         }
         var show_remind:TextView = layout.findViewById(R.id.time_show_remind)
         show_remind.setText(time_remind)

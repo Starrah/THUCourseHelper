@@ -451,6 +451,12 @@ abstract class TableFragment : Fragment(){
                 pvWeekOptions.show(term_item);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
             }
         })
+        var change_week: TextView = theActivity!!.findViewById<TextView>(R.id.change_week)
+        change_week.setOnClickListener(View.OnClickListener() {
+            if (pvWeekOptions != null) {
+                pvWeekOptions.show(term_item);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+            }
+        })
 
         //年月期显示位置
         var date_item: TextView = theActivity!!.findViewById<TextView>(dateInfoShowPlace!!)
@@ -794,7 +800,7 @@ abstract class TableFragment : Fragment(){
             .setTitleText("周选择")
             .setContentTextSize(20) //设置滚轮文字大小
             .setDividerColor(Color.DKGRAY) //设置分割线的颜色
-            .setSelectOptions(0, 1) //默认选中项
+            .setSelectOptions(currentWeek, 1) //默认选中项
             .setBgColor(Color.WHITE)
             .setTitleBgColor(colorGrey)
             .setTitleColor(Color.BLACK)
