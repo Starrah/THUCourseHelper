@@ -11,6 +11,7 @@ import cn.starrah.thu_course_helper.data.utils.CookiedFuel
 import cn.starrah.thu_course_helper.data.utils.DataInvalidException
 import cn.starrah.thu_course_helper.remind.setRemindTimerService
 import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson.JSONObject
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.coroutines.awaitString
@@ -137,3 +138,38 @@ suspend fun BackendAPISubmitLog(message: String) {
 
 suspend fun BackendAPISubmitLog(e: Throwable) =
     BackendAPISubmitLog(StringWriter().also { e.printStackTrace(PrintWriter(it)) }.toString())
+
+/**
+ * 获取信息页面的资源列表。
+ *
+ * 返回的是[List]<[JSONObject]>，其中每个[JSONObject]，要么形如：
+ * {
+"name": "选课时间安排",
+"url": "https://xxxxx"
+}
+ *
+ * 要么形如：
+ * {
+"name": "教室情况",
+"children": \[
+{
+"name": "六教",
+"url": "https://xxxxx"
+},
+{
+"name": "五教",
+"url": "https://xxxxx"
+},
+{
+"name": "四教",
+"url": "https://xxxxx"
+}
+]
+}
+ *
+ * 分别表示有二级选项和无二级选项的情况。
+ */
+suspend fun BackendAPIInfo(): List<JSONObject> {
+    val s = CookiedFuel.get("$BACKEND_SITE/infoList").awaitString()
+    return JSON.parseArray(s).map { it as JSONObject }
+}
