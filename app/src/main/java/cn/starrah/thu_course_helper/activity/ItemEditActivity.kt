@@ -113,6 +113,18 @@ class ItemEditActivity : AppCompatActivity(){
                 if(result == true) {
                     if(i <= normal_weeks) {
                         whether_exam = false
+                        if(i <= normal_weeks / 2) {
+                            whether_last_eight = false
+                        }
+                        else {
+                            whether_first_eight = false
+                        }
+                        if(i % 2 == 1) {
+                            whether_double = false
+                        }
+                        else {
+                            whether_single = false
+                        }
                     }
                     else {
                         whether_full = false

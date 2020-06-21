@@ -44,7 +44,7 @@ class ExamShowActivity : AppCompatActivity(){
     protected override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.exam_show)
-
+        var loading_bar = findViewById<LinearLayout>(R.id.login_bar_place)
         lifecycleScope.launch {
             try {
                 getData()
@@ -52,6 +52,9 @@ class ExamShowActivity : AppCompatActivity(){
             catch (e:Exception) {
                 Toast.makeText(this@ExamShowActivity, e.message, Toast.LENGTH_LONG)
                     .show()
+            }
+            finally {
+                ItemEditActivity.HideItem(loading_bar)
             }
             sortData()
             showData()

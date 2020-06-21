@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.activity.ItemEditActivity
 import cn.starrah.thu_course_helper.information.ClassroomShowActivity
 import cn.starrah.thu_course_helper.information.ExamShowActivity
 import cn.starrah.thu_course_helper.information.HomeworkShowActivity
@@ -41,15 +42,31 @@ class Information : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        buttonPlace = requireActivity().findViewById(R.id.information_place)
-        buttonPlace.removeAllViews()
+        var loading_bar:LinearLayout? = null
         lifecycleScope.launch {
             try {
+                buttonPlace = requireActivity().findViewById(R.id.information_place)
+                buttonPlace.removeAllViews()
+                loading_bar = requireActivity().findViewById<LinearLayout>(R.id.login_bar_place)
                 loadFromBackend()
             }
             catch(e:Exception) {
-                Toast.makeText(requireActivity() as FragmentActivity, e.message, Toast.LENGTH_LONG)
-                    .show()
+                try {
+                    Toast.makeText(
+                        requireActivity() as FragmentActivity,
+                        e.message,
+                        Toast.LENGTH_LONG
+                    )
+                        .show()
+                }
+                catch(e:Exception) {
+
+                }
+            }
+            finally {
+                if(loading_bar != null) {
+                    ItemEditActivity.HideItem(loading_bar!!)
+                }
             }
             loadOriginalButtons()
         }
