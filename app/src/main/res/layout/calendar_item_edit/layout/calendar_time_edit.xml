@@ -20,7 +20,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"/>
         <ImageButton
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_gravity="right"
             android:background="@drawable/icon_delete"
