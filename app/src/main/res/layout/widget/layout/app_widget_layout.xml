@@ -32,6 +32,7 @@
 
         <!--地点-->
         <LinearLayout style="@style/layout_time_show"
+            android:layout_height="wrap_content"
             android:id="@+id/time_show_place_place">
             <TextView style="@style/icon_time_show"
                 android:drawableLeft="@drawable/icon_place"

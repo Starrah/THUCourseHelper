@@ -8,7 +8,7 @@
                 android:dashGap="5dp"
                 android:dashWidth="5dp"
                 android:width="0.5dp"
-                android:color="@color/colorBlack" />
+                android:color="@color/colorWhite" />
 
         </shape>
     </item>

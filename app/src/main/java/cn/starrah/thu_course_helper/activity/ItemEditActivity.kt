@@ -207,6 +207,18 @@ class ItemEditActivity : AppCompatActivity(){
             item.layoutParams = params
         }
 
+
+        /**
+         *描述：显示控件(edittext)
+         *参数：自己
+         *返回：无
+         */
+        fun ShowEdit(item:LinearLayout) {
+            //和style一致
+            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT);
+            item.layoutParams = params
+        }
+
         /**
          * 描述：将一个5min-1天的duration转换成中文字符串
          * 参数：时间
