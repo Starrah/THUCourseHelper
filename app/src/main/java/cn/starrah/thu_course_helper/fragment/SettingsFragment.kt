@@ -344,7 +344,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 //setBackground()
                 Toast.makeText(
                     activity,
-                    "请重启小程序，使得背景生效！",
+                    "背景设置完毕，如果没有立即生效，请重启小程序！",
                     Toast.LENGTH_SHORT
                 ).show()
                 true

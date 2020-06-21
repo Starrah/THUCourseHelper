@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+
+    <item
+        android:bottom="-2dp"
+        android:left="-2dp"
+        android:top="-2dp">
+        <shape>
+            <stroke
+                android:dashGap="5dp"
+                android:dashWidth="5dp"
+                android:width="0.5dp"
+                android:color="@color/colorBlack" />
+
+
+            <corners android:radius="5dp" />
+        </shape>
+    </item>
+
+</layer-list>
