@@ -54,11 +54,8 @@
 
     <string-array name="background_choices">
         <item>@string/bg_blank</item>
-        <item>@string/bg_autumn</item>
         <item>@string/bg_desert</item>
-        <item>@string/bg_forest</item>
         <item>@string/bg_grass</item>
-        <item>@string/bg_river</item>
         <item>@string/bg_sea</item>
         <item>@string/bg_winter</item>
         <item>@string/bg_109_1</item>

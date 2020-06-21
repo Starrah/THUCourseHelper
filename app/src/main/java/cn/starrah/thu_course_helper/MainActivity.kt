@@ -59,11 +59,6 @@ class MainActivity : FragmentActivity() {
         var line1 = resources.getString(R.string.bg_stroke_black)
         mapBackgroundLine.put(string1, line1)
 
-        var string2 = resources.getString(R.string.bg_autumn)
-        var bg2 = resources.getDrawable(R.drawable.bg_autumn)
-        mapBackground.put(string2, bg2)
-        var line2 = resources.getString(R.string.bg_stroke_white)
-        mapBackgroundLine.put(string2, line2)
 
         var string3 = resources.getString(R.string.bg_desert)
         var bg3 = resources.getDrawable(R.drawable.bg_desert)
@@ -71,11 +66,6 @@ class MainActivity : FragmentActivity() {
         var line3 = resources.getString(R.string.bg_stroke_white)
         mapBackgroundLine.put(string3, line3)
 
-        var string4 = resources.getString(R.string.bg_forest)
-        var bg4 = resources.getDrawable(R.drawable.bg_forest)
-        mapBackground.put(string4, bg4)
-        var line4 = resources.getString(R.string.bg_stroke_white)
-        mapBackgroundLine.put(string4, line4)
 
         var string5 = resources.getString(R.string.bg_grass)
         var bg5 = resources.getDrawable(R.drawable.bg_grass)
@@ -83,11 +73,6 @@ class MainActivity : FragmentActivity() {
         var line5 = resources.getString(R.string.bg_stroke_white)
         mapBackgroundLine.put(string5, line5)
 
-        var string6 = resources.getString(R.string.bg_river)
-        var bg6 = resources.getDrawable(R.drawable.bg_river)
-        mapBackground.put(string6, bg6)
-        var line6 = resources.getString(R.string.bg_stroke_white)
-        mapBackgroundLine.put(string6, line6)
 
         var string7 = resources.getString(R.string.bg_sea)
         var bg7 = resources.getDrawable(R.drawable.bg_sea)
