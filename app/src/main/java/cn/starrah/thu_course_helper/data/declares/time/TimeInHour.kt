@@ -29,6 +29,8 @@ data class TimeInHour(
     var date: LocalDate? = null
 ): Verifiable {
     override fun assertValid() {
+        startTime = startTime.withSecond(0)
+        endTime = endTime.withSecond(0)
         assertData(endTime >= startTime, "结束时间不能早于开始时间！")
         date?.let { assertData(CREP.term.isDateInTerm(date!!), "设置的日期不在本学期内！") }
     }
