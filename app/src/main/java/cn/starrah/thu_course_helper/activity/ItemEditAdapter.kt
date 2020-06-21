@@ -16,6 +16,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.*
@@ -820,7 +821,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         private fun initWeekPickerDialog() {
             var selected:ArrayList<Int> = arrayListOf()
             pvWeekOptions = PickerDialog.Builder(mAdapter.theActivity)
-                .setWeeks(16, 2)
+                .setWeeks(CREP.term.normalWeekCount, CREP.term.examWeekCount)
                 .setInitialSelectedWeeks(selected)
                 .setOnWeeksSelectedListener(object : PickerDialog.OnWeeksSelectedListener {
                     override fun onWeeksSelected(
