@@ -10,8 +10,12 @@
     <color name="colorGreyText">#808A87</color>
     <color name="colorControlHighlight">?android:attr/colorControlHighlight</color>
 
-    <!--主色调清华紫-->
+    <!--主色调清华紫,ad1453,拜占庭紫-->
     <color name="colorTheme">#660874</color>
+    <color name="colorThemeDark">#ad1453</color>
+    <color name="colorThemeAccent">#bd33a4</color>
+
+
 
     <!--课程可选颜色-->
     <color name="colorBlue">#4169E1</color>

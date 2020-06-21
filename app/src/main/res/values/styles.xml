@@ -11,14 +11,14 @@
         <item name="android:windowNoTitle">true</item>
         <!-- Customize your theme here. -->
 
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/colorTheme</item>
+        <item name="colorPrimaryDark">@color/colorThemeDark</item>
+        <item name="colorAccent">@color/colorThemeAccent</item>
     </style>
 
     <!-- 主界面 -->
     <style name="table_title_text">
-        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:textColor">@color/colorWhite</item>
         <item name="android:background">@drawable/border_title</item>
     </style>
 
