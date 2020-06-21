@@ -30,13 +30,9 @@ suspend fun allAppTask(context: Context) {
 }
 
 fun configNotificationChannel(context: Context) {
-    // Create the NotificationChannel
     val name = context.resources.getString(R.string.notification_channel_remind_name)
-
     val importance = NotificationManager.IMPORTANCE_HIGH
     val mChannel = NotificationChannel("remind", name, importance)
-    // Register the channel with the system; you can't change the importance
-    // or other notification behaviors after this
     val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     notificationManager.createNotificationChannel(mChannel)
 }

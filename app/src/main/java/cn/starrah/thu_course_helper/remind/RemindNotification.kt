@@ -11,7 +11,7 @@ fun showRemindNotification(context: Context, time: CalendarTimeDataWithItem) {
     val item = time.calendarItem
     val line1 = "${time.place.run { if (isNotEmpty()) plus("/") else "" }}${time.timeStr}"
     // TODO 跳转到对应日程的详情界面和管理导航顺序（看文档）
-    var builder = NotificationCompat.Builder(context, "remind")
+    val builder = NotificationCompat.Builder(context, "remind")
         .setWhen(System.currentTimeMillis())
         .setSmallIcon(R.mipmap.ic_launcher)
         .setContentTitle("${context.getString(R.string.notification_remind_prefix)}${item.name}${time.name}")
