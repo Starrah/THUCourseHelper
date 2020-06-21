@@ -34,7 +34,7 @@ class HomeworkShowActivity: AppCompatActivity() {
     protected override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.homework_show)
-
+        var loading_bar = findViewById<LinearLayout>(R.id.login_bar_place)
         lifecycleScope.launch {
             try {
                 getData()
@@ -42,6 +42,9 @@ class HomeworkShowActivity: AppCompatActivity() {
             catch (e: Exception) {
                 Toast.makeText(this@HomeworkShowActivity, e.message, Toast.LENGTH_LONG)
                     .show()
+            }
+            finally {
+                ItemEditActivity.HideItem(loading_bar)
             }
             sortData()
             showData()

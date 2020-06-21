@@ -2,13 +2,38 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     >
+
+    <!--进度条-->
+    <LinearLayout
+        android:id="@+id/login_bar_place"
+        android:layout_gravity="center"
+        android:layout_margin="40dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:background="@color/colorGreyBG">
+        <ProgressBar
+            android:id="@+id/login_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="加载中，请稍后"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="20dp"/>
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/information_place"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginVertical="80dp"
         android:layout_marginHorizontal="80dp"
         android:orientation="vertical"
         android:divider="@drawable/divider_button"

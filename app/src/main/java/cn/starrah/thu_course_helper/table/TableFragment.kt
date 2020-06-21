@@ -292,8 +292,18 @@ abstract class TableFragment : Fragment(){
      */
     fun setWeekToday() {
         var today:LocalDate = LocalDate.now()
-        var current_week:Int = CREP.term.dateToWeekNumber(today)
-        currentWeek = current_week
+        try {
+            var current_week: Int = CREP.term.dateToWeekNumber(today)
+            currentWeek = current_week
+        }
+        catch(e:Exception) {
+            if(today.isAfter(CREP.term.endInclusiveDate)) {
+                currentWeek = CREP.term.normalWeekCount + CREP.term.examWeekCount
+            }
+            else {
+                currentWeek = 1
+            }
+        }
     }
 
     /**
