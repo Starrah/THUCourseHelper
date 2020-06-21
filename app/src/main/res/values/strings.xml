@@ -160,5 +160,12 @@
     <string name="bg_winter">冬雪</string>
     <string name="bg_stroke_black">黑色</string>
     <string name="bg_stroke_white">白色</string>
+    <string name="bg_109_1">109周年绿</string>
+    <string name="bg_109_2">109周年紫</string>
+    <string name="bg_109_3">109周年橙</string>
+    <string name="bg_blue">静谧蓝</string>
+    <string name="bg_pink">浪漫粉</string>
+    <string name="bg_orange">阳光橙</string>
+    <string name="bg_yellow_purple">黄紫渐变</string>
 
 </resources>
