@@ -1,6 +1,7 @@
 package cn.starrah.thu_course_helper.fragment
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
@@ -9,6 +10,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.content.edit
@@ -241,6 +243,35 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         pf_feedback = findPreference("dull_feedback")!!
         pf_feedback.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            val view = requireActivity().layoutInflater.inflate(R.layout.feedback, null)
+            AlertDialog.Builder(context).setView(view)
+                // Add action buttons
+                .setPositiveButton(R.string.submit
+                ) { dialog, id ->
+                    val mainView = view.findViewById<EditText>(R.id.main)
+                    val contactView = view.findViewById<EditText>(R.id.contact)
+                    val mainStr = mainView.text.toString().ifBlank { null }
+                    val contactStr = contactView.text.toString().ifBlank { null }
+                    if (mainStr == null) Toast.makeText(context, "反馈内容不能为空！", Toast.LENGTH_SHORT).show()
+                    else {
+                        lifecycleScope.launch {
+                            try {
+                                BackendAPIFeedback(mainStr, contactStr)
+                                Toast.makeText(context, "提交反馈成功", Toast.LENGTH_SHORT).show()
+                            }
+                            catch (e: Exception) {
+                                Toast.makeText(context, "提交反馈失败：${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                            dialog.dismiss()
+                        }
+                    }
+
+                }
+                .setNegativeButton(R.string.cancel,
+                    { dialog, id ->
+                        dialog.cancel()
+                    })
+                .create().show()
             true
         }
 
@@ -344,7 +375,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 //setBackground()
                 Toast.makeText(
                     activity,
-                    "请重启小程序，使得背景生效！",
+                    "请重启程序，使得背景生效！",
                     Toast.LENGTH_SHORT
                 ).show()
                 true

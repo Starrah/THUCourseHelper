@@ -13,7 +13,7 @@ fun showRemindNotification(context: Context, time: CalendarTimeDataWithItem) {
     // TODO 跳转到对应日程的详情界面和管理导航顺序（看文档）
     val builder = NotificationCompat.Builder(context, "remind")
         .setWhen(System.currentTimeMillis())
-        .setSmallIcon(R.mipmap.ic_launcher)
+        .setSmallIcon(R.drawable.logo)
         .setContentTitle("${context.getString(R.string.notification_remind_prefix)}${item.name}${time.name}")
         .setContentText(line1)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
