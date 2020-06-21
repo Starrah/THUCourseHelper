@@ -9,10 +9,8 @@ import cn.starrah.thu_course_helper.data.constants.THE_ZONE
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindMethodType
-import cn.starrah.thu_course_helper.data.utils.DataInvalidException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.Exception
 import java.time.Duration
 import java.time.LocalDateTime
 
