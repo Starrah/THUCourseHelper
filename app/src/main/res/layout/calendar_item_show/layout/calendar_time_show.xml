@@ -35,7 +35,8 @@
     </LinearLayout>
 
     <!--地点-->
-    <LinearLayout style="@style/layout_time_show">
+    <LinearLayout style="@style/layout_time_show"
+        android:layout_height="wrap_content">
         <TextView style="@style/icon_time_show"
             android:drawableLeft="@drawable/icon_place"
             android:text =""/>
@@ -45,7 +46,9 @@
 
 
     <!--提醒信息-->
-    <LinearLayout style="@style/layout_time_show">
+    <LinearLayout
+        android:layout_height="wrap_content"
+        style="@style/layout_time_show">
         <TextView
             style="@style/icon_time_show"
             android:drawableLeft="@drawable/icon_remind"

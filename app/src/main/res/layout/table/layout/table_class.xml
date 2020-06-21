@@ -339,7 +339,7 @@
                         android:id="@+id/monday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -354,7 +354,7 @@
                         android:id="@+id/tuesday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -370,7 +370,7 @@
                         android:id="@+id/wednesday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_margin="1dp"
                         android:layout_weight="1"
                         android:orientation="vertical" />
@@ -385,7 +385,7 @@
                         android:id="@+id/thursday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -400,7 +400,7 @@
                         android:id="@+id/friday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -414,7 +414,7 @@
                         android:id="@+id/saturday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -428,7 +428,7 @@
                         android:id="@+id/sunday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>

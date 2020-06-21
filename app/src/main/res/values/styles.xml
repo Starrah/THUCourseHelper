@@ -33,17 +33,18 @@
     </style>
 
     <style name="input">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginLeft">20dp</item>
-        <item name="android:layout_marginRight">20dp</item>
-        <item name="android:textSize">15dp</item>
-        <item name="android:textColor">@color/colorBlack</item>
-        <item name="android:gravity">center|left</item>
-    </style>
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_marginLeft">20dp</item>
+    <item name="android:layout_marginRight">20dp</item>
+    <item name="android:textSize">15dp</item>
+    <item name="android:textColor">@color/colorBlack</item>
+    <item name="android:gravity">top|left</item>
+    <item name="android:inputType">textMultiLine</item>
+</style>
 
     <style name="input_login">
-        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_width">220dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_marginLeft">20dp</item>
         <item name="android:layout_marginRight">0dp</item>

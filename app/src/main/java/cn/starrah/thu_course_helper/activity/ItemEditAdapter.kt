@@ -1129,12 +1129,12 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
      */
     fun showDataItem(holder: ItemEditHolder) {
         //显示全部上方item信息，隐藏下方time信息
-        ItemEditActivity.ShowItem(holder.itemNamePlace)
+        ItemEditActivity.ShowEdit(holder.itemNamePlace)
         ItemEditActivity.ShowItem(holder.itemTypePlace)
-        ItemEditActivity.ShowItem(holder.itemTeacherPlace)
-        ItemEditActivity.ShowItem(holder.itemCourseIDPlace)
-        ItemEditActivity.ShowItem(holder.itemAssociationPlace)
-        ItemEditActivity.ShowItem(holder.timeCommentPlace)
+        ItemEditActivity.ShowEdit(holder.itemTeacherPlace)
+        ItemEditActivity.ShowEdit(holder.itemCourseIDPlace)
+        ItemEditActivity.ShowEdit(holder.itemAssociationPlace)
+        ItemEditActivity.ShowEdit(holder.timeCommentPlace)
         ItemEditActivity.HideItem(holder.timeNamePlace)
         ItemEditActivity.HideItem(holder.timePlacePlace)
         ItemEditActivity.HideItem(holder.timeTypePlace)
@@ -1169,8 +1169,8 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         //教师，课程号，detail
         if(item_type == CalendarItemType.COURSE) {
             //教师，课程号显示，其余隐藏
-            ItemEditActivity.ShowItem(holder.itemTeacherPlace)
-            ItemEditActivity.ShowItem(holder.itemCourseIDPlace)
+            ItemEditActivity.ShowEdit(holder.itemTeacherPlace)
+            ItemEditActivity.ShowEdit(holder.itemCourseIDPlace)
             ItemEditActivity.HideItem(holder.itemAssociationPlace)
 
             //设置教师，课程号初值
@@ -1195,7 +1195,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             //组织显示，其余隐藏
             ItemEditActivity.HideItem(holder.itemTeacherPlace)
             ItemEditActivity.HideItem(holder.itemCourseIDPlace)
-            ItemEditActivity.ShowItem(holder.itemAssociationPlace)
+            ItemEditActivity.ShowEdit(holder.itemAssociationPlace)
 
 
             //设置组织初值
@@ -1234,8 +1234,8 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         ItemEditActivity.HideItem(holder.itemTeacherPlace)
         ItemEditActivity.HideItem(holder.itemCourseIDPlace)
         ItemEditActivity.HideItem(holder.itemAssociationPlace)
-        ItemEditActivity.ShowItem(holder.timeNamePlace)
-        ItemEditActivity.ShowItem(holder.timePlacePlace)
+        ItemEditActivity.ShowEdit(holder.timeNamePlace)
+        ItemEditActivity.ShowEdit(holder.timePlacePlace)
         ItemEditActivity.ShowItem(holder.timeTypePlace)
         ItemEditActivity.ShowItem(holder.timeWeekPlace)
         ItemEditActivity.ShowItem(holder.timeDayWeekPlace)
@@ -1246,8 +1246,8 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         ItemEditActivity.ShowItem(holder.timePointPlace)
         ItemEditActivity.ShowItem(holder.timeDeleteButtonPlace)
         ItemEditActivity.ShowItem(holder.timeRemindRepeatPlace)
-        ItemEditActivity.ShowItem(holder.timeRemindTypePlace)
-        ItemEditActivity.ShowItem(holder.timeCommentPlace)
+        ItemEditActivity.ShowEdit(holder.timeRemindTypePlace)
+        ItemEditActivity.ShowEdit(holder.timeCommentPlace)
         holder.theView.setBackgroundColor(colorGrey)
 
 
@@ -1432,7 +1432,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
 
         //显示提前时间和提醒类型
         if(time.remindData.type != CalendarRemindType.NONE) {
-            ItemEditActivity.ShowItem(holder.timeRemindTypePlace)
+            ItemEditActivity.ShowEdit(holder.timeRemindTypePlace)
             
             var remind_method:String = time.remindData.method.chineseName
             var remind_time:String = ItemEditActivity.getAheadTimeString(time.remindData.aheadTime)

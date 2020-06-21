@@ -100,7 +100,9 @@ class TimeTable : TableFragment() {
      * 返回：无
      */
     override fun drawStrokes() {
-        drawStrokesHour()
+        var color:String = setStrokesColor()
+        drawVerticalStrokes(color)
+        drawStrokesHour(color)
     }
 
 

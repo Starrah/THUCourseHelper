@@ -158,5 +158,7 @@
     <string name="bg_river">河流</string>
     <string name="bg_sea">峡湾</string>
     <string name="bg_winter">冬雪</string>
+    <string name="bg_stroke_black">黑色</string>
+    <string name="bg_stroke_white">白色</string>
 
 </resources>
