@@ -141,6 +141,7 @@
 
     <!--开始时间（大节）-->
     <LinearLayout style="@style/layout"
+        android:layout_height="wrap_content"
         android:id="@+id/time_edit_start_course_place">
         <TextView style="@style/define"
             android:drawableLeft="@drawable/icon_time"
