@@ -18,7 +18,8 @@
     </LinearLayout>
 
     <!--日期，类似第14周周五（5月22日）或者前八周 周五这种-->
-    <LinearLayout style="@style/layout_time_show">
+    <LinearLayout style="@style/layout_time_show"
+        android:layout_height="wrap_content">
         <TextView style="@style/icon_time_show"
             android:drawableLeft="@drawable/icon_date"
             android:text =""/>

@@ -111,6 +111,7 @@
 
     <!--周（定期）-->
     <LinearLayout style="@style/layout"
+        android:layout_height="wrap_content"
         android:id="@+id/time_edit_week_place">
         <TextView style="@style/define"
             android:drawableLeft="@drawable/icon_date"

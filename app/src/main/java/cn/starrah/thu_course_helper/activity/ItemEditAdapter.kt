@@ -1238,7 +1238,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         ItemEditActivity.ShowEdit(holder.timeNamePlace)
         ItemEditActivity.ShowEdit(holder.timePlacePlace)
         ItemEditActivity.ShowItem(holder.timeTypePlace)
-        ItemEditActivity.ShowItem(holder.timeWeekPlace)
+        ItemEditActivity.ShowEdit(holder.timeWeekPlace)
         ItemEditActivity.ShowItem(holder.timeDayWeekPlace)
         ItemEditActivity.ShowItem(holder.timeDatePlace)
         ItemEditActivity.ShowEdit(holder.timeStartCoursePlace)
@@ -1272,7 +1272,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         //日期等
         if(time.type == CalendarTimeType.REPEAT_COURSE || time.type == CalendarTimeType.REPEAT_HOUR) {
             //周，星期显示，日期隐藏
-            ItemEditActivity.ShowItem(holder.timeWeekPlace)
+            ItemEditActivity.ShowEdit(holder.timeWeekPlace)
             ItemEditActivity.ShowItem(holder.timeDayWeekPlace)
             ItemEditActivity.HideItem(holder.timeDatePlace)
 
