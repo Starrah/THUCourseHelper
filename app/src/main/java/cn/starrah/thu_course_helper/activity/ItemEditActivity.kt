@@ -32,6 +32,7 @@ import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener
 import com.bigkoo.pickerview.view.OptionsPickerView
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
@@ -204,6 +205,31 @@ class ItemEditActivity : AppCompatActivity(){
             //和style一致
             var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 120);
             item.layoutParams = params
+        }
+
+        /**
+         * 描述：将一个5min-1天的duration转换成中文字符串
+         * 参数：时间
+         * 返回：中文字符串
+         */
+        fun getAheadTimeString(time: Duration) :String {
+            var remind_minutes = time.toMinutes().toInt()
+            var remind_string:String = ""
+            if(remind_minutes >= 1440) {
+                remind_string = "一天"
+            }
+            else if(remind_minutes < 60) {
+                remind_string = "" + remind_minutes + "分钟"
+            }
+            else {
+                var remind_hour = remind_minutes / 60
+                var remind_minute:Int = remind_minutes % 60
+                remind_string = "" + remind_hour + "小时"
+                if(remind_minute != 0) {
+                    remind_string = remind_string + "" + remind_minute + "分钟"
+                }
+            }
+            return remind_string
         }
     }
 

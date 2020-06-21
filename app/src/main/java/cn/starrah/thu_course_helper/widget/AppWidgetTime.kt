@@ -63,6 +63,13 @@ class AppWidgetTime : AppWidgetProvider() {
     }
 
 
+    override fun onEnabled(context: Context?) {
+        super.onEnabled(context)
+        GlobalScope.launch {
+            updateData(context!!)
+            shiftShow(context!!)
+        }
+    }
 
 
     /**

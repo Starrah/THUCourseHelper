@@ -84,7 +84,7 @@ class NotificationTime : BroadcastReceiver() {
         val remoteViews = RemoteViews(context.packageName, R.layout.app_widget_layout)
         //没有日程
         if (timeList.isEmpty() || showItem < 0 || showItem >= timeList.size) {
-            var name: String = "今日无课程"
+            var name: String = "今日无日程"
             remoteViews.setTextViewText(R.id.time_show_name, name)
             remoteViews.setViewVisibility(R.id.time_show_time_place, View.INVISIBLE)
             remoteViews.setViewVisibility(R.id.time_show_place_place, View.INVISIBLE)

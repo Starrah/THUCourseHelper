@@ -52,6 +52,7 @@ android {
                             'src/main/res/layout/table',
                             'src/main/res/layout/picker',
                             'src/main/res/layout/widget',
+                            'src/main/res/layout/information',
                             'src/main/res/layout',
                             'src/main/res'
                     ]

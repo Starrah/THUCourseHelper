@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
     <Preference
         app:defaultValue="0"
@@ -69,6 +70,12 @@
         app:title="@string/settings_stay_notice_title"
         app:useSimpleSummaryProvider="true" />
 
+    <ListPreference
+        app:defaultValue="@string/bg_blank"
+        app:entries="@array/background_choices"
+        app:entryValues="@array/background_choices"
+        app:key="background_choice"
+        app:title="@string/background_choice_title" />
     <!--    <SwitchPreferenceCompat-->
     <!--        app:defaultValue="false"-->
     <!--        app:key="stay_notice"-->

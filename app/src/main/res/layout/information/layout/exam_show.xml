@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    >
+
+    <!--top-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/border_main">
+
+        <!--返回按钮-->
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/icon_back"
+            android:id="@+id/exam_show_back"
+            android:layout_gravity="left"
+            android:onClick="handleReturn"/>
+
+        <!--显示名称-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:id="@+id/exam_show_top"
+            android:textColor="@color/colorBlack"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:textSize="20dp"
+            android:text="@string/show_exam_title"/>
+    </LinearLayout>
+
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+        <!--放新时间的位置-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/new_exam_place_show"
+            android:layout_marginHorizontal="30dp"
+            android:divider="@drawable/divider"
+            android:showDividers="middle">
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

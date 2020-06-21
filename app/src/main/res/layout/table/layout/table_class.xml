@@ -33,6 +33,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:id="@+id/change_week"
+            android:gravity="center"
+            android:textColor="@color/colorBlack"
+            android:textSize="7dp"
+            android:text="点击切换当前周"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="center"
             android:id = "@+id/date_info"
             android:textColor="@color/colorBlack"
@@ -218,7 +227,8 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:id="@+id/main_scroll">
             <!--左侧"节数"布局,左右滑动的时候不动-->
             <LinearLayout
                 android:layout_width="match_parent"

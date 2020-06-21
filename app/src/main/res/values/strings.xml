@@ -46,7 +46,15 @@
     <!--时间节点-->
     <string name="time_point">时间</string>
 
-
+    <!--信息显示-->
+    <string name="show_calendar">查看校历</string>
+    <string name="show_time_point">查看选退课时间安排</string>
+    <string name="show_classroom">教室情况</string>
+    <string name="show_self_study">查看研讨间信息</string>
+    <string name="show_homework">查看作业</string>
+    <string name="show_exam">查看考试</string>
+    <string name="show_homework_title">当前所有作业</string>
+    <string name="show_exam_title">本学期所有考试</string>
 
 
     <!--设置界面-->
@@ -138,4 +146,16 @@
     <string name="notification_remind_prefix">提醒-</string>
 
     <string name="error_alarm_not_supported">对不起，您的手机当前暂不支持设置闹钟形式的提醒。您可以改为设置通知形式的提醒，或通过提交反馈、提供您的设备型号等信息来建议我们做出改进。</string>
+
+    <!-- 背景设置 -->
+    <string name="background_choice_title">背景设置</string>
+    <string name="bg_blank">空白</string>
+    <string name="bg_autumn">秋叶</string>
+    <string name="bg_desert">沙漠</string>
+    <string name="bg_grass">草原</string>
+    <string name="bg_forest">森林</string>
+    <string name="bg_river">河流</string>
+    <string name="bg_sea">峡湾</string>
+    <string name="bg_winter">冬雪</string>
+
 </resources>
