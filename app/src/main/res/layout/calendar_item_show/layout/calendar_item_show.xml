@@ -12,17 +12,17 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/title_top_height"
         android:orientation="horizontal"
-        android:background="@drawable/border_main">
+        android:background="@color/colorTheme">
 
         <!--返回按钮-->
         <ImageButton
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/icon_back"
             android:id="@+id/item_show_back"
-            android:layout_gravity="left"
+            android:layout_gravity="center"
             android:onClick="handleReturn"/>
 
         <!--显示名称-->
@@ -31,7 +31,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:id="@+id/item_show_top"
-            android:textColor="@color/colorBlack"
+            android:textColor="@color/colorWhite"
             android:layout_gravity="center"
             android:layout_weight="1"
             android:textSize="20dp"
@@ -40,22 +40,20 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:background="@drawable/border_main">
+            android:orientation="horizontal">
             <ImageButton
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="5dp"
+                android:layout_height="wrap_content"
                 android:background="@drawable/icon_edit"
-                android:layout_gravity="right"
+                android:layout_gravity="center"
                 android:id="@+id/item_show_edit"
                 android:onClick="handleEdit"/>
             <ImageButton
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="5dp"
-                android:background="@drawable/icon_delete"
-                android:layout_gravity="right"
+                android:background="@drawable/icon_delete_all"
+                android:layout_gravity="center"
                 android:id="@+id/item_show_delete"
                 android:onClick="handleDelete"/>
         </LinearLayout>
