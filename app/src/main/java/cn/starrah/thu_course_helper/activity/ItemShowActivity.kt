@@ -365,7 +365,7 @@ class ItemShowActivity : AppCompatActivity(){
             }
         dialog.setOnCancelListener { }
         dialog.setOnDismissListener { }
-        dialog.setIcon(R.mipmap.ic_launcher_round)
+        dialog.setIcon(R.drawable.logo)
             .setTitle("删除日程")
             .setMessage("确定要删除日程吗")
             .setCancelable(true)

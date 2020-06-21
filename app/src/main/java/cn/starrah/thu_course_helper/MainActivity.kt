@@ -100,6 +100,49 @@ class MainActivity : FragmentActivity() {
         mapBackground.put(string8, bg8)
         var line8 = resources.getString(R.string.bg_stroke_black)
         mapBackgroundLine.put(string8, line8)
+
+        var string9 = resources.getString(R.string.bg_109_1)
+        var bg9 = resources.getDrawable(R.drawable.bg_109_1)
+        mapBackground.put(string9, bg9)
+        var line9 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string9, line9)
+
+        var string10 = resources.getString(R.string.bg_109_2)
+        var bg10 = resources.getDrawable(R.drawable.bg_109_2)
+        mapBackground.put(string10, bg10)
+        var line10 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string10, line10)
+
+        var string11 = resources.getString(R.string.bg_109_3)
+        var bg11 = resources.getDrawable(R.drawable.bg_109_3)
+        mapBackground.put(string11, bg11)
+        var line11 = resources.getString(R.string.bg_stroke_black)
+        mapBackgroundLine.put(string11, line11)
+
+        var string12 = resources.getString(R.string.bg_blue)
+        var bg12 = resources.getDrawable(R.drawable.bg_blue)
+        mapBackground.put(string12, bg12)
+        var line12 = resources.getString(R.string.bg_stroke_black)
+        mapBackgroundLine.put(string12, line12)
+
+        var string13 = resources.getString(R.string.bg_pink)
+        var bg13 = resources.getDrawable(R.drawable.bg_pink)
+        mapBackground.put(string13, bg13)
+        var line13 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string13, line13)
+
+        var string14 = resources.getString(R.string.bg_orange)
+        var bg14 = resources.getDrawable(R.drawable.bg_orange)
+        mapBackground.put(string14, bg14)
+        var line14 = resources.getString(R.string.bg_stroke_black)
+        mapBackgroundLine.put(string14, line14)
+
+        var string15 = resources.getString(R.string.bg_yellow_purple)
+        var bg15 = resources.getDrawable(R.drawable.bg_morning_mountain)
+        mapBackground.put(string15, bg15)
+        var line15 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string15, line15)
+        mapBackgroundLine.put(string15, line15)
     }
 
     /**

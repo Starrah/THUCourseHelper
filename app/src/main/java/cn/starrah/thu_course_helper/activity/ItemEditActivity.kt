@@ -359,7 +359,7 @@ class ItemEditActivity : AppCompatActivity(){
             }
         dialog.setOnCancelListener { }
         dialog.setOnDismissListener { }
-        dialog.setIcon(R.mipmap.ic_launcher_round)
+        dialog.setIcon(R.drawable.logo)
             .setTitle("返回详情")
             .setMessage("您的编辑未保存，确定要不保存直接退出吗？")
             .setCancelable(true)
@@ -390,7 +390,7 @@ class ItemEditActivity : AppCompatActivity(){
             }
         dialog.setOnCancelListener { }
         dialog.setOnDismissListener { }
-        dialog.setIcon(R.mipmap.ic_launcher_round)
+        dialog.setIcon(R.drawable.logo)
             .setTitle("保存日程")
             .setMessage("确定要保存日程吗")
             .setCancelable(true)

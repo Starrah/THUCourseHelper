@@ -796,7 +796,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 }
             dialog.setOnCancelListener { }
             dialog.setOnDismissListener { }
-            dialog.setIcon(R.mipmap.ic_launcher_round)
+            dialog.setIcon(R.drawable.logo)
                 .setTitle("删除单一时间段")
                 .setMessage("确定要删除此时间段吗？")
                 .setCancelable(true)

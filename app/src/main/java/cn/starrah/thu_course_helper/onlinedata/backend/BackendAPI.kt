@@ -139,6 +139,11 @@ suspend fun BackendAPISubmitLog(message: String) {
 suspend fun BackendAPISubmitLog(e: Throwable) =
     BackendAPISubmitLog(StringWriter().also { e.printStackTrace(PrintWriter(it)) }.toString())
 
+suspend fun BackendAPIFeedback(message: String, contact: String?) {
+    CookiedFuel.post("$BACKEND_SITE/feedback").header(Headers.CONTENT_TYPE, "text/plain")
+        .body("message${if (contact != null) ", 联系方式：${contact}" else ""}").awaitString()
+}
+
 /**
  * 获取信息页面的资源列表。
  *

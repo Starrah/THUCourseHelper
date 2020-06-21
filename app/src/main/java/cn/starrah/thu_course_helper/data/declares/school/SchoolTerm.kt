@@ -167,7 +167,7 @@ data class SchoolTerm(
 
     init {
         holidays.forEach { _holidayCalHelpMap[it.date.toTermDayId(this)] = it.to?.toTermDayId(this)?: 0 }
-        for (i in 0 until (totalWeekCount * 7)) {
+        for (i in 1..(totalWeekCount * 7)) {
             val v = _holidayCalHelpMap[i]
             if (v == null) _holidayCalHelpMap[i] = i
             else if (v == 0) _holidayCalHelpMap.remove(i)

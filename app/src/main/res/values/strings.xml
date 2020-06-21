@@ -11,6 +11,7 @@
     <string name="remind">提示</string>
     <string name="warning">警告</string>
     <string name="confirm">确定</string>
+    <string name="submit">提交</string>
     <string name="cancel">取消</string>
 
     <!--日程信息-->
@@ -146,6 +147,7 @@
     <string name="notification_remind_prefix">提醒-</string>
 
     <string name="error_alarm_not_supported">对不起，您的手机当前暂不支持设置闹钟形式的提醒。您可以改为设置通知形式的提醒，或通过提交反馈、提供您的设备型号等信息来建议我们做出改进。</string>
+    <string name="error_password_not_save">使用该功能需要您保存密码，请您保存密码后再重试！</string>
 
     <!-- 背景设置 -->
     <string name="background_choice_title">背景设置</string>
@@ -159,5 +161,12 @@
     <string name="bg_winter">冬雪</string>
     <string name="bg_stroke_black">黑色</string>
     <string name="bg_stroke_white">白色</string>
+    <string name="bg_109_1">109周年绿</string>
+    <string name="bg_109_2">109周年紫</string>
+    <string name="bg_109_3">109周年橙</string>
+    <string name="bg_blue">静谧蓝</string>
+    <string name="bg_pink">浪漫粉</string>
+    <string name="bg_orange">阳光橙</string>
+    <string name="bg_yellow_purple">黄紫渐变</string>
 
 </resources>
