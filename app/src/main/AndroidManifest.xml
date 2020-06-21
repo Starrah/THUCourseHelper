@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -118,6 +119,16 @@
                 <action android:name="test" />
             </intent-filter>
         </activity>
+        <service android:name=".remind.ReminderHelperService">
+            <intent-filter>
+                <action android:name="reminghelpeerservice" />
+            </intent-filter>
+        </service>
+        <receiver android:name=".remind.RemindAlarmBackupNoticeReceiver">
+            <intent-filter>
+                <action android:name="cn.starrah.thu_course_helper.RemindAlarmBackupNotice" />
+            </intent-filter>
+        </receiver>
     </application>
 
 

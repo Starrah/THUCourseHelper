@@ -1,9 +1,19 @@
 package cn.starrah.thu_course_helper
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.database.Cursor
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.AlarmClock
+import android.util.Log
+import android.util.Log.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
@@ -17,12 +27,12 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
+import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPIInfo
+import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
 import cn.starrah.thu_course_helper.service.initializeAllTimelyIntents
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalTime
+import java.time.*
 import java.util.*
 import kotlin.system.exitProcess
 
@@ -80,8 +90,8 @@ class LoadingActivity : AppCompatActivity() {
             startActivity(the_intent)
             finish()
         }
-
     }
+
 
 
     /**

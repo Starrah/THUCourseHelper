@@ -28,14 +28,28 @@ fun setRemindTimerService(
 ): Boolean {
     val nextRemindTime = time.getNextRemindTime(baseTime)
     var remindBeforeTime: Duration? = null
+    val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
     if (time.remindData.method == CalendarRemindMethodType.ALARM) {
         if (!isAlarmSupported(context)) throw Exception(context.getString(R.string.error_alarm_not_supported))
         remindBeforeTime = Duration.ofMinutes(MAKE_ALARM_BEFORE_MINUTE.toLong())
+//        if (nextRemindTime != null) {
+//            val alarmNoticeIntent = Intent(context, RemindAlarmBackupNoticeReceiver::class.java).apply {
+//                action = remindIntentAction
+//                addCategory("timeId:${time.id}")
+//                addCategory("forceNotice")
+//                putExtra(EXTRA_forceNotice, true)
+//            }.let { PendingIntent.getBroadcast(context, 0, it, 0) }
+//            alarmMgr.setExactAndAllowWhileIdle(
+//                AlarmManager.RTC_WAKEUP,
+//                nextRemindTime.toInstant(THE_ZONE).toEpochMilli(),
+//                alarmNoticeIntent
+//            )
+//        }
     }
     if (nextRemindTime != null) {
         val alarmSetTime =
             if (remindBeforeTime != null) nextRemindTime - remindBeforeTime else nextRemindTime
-        val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent = Intent(context, RemindReceiver::class.java).apply {
             action = remindIntentAction
             addCategory("timeId:${time.id}")
@@ -50,7 +64,6 @@ fun setRemindTimerService(
         return true
     }
     else if (shouldCancel) {
-        val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent = Intent(context, RemindReceiver::class.java).apply {
             action = remindIntentAction
             addCategory("timeId:${time.id}")

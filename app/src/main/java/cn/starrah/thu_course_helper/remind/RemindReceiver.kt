@@ -20,6 +20,7 @@ val remindIntentAction = "cn.starrah.thu_course_helper.remind"
  */
 val EXTRA_broadCastBeforeSecond = "broadCastBeforeSecond"
 val EXTRA_onlyClear = "onlyClear"
+val EXTRA_forceNotice = "forceNotice"
 
 class RemindReceiver() : BroadcastReceiver() {
     val MOST_DELAY = Duration.ofMinutes(15)
@@ -29,6 +30,7 @@ class RemindReceiver() : BroadcastReceiver() {
         val now = LocalDateTime.now() + Duration.ofSeconds(broadCastBeforeSecond.toLong())
         val timeId = intent.categories.find { "timeId" in it }!!.substring(7).toInt()
         val onlyClear = intent.getBooleanExtra(EXTRA_onlyClear, false)
+        val forceNotice = intent.getBooleanExtra(EXTRA_forceNotice, false)
         val pendingResult: PendingResult = goAsync()
 
         GlobalScope.launch {
@@ -42,11 +44,15 @@ class RemindReceiver() : BroadcastReceiver() {
             val correctStartTime = time.getNextHappenTime(pushBeforeTime)
 
             if (correctRemindTime != null &&
-                now in (correctRemindTime - Duration.ofMinutes(1))..(correctRemindTime + MOST_DELAY)) {
+                now in (correctRemindTime - Duration.ofMinutes(1))..(correctRemindTime + MOST_DELAY))
+            {
                 if (!onlyClear) {
                     when (time.remindData.method) {
                         CalendarRemindMethodType.NOTICE -> showRemindNotification(context, time)
-                        CalendarRemindMethodType.ALARM  -> makeRemindSystemAlarm(context, time)
+                        CalendarRemindMethodType.ALARM  -> {
+                            if (forceNotice) showRemindNotification(context, time)
+                            else makeRemindSystemAlarm(context, time)
+                        }
                     }
                 }
                 if (time.remindData.type != CalendarRemindType.REPEAT) {
