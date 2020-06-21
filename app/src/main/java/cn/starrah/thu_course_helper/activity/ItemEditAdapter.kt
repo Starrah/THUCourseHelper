@@ -16,6 +16,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.*
@@ -796,7 +797,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 }
             dialog.setOnCancelListener { }
             dialog.setOnDismissListener { }
-            dialog.setIcon(R.mipmap.ic_launcher_round)
+            dialog.setIcon(R.drawable.logo)
                 .setTitle("删除单一时间段")
                 .setMessage("确定要删除此时间段吗？")
                 .setCancelable(true)
@@ -820,7 +821,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         private fun initWeekPickerDialog() {
             var selected:ArrayList<Int> = arrayListOf()
             pvWeekOptions = PickerDialog.Builder(mAdapter.theActivity)
-                .setWeeks(16, 2)
+                .setWeeks(CREP.term.normalWeekCount, CREP.term.examWeekCount)
                 .setInitialSelectedWeeks(selected)
                 .setOnWeeksSelectedListener(object : PickerDialog.OnWeeksSelectedListener {
                     override fun onWeeksSelected(
@@ -1129,12 +1130,12 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
      */
     fun showDataItem(holder: ItemEditHolder) {
         //显示全部上方item信息，隐藏下方time信息
-        ItemEditActivity.ShowItem(holder.itemNamePlace)
+        ItemEditActivity.ShowEdit(holder.itemNamePlace)
         ItemEditActivity.ShowItem(holder.itemTypePlace)
-        ItemEditActivity.ShowItem(holder.itemTeacherPlace)
-        ItemEditActivity.ShowItem(holder.itemCourseIDPlace)
-        ItemEditActivity.ShowItem(holder.itemAssociationPlace)
-        ItemEditActivity.ShowItem(holder.timeCommentPlace)
+        ItemEditActivity.ShowEdit(holder.itemTeacherPlace)
+        ItemEditActivity.ShowEdit(holder.itemCourseIDPlace)
+        ItemEditActivity.ShowEdit(holder.itemAssociationPlace)
+        ItemEditActivity.ShowEdit(holder.timeCommentPlace)
         ItemEditActivity.HideItem(holder.timeNamePlace)
         ItemEditActivity.HideItem(holder.timePlacePlace)
         ItemEditActivity.HideItem(holder.timeTypePlace)
@@ -1169,8 +1170,8 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         //教师，课程号，detail
         if(item_type == CalendarItemType.COURSE) {
             //教师，课程号显示，其余隐藏
-            ItemEditActivity.ShowItem(holder.itemTeacherPlace)
-            ItemEditActivity.ShowItem(holder.itemCourseIDPlace)
+            ItemEditActivity.ShowEdit(holder.itemTeacherPlace)
+            ItemEditActivity.ShowEdit(holder.itemCourseIDPlace)
             ItemEditActivity.HideItem(holder.itemAssociationPlace)
 
             //设置教师，课程号初值
@@ -1195,7 +1196,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             //组织显示，其余隐藏
             ItemEditActivity.HideItem(holder.itemTeacherPlace)
             ItemEditActivity.HideItem(holder.itemCourseIDPlace)
-            ItemEditActivity.ShowItem(holder.itemAssociationPlace)
+            ItemEditActivity.ShowEdit(holder.itemAssociationPlace)
 
 
             //设置组织初值
@@ -1234,20 +1235,20 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         ItemEditActivity.HideItem(holder.itemTeacherPlace)
         ItemEditActivity.HideItem(holder.itemCourseIDPlace)
         ItemEditActivity.HideItem(holder.itemAssociationPlace)
-        ItemEditActivity.ShowItem(holder.timeNamePlace)
-        ItemEditActivity.ShowItem(holder.timePlacePlace)
+        ItemEditActivity.ShowEdit(holder.timeNamePlace)
+        ItemEditActivity.ShowEdit(holder.timePlacePlace)
         ItemEditActivity.ShowItem(holder.timeTypePlace)
         ItemEditActivity.ShowItem(holder.timeWeekPlace)
         ItemEditActivity.ShowItem(holder.timeDayWeekPlace)
         ItemEditActivity.ShowItem(holder.timeDatePlace)
-        ItemEditActivity.ShowItem(holder.timeStartCoursePlace)
+        ItemEditActivity.ShowEdit(holder.timeStartCoursePlace)
         ItemEditActivity.ShowItem(holder.timeStartHourPlace)
         ItemEditActivity.ShowItem(holder.timeEndHourPlace)
         ItemEditActivity.ShowItem(holder.timePointPlace)
         ItemEditActivity.ShowItem(holder.timeDeleteButtonPlace)
         ItemEditActivity.ShowItem(holder.timeRemindRepeatPlace)
-        ItemEditActivity.ShowItem(holder.timeRemindTypePlace)
-        ItemEditActivity.ShowItem(holder.timeCommentPlace)
+        ItemEditActivity.ShowEdit(holder.timeRemindTypePlace)
+        ItemEditActivity.ShowEdit(holder.timeCommentPlace)
         holder.theView.setBackgroundColor(colorGrey)
 
 
@@ -1334,7 +1335,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         //时间等
         if(time.type == CalendarTimeType.REPEAT_COURSE || time.type == CalendarTimeType.SINGLE_COURSE) {
             //开始大节，时长显示，开始时间，结束时间，时间隐藏
-            ItemEditActivity.ShowItem(holder.timeStartCoursePlace)
+            ItemEditActivity.ShowEdit(holder.timeStartCoursePlace)
             ItemEditActivity.HideItem(holder.timeStartHourPlace)
             ItemEditActivity.HideItem(holder.timeEndHourPlace)
             ItemEditActivity.HideItem(holder.timePointPlace)
@@ -1432,7 +1433,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
 
         //显示提前时间和提醒类型
         if(time.remindData.type != CalendarRemindType.NONE) {
-            ItemEditActivity.ShowItem(holder.timeRemindTypePlace)
+            ItemEditActivity.ShowEdit(holder.timeRemindTypePlace)
             
             var remind_method:String = time.remindData.method.chineseName
             var remind_time:String = ItemEditActivity.getAheadTimeString(time.remindData.aheadTime)

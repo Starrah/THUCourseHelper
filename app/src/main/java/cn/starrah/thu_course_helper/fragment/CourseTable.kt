@@ -141,12 +141,14 @@ class CourseTable : TableFragment() {
      * 返回：无
      */
     override fun drawStrokes() {
+        var color:String = setStrokesColor()
+        drawVerticalStrokes(color)
         if(showType == showTypeCourse) {
-            drawStrokesCourse()
+            drawStrokesCourse(color)
         }
         else
         {
-            drawStrokesHour()
+            drawStrokesHour(color)
         }
     }
 

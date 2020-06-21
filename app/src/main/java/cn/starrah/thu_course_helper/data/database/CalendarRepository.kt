@@ -15,6 +15,7 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTerm
 import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
 import cn.starrah.thu_course_helper.data.utils.AttachedLiveData
+import cn.starrah.thu_course_helper.data.utils.DataInvalidException
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import cn.starrah.thu_course_helper.data.utils.toTermDayId
 import cn.starrah.thu_course_helper.onlinedata.AbstractCourseDataSource
@@ -524,9 +525,9 @@ object CalendarRepository {
             CREP.term, mapOf(
                 "homework" to true,
                 "activity" to activity,
-                "username" to sp.getString("login_name", null)!!,
+                "username" to sp.getString("login_name", "")!!,
                 "password" to CREP.getUserPassword(activity),
-                "onlyUnsubmitted" to true,
+                "onlyUnsubmitted" to false,
                 "apply" to false
             )
         )
@@ -558,7 +559,7 @@ object CalendarRepository {
         val respAPI = CREP.onlineCourseDataSource!!.loadData(
             CREP.term, mapOf(
                 "exam" to true,
-                "username" to sp.getString("login_name", null)!!,
+                "username" to sp.getString("login_name", "")!!,
                 "password" to CREP.getUserPassword(context),
                 "apply" to false
             )
@@ -576,7 +577,10 @@ object CalendarRepository {
     }
 
     suspend fun getUserPassword(context: Context): String {
-        return PreferenceManager.getDefaultSharedPreferences(context).getString("login_pass", "")!!
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        if (sp.getInt("login_status", 0) != 2) throw DataInvalidException(context.getString(R.string.error_password_not_save))
+        return PreferenceManager.getDefaultSharedPreferences(context).getString("login_pass", null)
+            ?: throw DataInvalidException(context.getString(R.string.error_password_not_save))
     }
 
     /**

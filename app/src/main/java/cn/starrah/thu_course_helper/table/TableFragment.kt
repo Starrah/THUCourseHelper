@@ -4,6 +4,7 @@ package cn.starrah.thu_course_helper
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.activity.ItemShowActivity
 import cn.starrah.thu_course_helper.data.constants.LayoutConstants
 import cn.starrah.thu_course_helper.data.database.CREP
@@ -28,6 +30,7 @@ import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener
 import com.bigkoo.pickerview.view.OptionsPickerView
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
@@ -513,7 +516,7 @@ abstract class TableFragment : Fragment(){
 
     abstract protected fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem);
 
-    abstract protected fun drawStrokes();
+
 
 
     /**
@@ -523,15 +526,13 @@ abstract class TableFragment : Fragment(){
         itemColors.clear()
         var color0 = theActivity!!.getColor(R.color.colorRed)
         var color1 = theActivity!!.getColor(R.color.colorOrange)
-        var color2 = theActivity!!.getColor(R.color.colorYellow)
-        var color3 = theActivity!!.getColor(R.color.colorGreen)
-        var color4 = theActivity!!.getColor(R.color.colorTurquoise)
-        var color5 = theActivity!!.getColor(R.color.colorBlue)
-        var color6 = theActivity!!.getColor(R.color.colorViolet)
-        //var color7 = theActivity!!.getColor(R.color.colorPink)
-        var color8 = theActivity!!.getColor(R.color.colorSPQR1)
-        var color9 = theActivity!!.getColor(R.color.colorSPQR2)
-        var color10 = theActivity!!.getColor(R.color.colorPreussen)
+        var color2 = theActivity!!.getColor(R.color.colorGreen)
+        var color3 = theActivity!!.getColor(R.color.colorPink)
+        var color4 = theActivity!!.getColor(R.color.colorBlue)
+        var color5 = theActivity!!.getColor(R.color.colorSPQR1)
+        var color6 = theActivity!!.getColor(R.color.colorTurquoise)
+        var color7 = theActivity!!.getColor(R.color.colorViolet)
+        var color8 = theActivity!!.getColor(R.color.colorSPQR2)
         itemColors.add(color0)
         itemColors.add(color1)
         itemColors.add(color2)
@@ -539,10 +540,8 @@ abstract class TableFragment : Fragment(){
         itemColors.add(color4)
         itemColors.add(color5)
         itemColors.add(color6)
-        //itemColors.add(color7)
+        itemColors.add(color7)
         itemColors.add(color8)
-        itemColors.add(color9)
-        itemColors.add(color10)
     }
 
     /**
@@ -559,12 +558,62 @@ abstract class TableFragment : Fragment(){
     }
 
 
+    abstract protected fun drawStrokes();
+
+
+    /**
+     * 描述：根据sp，设置当前横竖虚线的颜色
+     * 参数：无
+     * 返回：横竖虚线的颜色，是string（res里有对应的）
+     */
+    protected fun setStrokesColor() :String {
+        //根据sp，修改线颜色
+        val sp = PreferenceManager.getDefaultSharedPreferences(theActivity!!)
+        val settings = sp.getString("background_choice", resources.getString(R.string.bg_blank))
+        var stroke_color:String? = null
+        try {
+            stroke_color = MainActivity.mapBackgroundLine.get(settings)
+        }
+        catch (e: Exception) {
+            stroke_color = null
+        }
+        if(stroke_color == null) {
+            stroke_color = resources.getString(R.string.bg_stroke_black)
+        }
+        return stroke_color!!
+    }
+
+    /**
+     * 描述：画竖直的虚线，利用修改背景的方式实现
+     * 参数：颜色字符串
+     * 返回：无
+     */
+    protected fun drawVerticalStrokes(color:String) {
+        var stroke:Drawable = resources.getDrawable(R.drawable.border_stroke_black)
+        if(color.equals(resources.getString(R.string.bg_stroke_white))) {
+            stroke = resources.getDrawable(R.drawable.border_stroke_white)
+        }
+
+        for(the_week_day in DayOfWeek.values()) {
+            var viewID: Int = showPlaceID[the_week_day]!!
+            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+            dayView.background = stroke
+        }
+    }
+
     /**
      *描述：对于大节类型的显示，给每个小节添加横虚线
-     *参数：无
+     *参数：颜色字符串
      *返回：无
      */
-    protected fun drawStrokesCourse(){
+    protected fun drawStrokesCourse(color: String){
+        //根据设置选择虚线颜色
+        var stroke:Int = R.layout.stroke_line_black
+        if(color.equals(resources.getString(R.string.bg_stroke_white))) {
+            stroke = R.layout.stroke_line_white
+        }
+
+
         //遍历周几
         for(theWeekDay in DayOfWeek.values()) {
             var viewID: Int = showPlaceID[theWeekDay]!!
@@ -583,7 +632,7 @@ abstract class TableFragment : Fragment(){
                     var small_interval:Float = j + 0.0f
                     var total_small = big_start_small + small_interval
                     var place = LayoutConstants.HeightPerSmall * total_small
-                    var v:View = LayoutInflater.from(theActivity!!).inflate(R.layout.stroke_line, null);
+                    var v:View = LayoutInflater.from(theActivity!!).inflate(stroke, null);
                     v.setY(place)
                     var params: LinearLayout.LayoutParams =
                         LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 5)
@@ -600,10 +649,16 @@ abstract class TableFragment : Fragment(){
 
     /**
      *描述：对于小时类型的显示，给每个小时添加横虚线
-     *参数：无
+     *参数：颜色字符串
      *返回：无
      */
-    protected fun drawStrokesHour(){
+    protected fun drawStrokesHour(color: String){
+        //根据设置选择虚线颜色
+        var stroke:Int = R.layout.stroke_line_black
+        if(color.equals(resources.getString(R.string.bg_stroke_white))) {
+            stroke = R.layout.stroke_line_white
+        }
+
         //遍历周几
         for(theWeekDay in DayOfWeek.values()) {
             var viewID: Int = showPlaceID[theWeekDay]!!
@@ -613,7 +668,7 @@ abstract class TableFragment : Fragment(){
             var i: Int = 1
             while(i <= 24) {
                 var place:Float = LayoutConstants.HeightPerHour * i + 0.0f
-                var v:View = LayoutInflater.from(theActivity!!).inflate(R.layout.stroke_line, null);
+                var v:View = LayoutInflater.from(theActivity!!).inflate(stroke, null);
                 v.setY(place)
                 var params: LinearLayout.LayoutParams =
                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 5)

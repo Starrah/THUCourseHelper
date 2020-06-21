@@ -191,7 +191,7 @@ class NotificationCourse : BroadcastReceiver() {
             .setTicker("今日课程")
             .setPriority(Notification.PRIORITY_MIN)// 设置该通知优先级
             .setOngoing(true)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.logo)
             .setVisibility(NotificationCompat.VISIBILITY_SECRET)
         var notify:Notification = mBuilder.build()
         notify.flags = Notification.FLAG_ONGOING_EVENT;

@@ -11,7 +11,8 @@
 
 
     <!--名称-->
-    <LinearLayout style="@style/layout_title_time_show">
+    <LinearLayout style="@style/layout_title_time_show"
+        android:layout_height="wrap_content">
         <TextView style="@style/title_time_show"
             android:id="@+id/time_show_name"/>
     </LinearLayout>

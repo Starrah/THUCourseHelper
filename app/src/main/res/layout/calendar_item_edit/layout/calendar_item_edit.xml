@@ -16,15 +16,15 @@
         android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/title_top_height"
             android:orientation="horizontal"
-            android:background="@drawable/border_main">
+            android:background="@color/colorTheme">
             <ImageButton
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@drawable/icon_back"
                 android:id="@+id/item_edit_back"
-                android:layout_gravity="left"
+                android:layout_gravity="center"
                 android:onClick="handleReturn"/>
 
             <TextView
@@ -32,15 +32,15 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="@string/item_top"
-                android:textColor="@color/colorBlack"
+                android:textColor="@color/colorWhite"
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:textSize="20dp" />
             <ImageButton
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@drawable/icon_save"
-                android:layout_gravity="right"
+                android:layout_gravity="center"
                 android:id="@+id/save_item"
                 android:onClick="handleSave"/>
         </LinearLayout>
@@ -61,8 +61,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_gravity="bottom|end"
-        android:layout_margin="5dp"
-        app:backgroundTint="#30469b"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@color/colorTheme"
         android:src="@drawable/ic_add_for_fab"
         android:onClick="handleAdd"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -54,13 +54,17 @@
 
     <string-array name="background_choices">
         <item>@string/bg_blank</item>
-        <item>@string/bg_autumn</item>
         <item>@string/bg_desert</item>
-        <item>@string/bg_forest</item>
         <item>@string/bg_grass</item>
-        <item>@string/bg_river</item>
         <item>@string/bg_sea</item>
         <item>@string/bg_winter</item>
+        <item>@string/bg_109_1</item>
+        <item>@string/bg_109_2</item>
+        <item>@string/bg_109_3</item>
+        <item>@string/bg_blue</item>
+        <item>@string/bg_pink</item>
+        <item>@string/bg_orange</item>
+        <item>@string/bg_yellow_purple</item>
     </string-array>
 
 </resources>

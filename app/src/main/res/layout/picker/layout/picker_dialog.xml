@@ -18,7 +18,7 @@
         android:visibility="visible"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:background="?attr/colorAccent"
+        android:background="@color/colorTheme"
         style="@style/DayPickerTitleTextStyle"/>
 
     <cn.starrah.thu_course_helper.picker.PickerView

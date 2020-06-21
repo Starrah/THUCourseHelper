@@ -29,10 +29,12 @@ class MainActivity : FragmentActivity() {
     var courseTableType: String = "course"
     var showDays = 5
 
-    //字符串和背景图片的对应关系
+    //字符串和背景图片，虚线颜色的对应关系
     companion object {
         var bgSettings:Drawable? = null
         var mapBackground: MutableMap<String, Drawable> = mutableMapOf()
+        var mapBackgroundLine: MutableMap<String, String> = mutableMapOf()
+
     }
 
     inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> Unit) {
@@ -49,30 +51,83 @@ class MainActivity : FragmentActivity() {
     fun loadMapBackground() {
         bgSettings = resources.getDrawable(R.color.colorWhite)
         mapBackground.clear()
+        mapBackgroundLine.clear()
+
         var string1 = resources.getString(R.string.bg_blank)
         var bg1 = resources.getDrawable(R.color.colorWhite)
         mapBackground.put(string1, bg1)
-        var string2 = resources.getString(R.string.bg_autumn)
-        var bg2 = resources.getDrawable(R.drawable.bg_autumn)
-        mapBackground.put(string2, bg2)
+        var line1 = resources.getString(R.string.bg_stroke_black)
+        mapBackgroundLine.put(string1, line1)
+
+
         var string3 = resources.getString(R.string.bg_desert)
         var bg3 = resources.getDrawable(R.drawable.bg_desert)
         mapBackground.put(string3, bg3)
-        var string4 = resources.getString(R.string.bg_forest)
-        var bg4 = resources.getDrawable(R.drawable.bg_forest)
-        mapBackground.put(string4, bg4)
+        var line3 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string3, line3)
+
+
         var string5 = resources.getString(R.string.bg_grass)
         var bg5 = resources.getDrawable(R.drawable.bg_grass)
         mapBackground.put(string5, bg5)
-        var string6 = resources.getString(R.string.bg_river)
-        var bg6 = resources.getDrawable(R.drawable.bg_river)
-        mapBackground.put(string6, bg6)
+        var line5 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string5, line5)
+
+
         var string7 = resources.getString(R.string.bg_sea)
         var bg7 = resources.getDrawable(R.drawable.bg_sea)
         mapBackground.put(string7, bg7)
+        var line7 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string7, line7)
+
         var string8 = resources.getString(R.string.bg_winter)
         var bg8 = resources.getDrawable(R.drawable.bg_winter)
         mapBackground.put(string8, bg8)
+        var line8 = resources.getString(R.string.bg_stroke_black)
+        mapBackgroundLine.put(string8, line8)
+
+        var string9 = resources.getString(R.string.bg_109_1)
+        var bg9 = resources.getDrawable(R.drawable.bg_109_1)
+        mapBackground.put(string9, bg9)
+        var line9 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string9, line9)
+
+        var string10 = resources.getString(R.string.bg_109_2)
+        var bg10 = resources.getDrawable(R.drawable.bg_109_2)
+        mapBackground.put(string10, bg10)
+        var line10 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string10, line10)
+
+        var string11 = resources.getString(R.string.bg_109_3)
+        var bg11 = resources.getDrawable(R.drawable.bg_109_3)
+        mapBackground.put(string11, bg11)
+        var line11 = resources.getString(R.string.bg_stroke_black)
+        mapBackgroundLine.put(string11, line11)
+
+        var string12 = resources.getString(R.string.bg_blue)
+        var bg12 = resources.getDrawable(R.drawable.bg_blue)
+        mapBackground.put(string12, bg12)
+        var line12 = resources.getString(R.string.bg_stroke_black)
+        mapBackgroundLine.put(string12, line12)
+
+        var string13 = resources.getString(R.string.bg_pink)
+        var bg13 = resources.getDrawable(R.drawable.bg_pink)
+        mapBackground.put(string13, bg13)
+        var line13 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string13, line13)
+
+        var string14 = resources.getString(R.string.bg_orange)
+        var bg14 = resources.getDrawable(R.drawable.bg_orange)
+        mapBackground.put(string14, bg14)
+        var line14 = resources.getString(R.string.bg_stroke_black)
+        mapBackgroundLine.put(string14, line14)
+
+        var string15 = resources.getString(R.string.bg_yellow_purple)
+        var bg15 = resources.getDrawable(R.drawable.bg_morning_mountain)
+        mapBackground.put(string15, bg15)
+        var line15 = resources.getString(R.string.bg_stroke_white)
+        mapBackgroundLine.put(string15, line15)
+        mapBackgroundLine.put(string15, line15)
     }
 
     /**

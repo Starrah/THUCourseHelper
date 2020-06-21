@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="200px"
         android:orientation="vertical"
-        android:background="@color/colorGrey"
+        android:background="@color/colorTheme"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/AlertDialog.AppCompat.Light">
         <TextView
@@ -27,7 +27,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:id = "@+id/term_info"
-            android:textColor="@color/colorBlack"
+            android:textColor="@color/colorWhite"
             android:text="一"/>
         <TextView
             android:layout_width="match_parent"
@@ -35,7 +35,7 @@
             android:layout_weight="1"
             android:id="@+id/change_week"
             android:gravity="center"
-            android:textColor="@color/colorBlack"
+            android:textColor="@color/colorWhite"
             android:textSize="7dp"
             android:text="点击切换当前周"/>
         <TextView
@@ -44,7 +44,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:id = "@+id/date_info"
-            android:textColor="@color/colorBlack"
+            android:textColor="@color/colorWhite"
             android:text="一"/>
     </LinearLayout>
 
@@ -65,7 +65,8 @@
         android:id='@+id/scroll_top'>
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            >
 
             <LinearLayout
                 android:id="@+id/monday_top"
@@ -338,7 +339,7 @@
                         android:id="@+id/monday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -353,7 +354,7 @@
                         android:id="@+id/tuesday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -369,7 +370,7 @@
                         android:id="@+id/wednesday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_margin="1dp"
                         android:layout_weight="1"
                         android:orientation="vertical" />
@@ -384,7 +385,7 @@
                         android:id="@+id/thursday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -399,7 +400,7 @@
                         android:id="@+id/friday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -413,7 +414,7 @@
                         android:id="@+id/saturday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -427,7 +428,7 @@
                         android:id="@+id/sunday_place"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/border_stroke"
+                        android:background="@drawable/border_stroke_black"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_margin="1dp"/>
@@ -444,8 +445,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_gravity="bottom|end"
-        android:layout_margin="5dp"
-        app:backgroundTint="#30469b"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@color/colorTheme"
         android:src="@drawable/ic_add_for_fab"
         />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

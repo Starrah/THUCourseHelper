@@ -707,8 +707,9 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             homework: HomeWorkData._HomeWork,
             onlyUnsubmitted: Boolean = false
         ): CalendarItemDataWithTimes? { // 返回值表示要新增的对象
-            if (onlyUnsubmitted && (homework.submitted || homework.deadline < LocalDateTime.now()))
-                return null // 对于已提交或已过期的作业不予处理
+            if (homework.deadline < LocalDateTime.now()) return null// 对于已过期的作业不予处理
+            if (onlyUnsubmitted && (homework.submitted))
+                return null // 对于已提交的作业不予处理
 
             // 生成时间段数据
             val timeInHour = TimeInHour(

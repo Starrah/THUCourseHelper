@@ -91,7 +91,7 @@ class ReminderHelperService() : Service() {
         )
         val builder = NotificationCompat.Builder(context, "remind")
             .setWhen(System.currentTimeMillis())
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.logo)
             .setContentTitle("用于唤醒应用")
             .setContentText("请您忽略")
             .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -131,7 +131,7 @@ class RemindAlarmBackupNoticeReceiver() : BroadcastReceiver() {
         // 备用纯通知，在闹钟响铃的时间显示，
         val builder = NotificationCompat.Builder(context, "remind")
             .setWhen(System.currentTimeMillis())
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.logo)
             .setContentTitle(title)
             .setContentText(line1)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

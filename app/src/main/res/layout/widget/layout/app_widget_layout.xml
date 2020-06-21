@@ -14,7 +14,8 @@
         android:orientation="vertical"
         android:layout_marginHorizontal="5dp">
         <!--名称-->
-        <LinearLayout style="@style/layout_title_time_show">
+        <LinearLayout style="@style/layout_title_time_show"
+            android:layout_height="wrap_content">
             <TextView style="@style/title_time_show"
                 android:id="@+id/time_show_name"/>
         </LinearLayout>
@@ -32,6 +33,7 @@
 
         <!--地点-->
         <LinearLayout style="@style/layout_time_show"
+            android:layout_height="wrap_content"
             android:id="@+id/time_show_place_place">
             <TextView style="@style/icon_time_show"
                 android:drawableLeft="@drawable/icon_place"

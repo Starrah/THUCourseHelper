@@ -207,6 +207,18 @@ class ItemEditActivity : AppCompatActivity(){
             item.layoutParams = params
         }
 
+
+        /**
+         *描述：显示控件(edittext)
+         *参数：自己
+         *返回：无
+         */
+        fun ShowEdit(item:LinearLayout) {
+            //和style一致
+            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT);
+            item.layoutParams = params
+        }
+
         /**
          * 描述：将一个5min-1天的duration转换成中文字符串
          * 参数：时间
@@ -347,7 +359,7 @@ class ItemEditActivity : AppCompatActivity(){
             }
         dialog.setOnCancelListener { }
         dialog.setOnDismissListener { }
-        dialog.setIcon(R.mipmap.ic_launcher_round)
+        dialog.setIcon(R.drawable.logo)
             .setTitle("返回详情")
             .setMessage("您的编辑未保存，确定要不保存直接退出吗？")
             .setCancelable(true)
@@ -378,7 +390,7 @@ class ItemEditActivity : AppCompatActivity(){
             }
         dialog.setOnCancelListener { }
         dialog.setOnDismissListener { }
-        dialog.setIcon(R.mipmap.ic_launcher_round)
+        dialog.setIcon(R.drawable.logo)
             .setTitle("保存日程")
             .setMessage("确定要保存日程吗")
             .setCancelable(true)
