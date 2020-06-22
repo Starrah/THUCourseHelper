@@ -1,5 +1,5 @@
 ---
-typora-root-url: /preview
+typora-root-url: ./preview
 ---
 
 清华课程小助手
