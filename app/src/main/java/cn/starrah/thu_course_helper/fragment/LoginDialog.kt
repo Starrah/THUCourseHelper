@@ -78,7 +78,7 @@ class LoginDialog(context: Context) : Dialog(context){
         loginBarPlace.setLayoutParams(params_hide)
         loginBar.isVisible = false
 
-        
+
         //点击验证码图片重新生成验证码
         captchaView.setOnClickListener({
             (theContext as FragmentActivity).lifecycleScope.launch {
