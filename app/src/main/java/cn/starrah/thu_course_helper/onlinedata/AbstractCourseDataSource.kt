@@ -11,7 +11,6 @@ abstract class AbstractCourseDataSource {
 
     /**
      * 登录
-     * @param [activity] 当前的[Activity]，因为登陆过程可能需要验证码等事项，有可能需要显示一个对话框，因此需要提供一下。
      * @param [username] 用户名
      * @param [password] 密码
      * @param [extra] 其他信息
