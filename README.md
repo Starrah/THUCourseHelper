@@ -1,5 +1,5 @@
 ---
-typora-root-url: https://github.com/Starrah/THUCourseHelper/blob/master/preview/
+typora-root-url: https://github.com/Starrah/THUCourseHelper/raw/master/preview/
 ---
 
 清华课程小助手
