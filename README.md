@@ -1,7 +1,3 @@
----
-typora-root-url: https://github.com/Starrah/THUCourseHelper/raw/master/preview/
----
-
 清华课程小助手
 ==================
 一款真正懂清华学生的android课程管理APP
@@ -59,7 +55,7 @@ typora-root-url: https://github.com/Starrah/THUCourseHelper/raw/master/preview/
 
 主界面使用BottomNavigationView作为底部导航栏，拥有四个可以互相切换的Fragment
 
-![main](/main.gif)
+![main](https://github.com/Starrah/THUCourseHelper/raw/master/preview/main.gif)
 
 ### 2.课程/日程表
 
@@ -67,7 +63,7 @@ typora-root-url: https://github.com/Starrah/THUCourseHelper/raw/master/preview/
 
 我们使用两层scrollview来实现这一功能：一方面，上方的日期是一个横向滑动的scrollview；另一方面，下方是一个纵向scrollview套一个横向scrollview。之后，为了让上方的日期和下方的课程同时滑动，我们使用了绑定的方法：当监听到其中一个scrollview滑动的时候，自动将另一个scrollview滑动到对应位置[[1]](https://blog.csdn.net/lixpjita39/article/details/73180546)。
 
-![table](/table.gif)
+![table](https://github.com/Starrah/THUCourseHelper/raw/master/preview/table.gif)
 
 #### 2.2 根据设置动态设置ui，显示日程
 
@@ -89,7 +85,7 @@ typora-root-url: https://github.com/Starrah/THUCourseHelper/raw/master/preview/
 
 我们在上方显示整个日程的整体信息，然后在下方通过scrollview来显示每个时间段信息。时间段信息是动态加载到scrollview上的。
 
-![show](/show.jpg)
+![show](https://github.com/Starrah/THUCourseHelper/raw/master/preview/show.jpg)
 
 ### 4.详情编辑
 
@@ -99,19 +95,19 @@ typora-root-url: https://github.com/Starrah/THUCourseHelper/raw/master/preview/
 
 那么我们是如何实现根据各种选项动态更新界面的呢？首先，我们在xml里定义了所有可能出现的编辑行，在onBindViewHolder函数里动态根据这个时间段的信息来显示，隐藏编辑行。其次，我们给每个选择器和文本框都绑定了监听事件，一旦监听到这些位置的值发生改变，就立即更新recyclerview的数据，之后recyclerview会根据更新后的数据来更新显示。
 
-![edit](/edit.jpg)
+![edit](https://github.com/Starrah/THUCourseHelper/raw/master/preview/edit.jpg)
 
 #### 4.2 多级选择器
 
 多级选择器在我们的项目中应用广泛。设置日期和时间，设置大节-小节情况，设置各种选项都需要这种选择器。我们采用了一个开源库PickerView[[2]](https://github.com/Bigkoo/Android-PickerView)，它被广泛应用于招行信用卡的“掌上生活”等商业软件中。
 
-![multiple_picker](/multiple_picker.jpg)
+![multiple_picker](https://github.com/Starrah/THUCourseHelper/raw/master/preview/multiple_picker.jpg)
 
 #### 4.3 周选择器
 
 我们在开源项目SimpleDayPicker[[3]](https://github.com/informramiz/SimpleDayPicker)上做了大量修改，完成了周选择器。原项目只支持周一-周日的多选，我们修改之后，支持了根据学期信息修改周选择，以及选择单周，双周，前半学期，全学期等快捷键。
 
-![week_picker](/week_picker.jpg)
+![week_picker](https://github.com/Starrah/THUCourseHelper/raw/master/preview/week_picker.jpg)
 
 ### 5.信息显示
 
@@ -119,7 +115,7 @@ typora-root-url: https://github.com/Starrah/THUCourseHelper/raw/master/preview/
 
 在前端部分，我们接受后端传来的json，解析得到对应的服务名称与URL，并且动态创建按钮，每个按钮绑定前往对应URL的intent，实现了信息显示。值得一提的是，对于空教室显示，我们通过监听搜索框与字符串匹配实现了教室搜索功能，这样大大改进了用户体验，因为原来教室有几十个，很难找到自己要的教室。
 
-![information](/information.gif)
+![information](https://github.com/Starrah/THUCourseHelper/raw/master/preview/information.gif)
 
 ### 6.设置界面与登录
 
@@ -137,7 +133,7 @@ typora-root-url: https://github.com/Starrah/THUCourseHelper/raw/master/preview/
 
 我们的小部件和常驻通知栏要实现动态更新数据，以及通过上下按钮来切换显示。我们的实现思路如下：首先，我们使用BroadcastReceiver来接收更新小部件/常驻通知栏显示的广播，并且给上/下按钮绑定切换显示日程的广播。其次，为了数据相对持久的存储，我们用静态变量来存储对应的日程数据。最终，//todo：动态更新
 
-![widget](/widget.gif)
+![widget](https://github.com/Starrah/THUCourseHelper/raw/master/preview/widget.gif)
 
 ### 8.提醒模块
 
