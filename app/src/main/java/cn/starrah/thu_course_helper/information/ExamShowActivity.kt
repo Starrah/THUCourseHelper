@@ -108,7 +108,7 @@ class ExamShowActivity : AppCompatActivity(){
         var show_place:TextView = layout.findViewById(R.id.time_show_place)
 
         //名称
-        var name_string:String = item.name + time.name
+        var name_string:String = item.name  + "：" +  time.name
         show_name.setText(name_string)
 
 
