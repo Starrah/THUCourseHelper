@@ -141,7 +141,7 @@ suspend fun BackendAPISubmitLog(e: Throwable) =
 
 suspend fun BackendAPIFeedback(message: String, contact: String?) {
     CookiedFuel.post("$BACKEND_SITE/feedback").header(Headers.CONTENT_TYPE, "text/plain")
-        .body("message${if (contact != null) ", 联系方式：${contact}" else ""}").awaitString()
+        .body("${message}${if (contact != null) ", 联系方式：${contact}" else ""}").awaitString()
 }
 
 /**
