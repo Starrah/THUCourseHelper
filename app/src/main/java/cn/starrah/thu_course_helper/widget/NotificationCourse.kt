@@ -103,7 +103,7 @@ class NotificationCourse : BroadcastReceiver() {
             }
 
             //名称
-            var name: String = the_item.calendarItem.name + the_item.name
+            var name: String = the_item.calendarItem.name  + "：" +  the_item.name
             var current_time: LocalTime = LocalTime.now()
             var description: String = ""
             if (current_time.isAfter(the_item.timeInHour!!.endTime)) {
