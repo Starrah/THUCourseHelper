@@ -1,9 +1,8 @@
 package cn.starrah.thu_course_helper.picker
 
 import android.content.Context
-import androidx.annotation.ColorRes
-import androidx.annotation.IdRes
 import android.util.TypedValue
+import androidx.annotation.ColorRes
 import androidx.annotation.NonNull
 
 /**

@@ -40,7 +40,6 @@ import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.IvParameterSpec
 
 /**
@@ -490,7 +489,7 @@ object CalendarRepository {
                 DAO.findItemsSpecifiedDetailFulltext(
                     word
                 )
-            ) { newValue, old ->
+            ) { newValue, _ ->
                 newValue.filter {
                     val dataValue = it.detail[detailKey] ?: return@filter false
                     if (exactEqual) word == dataValue else word in dataValue
@@ -513,7 +512,7 @@ object CalendarRepository {
     ): LiveData<List<CalendarTimeDataWithItem>> {
         return withContext(Dispatchers.IO) {
             if (!exactEqual && itemType == null) DAO.findTimesSpecifiedName(name)
-            else AttachedLiveData(DAO.findTimesSpecifiedName(name)) { newValue, old ->
+            else AttachedLiveData(DAO.findTimesSpecifiedName(name)) { newValue, _ ->
                 newValue.filter {
                     (!exactEqual || it.name == name) && (itemType == null || itemType == it.calendarItem.type)
                 }

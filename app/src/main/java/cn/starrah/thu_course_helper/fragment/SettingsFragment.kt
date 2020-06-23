@@ -1,15 +1,13 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER")
+
 package cn.starrah.thu_course_helper.fragment
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -31,6 +29,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 
+@Suppress("DEPRECATION")
 class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var sp: SharedPreferences
     lateinit var pf_sync_hmex: MultiSelectListPreference
@@ -452,7 +451,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     fun setBackground() {
         val sp = PreferenceManager.getDefaultSharedPreferences(requireActivity())
         val settings = sp.getString("background_choice", resources.getString(R.string.bg_blank))
-        var background: Drawable? = null
+        var background: Drawable?
         try {
             background = MainActivity.mapBackground.get(settings)
         }

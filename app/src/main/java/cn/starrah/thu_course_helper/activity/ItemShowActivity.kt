@@ -1,7 +1,8 @@
+@file:Suppress("UNUSED_ANONYMOUS_PARAMETER", "UNUSED_PARAMETER")
+
 package cn.starrah.thu_course_helper.activity
 
 
-import android.R.id.text2
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
@@ -27,7 +28,6 @@ import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.utils.chineseName
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
@@ -54,7 +54,7 @@ class ItemShowActivity : AppCompatActivity(){
          *返回：无
          */
         fun HideItem(item:LinearLayout) {
-            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0);
+            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0);
             item.layoutParams = params
         }
 
@@ -65,7 +65,7 @@ class ItemShowActivity : AppCompatActivity(){
          */
         fun ShowItem(item:LinearLayout) {
             //和style一致
-            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 65);
+            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 65);
             item.layoutParams = params
         }
     }
@@ -78,9 +78,9 @@ class ItemShowActivity : AppCompatActivity(){
      */
     suspend fun getData() {
         //数据获取
-        var list: List<Int> = listOf(showID)
-        var the_item = CREP.findItemsByIds(list)
-        var size = the_item.getNotNullValue().size
+        val list: List<Int> = listOf(showID)
+        val the_item = CREP.findItemsByIds(list)
+        val size = the_item.getNotNullValue().size
         if(size <= 0 || size > 1) {
             Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             finish()
@@ -128,68 +128,64 @@ class ItemShowActivity : AppCompatActivity(){
     suspend fun showData() {
 
         //名称
-        var item_name:String = showItem!!.name
-        var item_show_name:TextView = findViewById(R.id.item_show_name)
+        val item_name:String = showItem!!.name
+        val item_show_name:TextView = findViewById(R.id.item_show_name)
         item_show_name.setText(item_name)
-        var item_show_top:TextView = findViewById(R.id.item_show_top)
+        val item_show_top:TextView = findViewById(R.id.item_show_top)
         item_show_top.setText(item_name)
 
-
-        //类别
-        var item_type:CalendarItemType = showItem!!.type
-
         //教师，课程号，detail
-        var item_teacher:String? = showItem!!.detail[CalendarItemLegalDetailKey.TEACHER]
-        var show_teacher_place:LinearLayout = findViewById(R.id.item_show_teacher_place)
-        var show_teacher: TextView = findViewById(R.id.item_show_teacher)
+        val item_teacher:String? = showItem!!.detail[CalendarItemLegalDetailKey.TEACHER]
+        val show_teacher_place:LinearLayout = findViewById(R.id.item_show_teacher_place)
+        val show_teacher: TextView = findViewById(R.id.item_show_teacher)
         if(item_teacher == null) {
             HideItem(show_teacher_place)
         }
         else {
-            var show_item_teacher = showTeacher + ": " + item_teacher;
+            val show_item_teacher = showTeacher + ": " + item_teacher;
             ShowItem(show_teacher_place)
             show_teacher.setText(show_item_teacher)
         }
 
 
-        var item_course_id:String? = showItem!!.detail[CalendarItemLegalDetailKey.COURSEID]
-        var show_course_id: TextView = findViewById(R.id.item_show_course_id)
-        var show_course_id_place: LinearLayout = findViewById(R.id.item_show_course_id_place)
+        val item_course_id:String? = showItem!!.detail[CalendarItemLegalDetailKey.COURSEID]
+        val show_course_id: TextView = findViewById(R.id.item_show_course_id)
+        val show_course_id_place: LinearLayout = findViewById(R.id.item_show_course_id_place)
 
         if(item_course_id == null) {
             HideItem(show_course_id_place)
         }
         else {
-            var show_item_course_id = showCourseID + ": " + item_course_id;
+            val show_item_course_id = showCourseID + ": " + item_course_id;
             ShowItem(show_course_id_place)
             show_course_id.setText(show_item_course_id)
         }
 
-        var item_association: String? =
+        val item_association: String? =
             showItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION]
-        var show_association: TextView = findViewById(R.id.item_show_association)
-        var show_association_place: LinearLayout = findViewById(R.id.item_show_association_place)
+        val show_association: TextView = findViewById(R.id.item_show_association)
+        val show_association_place: LinearLayout = findViewById(R.id.item_show_association_place)
 
         if (item_association == null) {
             HideItem(show_association_place)
         }
         else {
-            var show_item_association = showAssociation + ": " + item_association;
+            val show_item_association = showAssociation + ": " + item_association;
             ShowItem(show_association_place)
             show_association.setText(show_item_association)
         }
 
         //详情
         var item_comment:String? = showItem!!.detail[CalendarItemLegalDetailKey.COMMENT]
-        var show_comment:TextView = findViewById(R.id.item_show_comment)
+        val show_comment:TextView = findViewById(R.id.item_show_comment)
         if(item_comment == null) {
             item_comment = ""
         }
-        var show_item_comment = showComment + ": " + item_comment;
+        val show_item_comment = showComment + ": " + item_comment;
         show_comment.setText(show_item_comment)
 
         //具体下面
-        var parent_place = findViewById<LinearLayout>(R.id.new_time_place_show)
+        val parent_place = findViewById<LinearLayout>(R.id.new_time_place_show)
         parent_place.removeAllViews()
         for(time in showItem!!.times) {
             showOneTime(time, parent_place)
@@ -208,135 +204,135 @@ class ItemShowActivity : AppCompatActivity(){
 
 
         //名称
-        var time_name:String = time.name
-        var show_name:TextView = layout.findViewById(R.id.time_show_name)
+        val time_name:String = time.name
+        val show_name:TextView = layout.findViewById(R.id.time_show_name)
         show_name.setText(time_name)
 
-        var show_date:TextView = layout.findViewById(R.id.time_show_date)
-        var show_time:TextView = layout.findViewById(R.id.time_show_time)
+        val show_date:TextView = layout.findViewById(R.id.time_show_date)
+        val show_time:TextView = layout.findViewById(R.id.time_show_time)
 
         //日期和时间
         if(time.type == CalendarTimeType.REPEAT_COURSE) {
             //时间---周三第三大节
-            var schedule = time.timeInCourseSchedule
-            var day_time:String = schedule!!.chineseName
+            val schedule = time.timeInCourseSchedule
+            val day_time:String = schedule!!.chineseName
             show_time.setText(day_time)
 
             //日期---后八周
-            var week_list = time.repeatWeeks
-            var week_show = ItemEditActivity.getWeeksString(week_list)
+            val week_list = time.repeatWeeks
+            val week_show = ItemEditActivity.getWeeksString(week_list)
             show_date.setText(week_show)
 
         }
         else if(time.type == CalendarTimeType.REPEAT_HOUR) {
             //时间---周三9:00-10:00
-            var schedule = time.timeInHour
-            var start_time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
-            var end_time:String = ItemEditActivity.getTimeString(schedule!!.endTime)
-            var week_day = schedule!!.dayOfWeek
-            var week_day_string:String = week_day!!.chineseName
-            var day_time:String = week_day_string + start_time  + "-" + end_time
+            val schedule = time.timeInHour
+            val start_time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
+            val end_time:String = ItemEditActivity.getTimeString(schedule.endTime)
+            val week_day = schedule.dayOfWeek
+            val week_day_string:String = week_day!!.chineseName
+            val day_time:String = week_day_string + start_time  + "-" + end_time
             show_time.setText(day_time)
 
             //日期--后八周
-            var week_list = time.repeatWeeks
-            var week_show = ItemEditActivity.getWeeksString(week_list)
+            val week_list = time.repeatWeeks
+            val week_show = ItemEditActivity.getWeeksString(week_list)
             show_date.setText(week_show)
         }
         else if(time.type == CalendarTimeType.SINGLE_COURSE) {
             //时间---周五第三大节
-            var schedule = time.timeInCourseSchedule
-            var day_time:String = schedule!!.chineseName
+            val schedule = time.timeInCourseSchedule
+            val day_time:String = schedule!!.chineseName
             show_time.setText(day_time)
 
             //日期--第14周周五（5月22日）
-            var the_date = schedule.date
-            var time_month = the_date!!.month.value
-            var time_day = the_date!!.dayOfMonth
-            var the_week_num = CREP.term.dateToWeekNumber(the_date)
-            var the_week_day = the_date.dayOfWeek.chineseName
-            var date_string = "第" + the_week_num + "周" + the_week_day + "(" + time_month + "月" + time_day + "日)"
+            val the_date = schedule.date
+            val time_month = the_date!!.month.value
+            val time_day = the_date.dayOfMonth
+            val the_week_num = CREP.term.dateToWeekNumber(the_date)
+            val the_week_day = the_date.dayOfWeek.chineseName
+            val date_string = "第" + the_week_num + "周" + the_week_day + "(" + time_month + "月" + time_day + "日)"
             show_date.setText(date_string)
         }
         else if(time.type == CalendarTimeType.SINGLE_HOUR) {
             //时间---周五9:00-10:00
-            var schedule = time.timeInHour
-            var start_time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
-            var end_time:String = ItemEditActivity.getTimeString(schedule!!.endTime)
-            var week_day = schedule!!.dayOfWeek
+            val schedule = time.timeInHour
+            val start_time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
+            val end_time:String = ItemEditActivity.getTimeString(schedule.endTime)
+            var week_day = schedule.dayOfWeek
             if(week_day == null) {
-                week_day = schedule!!.date!!.dayOfWeek
+                week_day = schedule.date!!.dayOfWeek
             }
-            var week_day_string:String = week_day!!.chineseName
-            var day_time:String = week_day_string + start_time  + "-" + end_time
+            val week_day_string:String = week_day!!.chineseName
+            val day_time:String = week_day_string + start_time  + "-" + end_time
             show_time.setText(day_time)
 
             //日期--5月22日
-            var the_date_year = schedule.date!!.year
-            var the_date_month = schedule.date!!.month.value
-            var the_date_day = schedule.date!!.dayOfMonth
-            var date_string:String = "" + the_date_year + "年" + the_date_month + "月" + the_date_day + "日"
+            val the_date_year = schedule.date!!.year
+            val the_date_month = schedule.date!!.month.value
+            val the_date_day = schedule.date!!.dayOfMonth
+            val date_string:String = "" + the_date_year + "年" + the_date_month + "月" + the_date_day + "日"
             show_date.setText(date_string)
         }
         else if(time.type == CalendarTimeType.POINT) {
             //时间---周五9:00
-            var schedule = time.timeInHour
-            var time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
-            var week_day = schedule!!.dayOfWeek
+            val schedule = time.timeInHour
+            val time:String = ItemEditActivity.getTimeString(schedule!!.startTime)
+            var week_day = schedule.dayOfWeek
             if(week_day == null) {
-                week_day = schedule!!.date!!.dayOfWeek
+                week_day = schedule.date!!.dayOfWeek
             }
-            var week_day_string:String = week_day!!.chineseName
-            var day_time:String = week_day_string + time
+            val week_day_string:String = week_day!!.chineseName
+            val day_time:String = week_day_string + time
             show_time.setText(day_time)
 
             //日期--5月22日
-            var the_date_year = schedule.date!!.year
-            var the_date_month = schedule.date!!.month.value
-            var the_date_day = schedule.date!!.dayOfMonth
-            var date_string:String = "" + the_date_year + "年" + the_date_month + "月" + the_date_day + "日"
+            val the_date_year = schedule.date!!.year
+            val the_date_month = schedule.date!!.month.value
+            val the_date_day = schedule.date!!.dayOfMonth
+            val date_string:String = "" + the_date_year + "年" + the_date_month + "月" + the_date_day + "日"
             show_date.setText(date_string)
         }
 
         //地点
-        var time_place:String = time.place
-        var show_place:TextView = layout.findViewById(R.id.time_show_place)
+        val time_place:String = time.place
+        val show_place:TextView = layout.findViewById(R.id.time_show_place)
         show_place.setText(time_place)
 
         //说明
-        var time_comment:String = time.comment
-        var show_comment:TextView = layout.findViewById(R.id.time_show_comment)
+        val time_comment:String = time.comment
+        val show_comment:TextView = layout.findViewById(R.id.time_show_comment)
         show_comment.setText(time_comment)
 
         //提醒
-        var time_remind:String = ""
-        var time_remind_type_string:String = "" + time.remindData.method.chineseName
-        var time_remind_time_string:String = ItemEditActivity.getAheadTimeString(time.remindData.aheadTime)
+        var time_remind: String
+        val time_remind_type_string:String = "" + time.remindData.method.chineseName
+        val time_remind_time_string:String = ItemEditActivity.getAheadTimeString(time.remindData.aheadTime)
         if(time.remindData.type == CalendarRemindType.NONE) {
             time_remind = "未设置提醒"
         }
         else{
-            var time_remind_repeat_string:String = time.remindData.type.chineseName
+            val time_remind_repeat_string:String = time.remindData.type.chineseName
             time_remind = "提前" + time_remind_time_string + "，"+ time_remind_type_string + "，" +  time_remind_repeat_string
         }
-        var show_remind:TextView = layout.findViewById(R.id.time_show_remind)
+        val show_remind:TextView = layout.findViewById(R.id.time_show_remind)
         show_remind.setText(time_remind)
 
         //下次提醒时间
-        var show_next_remind_place = layout.findViewById<LinearLayout>(R.id.time_show_remind_next_place)
+        val show_next_remind_place = layout.findViewById<LinearLayout>(R.id.time_show_remind_next_place)
         if(time.remindData.type == CalendarRemindType.NONE) {
             HideItem(show_next_remind_place)
         }
         else {
-            var show_next_remind:TextView = layout.findViewById(R.id.time_show_remind_next)
-            var new_remind_time = time.nextRemindTime
-            var new_remind_time_string = ""
+            val show_next_remind:TextView = layout.findViewById(R.id.time_show_remind_next)
+            val new_remind_time = time.nextRemindTime
+            var new_remind_time_string: String
             if(new_remind_time == null) {
                 new_remind_time_string = "提醒已关闭"
             }
             else {
-                var df: DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
-                var time_string:String = df.format(new_remind_time);
+                val df: DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
+                val time_string:String = df.format(new_remind_time);
                 new_remind_time_string = "下次提醒时间： " + time_string
             }
             show_next_remind.setText(new_remind_time_string)
@@ -370,7 +366,7 @@ class ItemShowActivity : AppCompatActivity(){
             .setMessage("确定要删除日程吗")
             .setCancelable(true)
             .setPositiveButton("确定",
-                DialogInterface.OnClickListener { dialog, which ->
+                { _, which ->
                     lifecycleScope.launch{
                         try {
                             CREP.deleteItem(showItem!!)
@@ -383,7 +379,7 @@ class ItemShowActivity : AppCompatActivity(){
                     }
                 })
             .setNegativeButton("取消",
-                DialogInterface.OnClickListener { dialog, which ->  })
+                { _, which ->  })
         dialog.show()
     }
 
@@ -402,8 +398,8 @@ class ItemShowActivity : AppCompatActivity(){
      * 返回：无
      */
     fun handleEdit(view: View) {
-        var id: Int = showID
-        var intent = Intent(this, ItemEditActivity::class.java)
+        val id: Int = showID
+        val intent = Intent(this, ItemEditActivity::class.java)
         intent.putExtra(EXTRA_MESSAGE, id)
         startActivityForResult(intent, EDIT_CODE)
     }

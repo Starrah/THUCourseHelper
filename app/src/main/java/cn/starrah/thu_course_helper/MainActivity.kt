@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package cn.starrah.thu_course_helper
 
 import android.graphics.drawable.Drawable
@@ -20,7 +22,6 @@ import cn.starrah.thu_course_helper.service.allAppTask
 import cn.starrah.thu_course_helper.widget.updateWidgetsAndNotification
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 
 class MainActivity : FragmentActivity() {
@@ -53,79 +54,79 @@ class MainActivity : FragmentActivity() {
         mapBackground.clear()
         mapBackgroundLine.clear()
 
-        var string1 = resources.getString(R.string.bg_blank)
-        var bg1 = resources.getDrawable(R.color.colorWhite)
+        val string1 = resources.getString(R.string.bg_blank)
+        val bg1 = resources.getDrawable(R.color.colorWhite)
         mapBackground.put(string1, bg1)
-        var line1 = resources.getString(R.string.bg_stroke_black)
+        val line1 = resources.getString(R.string.bg_stroke_black)
         mapBackgroundLine.put(string1, line1)
 
 
-        var string3 = resources.getString(R.string.bg_desert)
-        var bg3 = resources.getDrawable(R.drawable.bg_desert)
+        val string3 = resources.getString(R.string.bg_desert)
+        val bg3 = resources.getDrawable(R.drawable.bg_desert)
         mapBackground.put(string3, bg3)
-        var line3 = resources.getString(R.string.bg_stroke_white)
+        val line3 = resources.getString(R.string.bg_stroke_white)
         mapBackgroundLine.put(string3, line3)
 
 
-        var string5 = resources.getString(R.string.bg_grass)
-        var bg5 = resources.getDrawable(R.drawable.bg_grass)
+        val string5 = resources.getString(R.string.bg_grass)
+        val bg5 = resources.getDrawable(R.drawable.bg_grass)
         mapBackground.put(string5, bg5)
-        var line5 = resources.getString(R.string.bg_stroke_white)
+        val line5 = resources.getString(R.string.bg_stroke_white)
         mapBackgroundLine.put(string5, line5)
 
 
-        var string7 = resources.getString(R.string.bg_sea)
-        var bg7 = resources.getDrawable(R.drawable.bg_sea)
+        val string7 = resources.getString(R.string.bg_sea)
+        val bg7 = resources.getDrawable(R.drawable.bg_sea)
         mapBackground.put(string7, bg7)
-        var line7 = resources.getString(R.string.bg_stroke_white)
+        val line7 = resources.getString(R.string.bg_stroke_white)
         mapBackgroundLine.put(string7, line7)
 
-        var string8 = resources.getString(R.string.bg_winter)
-        var bg8 = resources.getDrawable(R.drawable.bg_winter)
+        val string8 = resources.getString(R.string.bg_winter)
+        val bg8 = resources.getDrawable(R.drawable.bg_winter)
         mapBackground.put(string8, bg8)
-        var line8 = resources.getString(R.string.bg_stroke_black)
+        val line8 = resources.getString(R.string.bg_stroke_black)
         mapBackgroundLine.put(string8, line8)
 
-        var string9 = resources.getString(R.string.bg_109_1)
-        var bg9 = resources.getDrawable(R.drawable.bg_109_1)
+        val string9 = resources.getString(R.string.bg_109_1)
+        val bg9 = resources.getDrawable(R.drawable.bg_109_1)
         mapBackground.put(string9, bg9)
-        var line9 = resources.getString(R.string.bg_stroke_white)
+        val line9 = resources.getString(R.string.bg_stroke_white)
         mapBackgroundLine.put(string9, line9)
 
-        var string10 = resources.getString(R.string.bg_109_2)
-        var bg10 = resources.getDrawable(R.drawable.bg_109_2)
+        val string10 = resources.getString(R.string.bg_109_2)
+        val bg10 = resources.getDrawable(R.drawable.bg_109_2)
         mapBackground.put(string10, bg10)
-        var line10 = resources.getString(R.string.bg_stroke_white)
+        val line10 = resources.getString(R.string.bg_stroke_white)
         mapBackgroundLine.put(string10, line10)
 
-        var string11 = resources.getString(R.string.bg_109_3)
-        var bg11 = resources.getDrawable(R.drawable.bg_109_3)
+        val string11 = resources.getString(R.string.bg_109_3)
+        val bg11 = resources.getDrawable(R.drawable.bg_109_3)
         mapBackground.put(string11, bg11)
-        var line11 = resources.getString(R.string.bg_stroke_black)
+        val line11 = resources.getString(R.string.bg_stroke_black)
         mapBackgroundLine.put(string11, line11)
 
-        var string12 = resources.getString(R.string.bg_blue)
-        var bg12 = resources.getDrawable(R.drawable.bg_blue)
+        val string12 = resources.getString(R.string.bg_blue)
+        val bg12 = resources.getDrawable(R.drawable.bg_blue)
         mapBackground.put(string12, bg12)
-        var line12 = resources.getString(R.string.bg_stroke_black)
+        val line12 = resources.getString(R.string.bg_stroke_black)
         mapBackgroundLine.put(string12, line12)
 
-        var string13 = resources.getString(R.string.bg_pink)
-        var bg13 = resources.getDrawable(R.drawable.bg_pink)
+        val string13 = resources.getString(R.string.bg_pink)
+        val bg13 = resources.getDrawable(R.drawable.bg_pink)
         mapBackground.put(string13, bg13)
-        var line13 = resources.getString(R.string.bg_stroke_white)
+        val line13 = resources.getString(R.string.bg_stroke_white)
         mapBackgroundLine.put(string13, line13)
 
-        var string14 = resources.getString(R.string.bg_orange)
-        var bg14 = resources.getDrawable(R.drawable.bg_orange)
+        val string14 = resources.getString(R.string.bg_orange)
+        val bg14 = resources.getDrawable(R.drawable.bg_orange)
         mapBackground.put(string14, bg14)
-        var line14 = resources.getString(R.string.bg_stroke_black)
+        val line14 = resources.getString(R.string.bg_stroke_black)
         mapBackgroundLine.put(string14, line14)
 
-        var string15 = resources.getString(R.string.bg_yellow_purple)
-        var bg15 = resources.getDrawable(R.drawable.bg_morning_mountain)
+        val string15 = resources.getString(R.string.bg_yellow_purple)
+        val bg15 = resources.getDrawable(R.drawable.bg_morning_mountain)
         mapBackground.put(string15, bg15)
-        var line15 = resources.getString(R.string.bg_stroke_white)
+        val line15 = resources.getString(R.string.bg_stroke_white)
         mapBackgroundLine.put(string15, line15)
         mapBackgroundLine.put(string15, line15)
     }
@@ -138,7 +139,7 @@ class MainActivity : FragmentActivity() {
     fun setInitialBackground() {
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         val settings = sp.getString("background_choice", resources.getString(R.string.bg_blank))
-        var background: Drawable? = null
+        var background: Drawable?
         try {
             background = mapBackground.get(settings)
         }
@@ -149,7 +150,7 @@ class MainActivity : FragmentActivity() {
             background = resources.getDrawable(R.color.colorWhite)
         }
 
-        var layout = findViewById<FrameLayout>(R.id.frame_page)
+        val layout = findViewById<FrameLayout>(R.id.frame_page)
         layout.background = background
     }
 
@@ -194,7 +195,7 @@ class MainActivity : FragmentActivity() {
                     }
                     R.id.navigation_settings     -> {
                         supportFragmentManager.inTransaction {
-                            var layout = findViewById<FrameLayout>(R.id.frame_page)
+                            val layout = findViewById<FrameLayout>(R.id.frame_page)
                             layout.background = bgSettings
                             replace(R.id.frame_page, SettingsFragment())
                         }
@@ -209,20 +210,12 @@ class MainActivity : FragmentActivity() {
             Toast.makeText(this, intent.getStringExtra("SHOW_TOAST")!!, Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch {
-            val sp = PreferenceManager.getDefaultSharedPreferences(this@MainActivity)
             allAppTask(this@MainActivity)
             val onlineSource = CREP.onlineCourseDataSource
             if (onlineSource is THUCourseDataSouce) {
                 onlineSource.tryShouldFixDataFromBackendLaterAfterWrittenToDB(this@MainActivity)
             }
 
-//            val time = withContext(Dispatchers.IO) { CREP.DAO.findAllItems() }.first().let { CalendarTimeDataWithItem(it.times[0], it) }
-////            showRemindNotification(this@MainActivity, time)
-//            val alarmIntent = Intent(this@MainActivity, RemindReceiver::class.java).apply {
-//                action = "remind"
-//                addCategory("timeId:${time.id}")
-//            }
-//            sendBroadcast(alarmIntent)
         }
     }
 

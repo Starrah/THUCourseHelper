@@ -1,25 +1,21 @@
 package cn.starrah.thu_course_helper.fragment
 
 import android.annotation.SuppressLint
-import cn.starrah.thu_course_helper.R
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ScrollView
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.TableFragment
 import cn.starrah.thu_course_helper.activity.ItemEditActivity
-import cn.starrah.thu_course_helper.activity.ItemShowActivity
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.DayOfWeek
-import java.time.Duration
-import java.time.LocalTime
 
 
 class TimeTable : TableFragment() {
@@ -90,8 +86,7 @@ class TimeTable : TableFragment() {
     返回：无
     */
     override fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem) {
-        var v:View? = null;
-        v = showOneHour(theWeekDay, theItem)
+        showOneHour(theWeekDay, theItem)
     }
 
     /**

@@ -37,6 +37,7 @@ class LoginDialog(context: Context) : Dialog(context){
         buildDialog()
     }
 
+    @Suppress("LocalVariableName", "NAME_SHADOWING")
     private suspend fun buildDialog(){
         val layout = LayoutInflater.from(theContext!!).inflate(R.layout.login, null)
 
@@ -60,7 +61,7 @@ class LoginDialog(context: Context) : Dialog(context){
             //如果登录状态为2,3，加载密码
             if (it.getInt("login_status", 0) >= 2) {
                 runCatching { CREP.getUserPassword(context) }.getOrNull()?.let {
-                    if(it != null&& it.isEmpty() == false) {
+                    if(!it.isEmpty()) {
                         //设置保存密码选项为true
                         savePassCheck.isChecked = true
                     }
@@ -70,7 +71,7 @@ class LoginDialog(context: Context) : Dialog(context){
         }
 
         //隐藏progressbar
-        var params_hide: LinearLayout.LayoutParams =
+        val params_hide: LinearLayout.LayoutParams =
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
         loginBarPlace.setLayoutParams(params_hide)
         loginBar.isVisible = false
@@ -115,9 +116,9 @@ class LoginDialog(context: Context) : Dialog(context){
                 override fun onClick(view: View?) {
                     (theContext as FragmentActivity).lifecycleScope.launch {
 
-                        var login_id: String = idPlace.text.toString()
-                        var login_pass: String = passPlace.text.toString()
-                        var login_captcha: String = captchaPlace.text.toString().toUpperCase()
+                        val login_id: String = idPlace.text.toString()
+                        val login_pass: String = passPlace.text.toString()
+                        val login_captcha: String = captchaPlace.text.toString().toUpperCase()
                         if (login_id.isEmpty()) {
                             Toast.makeText(theContext!!, "账号不能为空！", Toast.LENGTH_SHORT).show()
                         }
@@ -131,12 +132,12 @@ class LoginDialog(context: Context) : Dialog(context){
                             try {
 
                                 //显示progressbar
-                                var params_show: LinearLayout.LayoutParams =
+                                val params_show: LinearLayout.LayoutParams =
                                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                                 loginBarPlace.setLayoutParams(params_show);
                                 loginBar.isVisible = true
 
-                                var map_captcha = mapOf<String, Any>("captcha" to login_captcha)
+                                val map_captcha = mapOf<String, Any>("captcha" to login_captcha)
                                 //登录
                                 THUCourseDataSouce.login(
                                     login_id,
@@ -164,7 +165,7 @@ class LoginDialog(context: Context) : Dialog(context){
                                 }
 
                                 //隐藏progressbar
-                                var params_hide: LinearLayout.LayoutParams =
+                                val params_hide: LinearLayout.LayoutParams =
                                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
                                 loginBarPlace.setLayoutParams(params_hide);
                                 loginBar.isVisible = false
@@ -180,7 +181,7 @@ class LoginDialog(context: Context) : Dialog(context){
                                 e.printStackTrace()
 
                                 //隐藏progressbar
-                                var params_hide: LinearLayout.LayoutParams =
+                                val params_hide: LinearLayout.LayoutParams =
                                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
                                 loginBarPlace.setLayoutParams(params_hide);
                                 loginBar.isVisible = false

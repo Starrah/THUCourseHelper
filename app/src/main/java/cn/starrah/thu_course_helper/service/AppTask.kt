@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
+import android.os.Build
 import android.widget.Toast
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.remind.setRemindTimerServiceForAll
@@ -33,6 +34,10 @@ fun configNotificationChannel(context: Context) {
     val name = context.resources.getString(R.string.notification_channel_remind_name)
     val importance = NotificationManager.IMPORTANCE_HIGH
     val mChannel = NotificationChannel("remind", name, importance)
+    mChannel.enableVibration(true)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        mChannel.setAllowBubbles(true)
+    }
     val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     notificationManager.createNotificationChannel(mChannel)
 }

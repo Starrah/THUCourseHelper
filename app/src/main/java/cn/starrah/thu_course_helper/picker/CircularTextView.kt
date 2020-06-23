@@ -1,14 +1,14 @@
 package cn.starrah.thu_course_helper.picker
 
-import cn.starrah.thu_course_helper.R
 import android.content.Context
 import android.os.Build
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.AppCompatTextView
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import androidx.annotation.Nullable
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.AppCompatTextView
+import cn.starrah.thu_course_helper.R
 
 /**
  * Created by ramiz on 1/31/18.
@@ -46,6 +46,7 @@ class CircularTextView : AppCompatTextView, View.OnClickListener {
         init()
     }
 
+    @Suppress("DEPRECATION")
     fun init() {
         setGravity(Gravity.CENTER)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {

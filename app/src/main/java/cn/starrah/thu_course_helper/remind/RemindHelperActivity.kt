@@ -99,8 +99,6 @@ class ReminderHelperService() : Service() {
             .setNotificationSilent()
             .setFullScreenIntent(pendingIntent, true)
         iid = (System.currentTimeMillis().toInt() % 1000000) + 1000000
-//        NotificationManagerCompat.from(context)
-//            .notify(idd, builder.build())
 
         startForeground(iid!!, builder.build())
 

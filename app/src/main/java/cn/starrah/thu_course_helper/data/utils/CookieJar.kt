@@ -3,8 +3,8 @@ package cn.starrah.thu_course_helper.data.utils
 import com.alibaba.fastjson.JSON
 import com.github.kittinunf.fuel.core.*
 import com.github.kittinunf.fuel.core.deserializers.StringDeserializer
-import java.util.regex.Pattern
 import com.github.kittinunf.fuel.core.interceptors.redirectResponseInterceptor
+import java.util.regex.Pattern
 
 // 用于后端处理返回json中的errMsg字段，以保证错误消息能够被作为Exception的message。
 private val backendErrMsgHandler: FoldableResponseInterceptor = { next ->

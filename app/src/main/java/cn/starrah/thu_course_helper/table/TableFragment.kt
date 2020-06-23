@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION", "UNUSED_ANONYMOUS_PARAMETER")
+
 package cn.starrah.thu_course_helper
 
 
@@ -30,7 +32,6 @@ import com.bigkoo.pickerview.builder.OptionsPickerBuilder
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener
 import com.bigkoo.pickerview.view.OptionsPickerView
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
@@ -143,7 +144,7 @@ abstract class TableFragment : Fragment(){
      */
     fun setWidthHeight(ID:Int, Width:Int, Height:Int) {
         val view: LinearLayout = theActivity!!.findViewById(ID)
-        var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(Width, Height);
+        val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(Width, Height);
         view.setLayoutParams(params)
     }
 
@@ -221,7 +222,7 @@ abstract class TableFragment : Fragment(){
         val dm = DisplayMetrics()
         theActivity!!.windowManager.defaultDisplay.getMetrics(dm)
         val TotalWidth: Int = dm.widthPixels
-        var averageWidth: Int = (TotalWidth - LayoutConstants.LeftWidth) / showDays
+        val averageWidth: Int = (TotalWidth - LayoutConstants.LeftWidth) / showDays
 
         //初始化日期/周几宽度
         //显示的视图所在列，要求宽度
@@ -256,6 +257,7 @@ abstract class TableFragment : Fragment(){
 
 
 
+    @Suppress("DEPRECATION")
     override fun onStart() {
         super.onStart()
 
@@ -291,9 +293,9 @@ abstract class TableFragment : Fragment(){
      * 返回：无
      */
     fun setWeekToday() {
-        var today:LocalDate = LocalDate.now()
+        val today:LocalDate = LocalDate.now()
         try {
-            var current_week: Int = CREP.term.dateToWeekNumber(today)
+            val current_week: Int = CREP.term.dateToWeekNumber(today)
             currentWeek = current_week
         }
         catch(e:Exception) {
@@ -313,9 +315,9 @@ abstract class TableFragment : Fragment(){
      * @sample：如果要设置为今天对应的周，必须先调用setWeekToday。否则要设置当前周。
     */
     fun updateAllDates() {
-        var day_list = CREP.term.datesInAWeek(currentWeek, false)
-        var year_list:ArrayList<Int> = ArrayList()
-        var month_list:ArrayList<Int> = ArrayList()
+        val day_list = CREP.term.datesInAWeek(currentWeek, false)
+        val year_list:ArrayList<Int> = ArrayList()
+        val month_list:ArrayList<Int> = ArrayList()
         for(i in day_list.indices) {
             year_list.add(day_list.get(i).year)
             month_list.add(day_list.get(i).monthValue)
@@ -343,8 +345,8 @@ abstract class TableFragment : Fragment(){
         }
 
         //更新年份信息
-        var start_year:Int = year_list.get(0)
-        var end_year:Int = year_list.get(6)
+        val start_year:Int = year_list.get(0)
+        val end_year:Int = year_list.get(6)
         if(start_year == end_year) {
             currentYear = start_year
         }
@@ -364,8 +366,8 @@ abstract class TableFragment : Fragment(){
         }
 
         //更新月份信息
-        var start_month:Int = month_list.get(0)
-        var end_month:Int = month_list.get(6)
+        val start_month:Int = month_list.get(0)
+        val end_month:Int = month_list.get(6)
         if(start_month == end_month) {
             currentMonth = start_month
         }
@@ -391,19 +393,19 @@ abstract class TableFragment : Fragment(){
      * 返回：2020年6月 这种格式
      */
     fun getWeekInfo(week:Int) :String {
-        var day_list = CREP.term.datesInAWeek(week, false)
-        var year_list:ArrayList<Int> = ArrayList()
-        var month_list:ArrayList<Int> = ArrayList()
-        var current_year:Int = 0
-        var current_month:Int = 0
+        val day_list = CREP.term.datesInAWeek(week, false)
+        val year_list:ArrayList<Int> = ArrayList()
+        val month_list:ArrayList<Int> = ArrayList()
+        val current_year: Int
+        val current_month: Int
         for(i in day_list.indices) {
             year_list.add(day_list.get(i).year)
             month_list.add(day_list.get(i).monthValue)
         }
 
         //更新年份信息
-        var start_year:Int = year_list.get(0)
-        var end_year:Int = year_list.get(6)
+        val start_year:Int = year_list.get(0)
+        val end_year:Int = year_list.get(6)
         if(start_year == end_year) {
             current_year = start_year
         }
@@ -423,8 +425,8 @@ abstract class TableFragment : Fragment(){
         }
 
         //更新月份信息
-        var start_month:Int = month_list.get(0)
-        var end_month:Int = month_list.get(6)
+        val start_month:Int = month_list.get(0)
+        val end_month:Int = month_list.get(6)
         if(start_month == end_month) {
             current_month = start_month
         }
@@ -442,7 +444,7 @@ abstract class TableFragment : Fragment(){
                 current_month = end_month
             }
         }
-        var return_string = "" + current_year + "年" + current_month + "月"
+        val return_string = "" + current_year + "年" + current_month + "月"
         return return_string
     }
 
@@ -456,36 +458,30 @@ abstract class TableFragment : Fragment(){
     protected fun showAllDates() {
         //更新学期显示
         //学期信息的显示位置
-        var term_item: TextView = theActivity!!.findViewById<TextView>(termInfoShowPlace!!)
-        var term_text:String = CREP.term.chineseShortName+ " 第" + currentWeek + "周"
+        val term_item: TextView = theActivity!!.findViewById<TextView>(termInfoShowPlace)
+        val term_text:String = CREP.term.chineseShortName+ " 第" + currentWeek + "周"
         term_item.setText(term_text)
         term_item.setOnClickListener(View.OnClickListener() {
-            if (pvWeekOptions != null) {
-                pvWeekOptions.show(term_item);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-            }
+            pvWeekOptions.show(term_item)
         })
-        var change_week: TextView = theActivity!!.findViewById<TextView>(R.id.change_week)
+        val change_week: TextView = theActivity!!.findViewById<TextView>(R.id.change_week)
         change_week.setOnClickListener(View.OnClickListener() {
-            if (pvWeekOptions != null) {
-                pvWeekOptions.show(term_item);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-            }
+            pvWeekOptions.show(term_item)
         })
 
         //年月期显示位置
-        var date_item: TextView = theActivity!!.findViewById<TextView>(dateInfoShowPlace!!)
-        var date_text:String = "" + currentYear + "年" + currentMonth + "月"
+        val date_item: TextView = theActivity!!.findViewById<TextView>(dateInfoShowPlace)
+        val date_text:String = "" + currentYear + "年" + currentMonth + "月"
         date_item.setText(date_text)
         date_item.setOnClickListener(View.OnClickListener() {
-            if (pvWeekOptions != null) {
-                pvWeekOptions.show(date_item);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-            }
+            pvWeekOptions.show(date_item)
         })
 
         //更新日显示
         for(week_day in DayOfWeek.values()) {
-            var show_place = theActivity!!.findViewById<TextView>(showDateID[week_day]!!)
-            var the_date:LocalDate = allDates[week_day]!!
-            var show_num:Int = the_date.dayOfMonth
+            val show_place = theActivity!!.findViewById<TextView>(showDateID[week_day]!!)
+            val the_date:LocalDate = allDates[week_day]!!
+            val show_num:Int = the_date.dayOfMonth
             show_place.setText("" + show_num)
         }
     }
@@ -499,8 +495,8 @@ abstract class TableFragment : Fragment(){
      */
     protected suspend fun getValidTimes() {
         for (week_num in DayOfWeek.values()) {
-            var the_day: LocalDate = allDates[week_num]!!
-            var the_list = listOf<LocalDate>(the_day)
+            val the_day: LocalDate = allDates[week_num]!!
+            val the_list = listOf<LocalDate>(the_day)
 
             timeList[week_num] = CREP.findTimesByDays(the_list)
         }
@@ -534,15 +530,15 @@ abstract class TableFragment : Fragment(){
      */
     protected fun loadColors() {
         itemColors.clear()
-        var color0 = theActivity!!.getColor(R.color.colorRed)
-        var color1 = theActivity!!.getColor(R.color.colorOrange)
-        var color2 = theActivity!!.getColor(R.color.colorGreen)
-        var color3 = theActivity!!.getColor(R.color.colorPink)
-        var color4 = theActivity!!.getColor(R.color.colorBlue)
-        var color5 = theActivity!!.getColor(R.color.colorSPQR1)
-        var color6 = theActivity!!.getColor(R.color.colorTurquoise)
-        var color7 = theActivity!!.getColor(R.color.colorViolet)
-        var color8 = theActivity!!.getColor(R.color.colorSPQR2)
+        val color0 = theActivity!!.getColor(R.color.colorRed)
+        val color1 = theActivity!!.getColor(R.color.colorOrange)
+        val color2 = theActivity!!.getColor(R.color.colorGreen)
+        val color3 = theActivity!!.getColor(R.color.colorPink)
+        val color4 = theActivity!!.getColor(R.color.colorBlue)
+        val color5 = theActivity!!.getColor(R.color.colorSPQR1)
+        val color6 = theActivity!!.getColor(R.color.colorTurquoise)
+        val color7 = theActivity!!.getColor(R.color.colorViolet)
+        val color8 = theActivity!!.getColor(R.color.colorSPQR2)
         itemColors.add(color0)
         itemColors.add(color1)
         itemColors.add(color2)
@@ -561,8 +557,8 @@ abstract class TableFragment : Fragment(){
      */
     protected fun clearOriginalCourses() {
         for (day in DayOfWeek.values()) {
-            var viewID: Int = showPlaceID[day]!!
-            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+            val viewID: Int = showPlaceID[day]!!
+            val dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
             dayView.removeAllViews()
         }
     }
@@ -580,7 +576,7 @@ abstract class TableFragment : Fragment(){
         //根据sp，修改线颜色
         val sp = PreferenceManager.getDefaultSharedPreferences(theActivity!!)
         val settings = sp.getString("background_choice", resources.getString(R.string.bg_blank))
-        var stroke_color:String? = null
+        var stroke_color: String?
         try {
             stroke_color = MainActivity.mapBackgroundLine.get(settings)
         }
@@ -590,7 +586,7 @@ abstract class TableFragment : Fragment(){
         if(stroke_color == null) {
             stroke_color = resources.getString(R.string.bg_stroke_black)
         }
-        return stroke_color!!
+        return stroke_color
     }
 
     /**
@@ -605,8 +601,8 @@ abstract class TableFragment : Fragment(){
         }
 
         for(the_week_day in DayOfWeek.values()) {
-            var viewID: Int = showPlaceID[the_week_day]!!
-            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+            val viewID: Int = showPlaceID[the_week_day]!!
+            val dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
             dayView.background = stroke
         }
     }
@@ -626,25 +622,25 @@ abstract class TableFragment : Fragment(){
 
         //遍历周几
         for(theWeekDay in DayOfWeek.values()) {
-            var viewID: Int = showPlaceID[theWeekDay]!!
-            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+            val viewID: Int = showPlaceID[theWeekDay]!!
+            val dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
 
             //遍历大节
             var i: Int = 1
             while(i <= 6) {
-                var big:SchoolTimeRule.BigClass = CREP.timeRule.getBigByNumber(i)
-                var big_start_small: Float = CREP.timeRule.getStartSmallIndex(i) + 0.0f
+                val big:SchoolTimeRule.BigClass = CREP.timeRule.getBigByNumber(i)
+                val big_start_small: Float = CREP.timeRule.getStartSmallIndex(i) + 0.0f
 
                 //遍历小节
                 var j:Int = 1
-                var small_count:Int = big.smallsCount
+                val small_count:Int = big.smallsCount
                 while(j <= small_count) {
-                    var small_interval:Float = j + 0.0f
-                    var total_small = big_start_small + small_interval
-                    var place = LayoutConstants.HeightPerSmall * total_small
-                    var v:View = LayoutInflater.from(theActivity!!).inflate(stroke, null);
+                    val small_interval:Float = j + 0.0f
+                    val total_small = big_start_small + small_interval
+                    val place = LayoutConstants.HeightPerSmall * total_small
+                    val v:View = LayoutInflater.from(theActivity!!).inflate(stroke, null);
                     v.setY(place)
-                    var params: LinearLayout.LayoutParams =
+                    val params: LinearLayout.LayoutParams =
                         LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 5)
                     v.setLayoutParams(params);
                     dayView.addView(v)
@@ -671,16 +667,16 @@ abstract class TableFragment : Fragment(){
 
         //遍历周几
         for(theWeekDay in DayOfWeek.values()) {
-            var viewID: Int = showPlaceID[theWeekDay]!!
-            var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+            val viewID: Int = showPlaceID[theWeekDay]!!
+            val dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
 
             //遍历大节
             var i: Int = 1
             while(i <= 24) {
-                var place:Float = LayoutConstants.HeightPerHour * i + 0.0f
-                var v:View = LayoutInflater.from(theActivity!!).inflate(stroke, null);
+                val place:Float = LayoutConstants.HeightPerHour * i + 0.0f
+                val v:View = LayoutInflater.from(theActivity!!).inflate(stroke, null);
                 v.setY(place)
-                var params: LinearLayout.LayoutParams =
+                val params: LinearLayout.LayoutParams =
                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 5)
                 v.setLayoutParams(params);
 
@@ -699,27 +695,27 @@ abstract class TableFragment : Fragment(){
     */
     protected fun showOneCourse(theWeekDay: DayOfWeek, theCourse: CalendarTimeDataWithItem): View {
 
-        var viewID: Int = showPlaceID[theWeekDay]!!
-        var dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
-        var startBig: Int = theCourse.timeInCourseSchedule!!.startBig
-        var startSmall: Float =
+        val viewID: Int = showPlaceID[theWeekDay]!!
+        val dayView = theActivity!!.findViewById<RelativeLayout>(viewID)
+        val startBig: Int = theCourse.timeInCourseSchedule!!.startBig
+        val startSmall: Float =
             CREP.timeRule.getStartSmallIndex(startBig) + theCourse.timeInCourseSchedule!!.startOffsetSmall
-        var intevalSmall: Float = theCourse.timeInCourseSchedule!!.lengthSmall
-        var startHeight: Float = LayoutConstants.HeightPerSmall * startSmall
-        var theHeight: Int = (LayoutConstants.HeightPerSmall * intevalSmall).toInt()
+        val intevalSmall: Float = theCourse.timeInCourseSchedule!!.lengthSmall
+        val startHeight: Float = LayoutConstants.HeightPerSmall * startSmall
+        val theHeight: Int = (LayoutConstants.HeightPerSmall * intevalSmall).toInt()
 
-        var v: View = LayoutInflater.from(theActivity!!).inflate(R.layout.course_item, null); //加载单个课程布局
+        val v: View = LayoutInflater.from(theActivity!!).inflate(R.layout.course_item, null); //加载单个课程布局
 
 
         v.setY(startHeight); //设置开始高度,即第几节课开始
 
-        var params: LinearLayout.LayoutParams =
+        val params: LinearLayout.LayoutParams =
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, theHeight)
         v.setLayoutParams(params);
 
-        var theTextView = v.findViewById<TextView>(R.id.text_view);
-        var sub_name:String = theCourse.name
-        var main_name:String = theCourse.calendarItem.name
+        val theTextView = v.findViewById<TextView>(R.id.text_view);
+        val sub_name:String = theCourse.name
+        val main_name:String = theCourse.calendarItem.name
         theTextView.setText(main_name + if (sub_name.isNotBlank()) "：$sub_name" else ""); //显示课程名        dayView.addView(v);
 
         //设置v的颜色
@@ -730,14 +726,14 @@ abstract class TableFragment : Fragment(){
         if(hash_value < 0 || hash_value >= itemColors.size) {
             hash_value = itemColors.size - 1
         }
-        var color = itemColors.get(hash_value)
+        val color = itemColors.get(hash_value)
         v.setBackgroundColor(color)
 
         //设置v的id和绑定时间处理函数
         v.tag = theCourse.calendarItem.id
         v.setOnClickListener(View.OnClickListener() {
-            var id: Int = v.tag as Int
-            var intent = Intent(theActivity!!, ItemShowActivity::class.java)
+            val id: Int = v.tag as Int
+            val intent = Intent(theActivity!!, ItemShowActivity::class.java)
             intent.putExtra(EXTRA_MESSAGE, id)
             theActivity!!.startActivity(intent)
         })
@@ -755,14 +751,14 @@ abstract class TableFragment : Fragment(){
     */
     protected fun showOneHour(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem): View {
 
-        var viewID: Int = showPlaceID[theWeekDay]!!
-        var dayView = requireActivity().findViewById<RelativeLayout>(viewID)
+        val viewID: Int = showPlaceID[theWeekDay]!!
+        val dayView = requireActivity().findViewById<RelativeLayout>(viewID)
 
-        var startTime: LocalTime? = null
-        var endTime: LocalTime? = null
+        val startTime: LocalTime?
+        val endTime: LocalTime?
         //大节转小时
         if (theItem.timeInCourseSchedule != null) {
-            var hourTime = theItem.timeInCourseSchedule!!.toTimeInHour()
+            val hourTime = theItem.timeInCourseSchedule!!.toTimeInHour()
             startTime = hourTime.startTime
             endTime = hourTime.endTime
         }
@@ -775,25 +771,25 @@ abstract class TableFragment : Fragment(){
         var startInteval: Duration = Duration.between(LocalTime.parse("00:00"), startTime)
         var intevalTime: Duration = Duration.between(startTime, endTime)
         if(theItem.type == CalendarTimeType.POINT) {
-            var new_start_time = startTime.minusHours(1)
+            val new_start_time = startTime.minusHours(1)
             startInteval = Duration.between(LocalTime.parse("00:00"), new_start_time)
             intevalTime = Duration.between(LocalTime.parse("00:00"), LocalTime.parse("01:00"))
         }
-        var startY:Float = GetPlaceByDuration(startInteval)
-        var lengthY:Int = GetPlaceByDuration(intevalTime).toInt()
+        val startY:Float = GetPlaceByDuration(startInteval)
+        val lengthY:Int = GetPlaceByDuration(intevalTime).toInt()
 
-        var v: View = LayoutInflater.from(theActivity!!).inflate(R.layout.course_item, null); //加载单个课程布局
+        val v: View = LayoutInflater.from(theActivity!!).inflate(R.layout.course_item, null); //加载单个课程布局
 
 
         v.setY(startY); //设置开始高度,即第几节课开始
 
-        var params: LinearLayout.LayoutParams =
+        val params: LinearLayout.LayoutParams =
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, lengthY)
         v.setLayoutParams(params);
 
-        var theTextView = v.findViewById<TextView>(R.id.text_view);
-        var sub_name:String = theItem.name
-        var main_name:String = theItem.calendarItem.name
+        val theTextView = v.findViewById<TextView>(R.id.text_view);
+        val sub_name:String = theItem.name
+        val main_name:String = theItem.calendarItem.name
         theTextView.setText(main_name + "：" + sub_name); //显示课程名
 
         //设置v的颜色
@@ -804,15 +800,15 @@ abstract class TableFragment : Fragment(){
         if(hash_value < 0 || hash_value >= itemColors.size) {
             hash_value = itemColors.size - 1
         }
-        var color = itemColors.get(hash_value)
+        val color = itemColors.get(hash_value)
         v.setBackgroundColor(color)
 
 
         //设置v的id和绑定时间处理函数
         v.tag = theItem.calendarItem.id
         v.setOnClickListener(View.OnClickListener() {
-                var id: Int = v.tag as Int
-                var intent = Intent(theActivity!!, ItemShowActivity::class.java)
+                val id: Int = v.tag as Int
+                val intent = Intent(theActivity!!, ItemShowActivity::class.java)
                 intent.putExtra(EXTRA_MESSAGE, id)
                 theActivity!!.startActivity(intent)
         })
@@ -890,18 +886,18 @@ abstract class TableFragment : Fragment(){
      */
     private fun getWeekOptionData() {
         weekChoices.clear()
-        var normal_count:Int = CREP.term.normalWeekCount
-        var exam_count:Int = CREP.term.examWeekCount
+        val normal_count:Int = CREP.term.normalWeekCount
+        val exam_count:Int = CREP.term.examWeekCount
         for(i in 1..normal_count) {
-            var string_week:String = "第"+ i +"周"
-            var string_date:String = getWeekInfo(i)
-            var string = string_week + ", " + string_date
+            val string_week:String = "第"+ i +"周"
+            val string_date:String = getWeekInfo(i)
+            val string = string_week + ", " + string_date
             weekChoices.add(string)
         }
         for(i in 1..exam_count) {
-            var string_week:String = "第"+ (i + normal_count) +"周（考试周）"
-            var string_date:String = getWeekInfo(i + normal_count)
-            var string = string_week + ", " + string_date
+            val string_week:String = "第"+ (i + normal_count) +"周（考试周）"
+            val string_date:String = getWeekInfo(i + normal_count)
+            val string = string_week + ", " + string_date
             weekChoices.add(string)
         }
     }
@@ -910,9 +906,9 @@ abstract class TableFragment : Fragment(){
      * 描述：对于小时显示的情况，设置初始位置
      */
     protected fun setOriginalPlaceHour() {
-        var current_time = Duration.between(LocalTime.parse("00:00"), LocalTime.now())
+        val current_time = Duration.between(LocalTime.parse("00:00"), LocalTime.now())
         var current_place = GetPlaceByDuration(current_time).toInt()
-        var layout: ScrollView = requireActivity().findViewById(R.id.main_scroll)
+        val layout: ScrollView = requireActivity().findViewById(R.id.main_scroll)
         if(current_place >= 200) {
             current_place -= 200
         }
@@ -926,19 +922,19 @@ abstract class TableFragment : Fragment(){
      * 描述：对于大节显示的情况，设置初始位置
      */
     protected fun setOriginalPlaceCourse() {
-        var current_time = LocalTime.now()
-        var time_in_hour = TimeInHour(startTime = current_time, endTime = current_time, dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now())
-        var time_in_course = time_in_hour.toTimeInCourseSchedule()
+        val current_time = LocalTime.now()
+        val time_in_hour = TimeInHour(startTime = current_time, endTime = current_time, dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now())
+        val time_in_course = time_in_hour.toTimeInCourseSchedule()
         if(time_in_course.startBig <= 0) {
             time_in_course.startBig = 1
         }
         else if(time_in_course.startBig > 6) {
             time_in_course.startBig = 6
         }
-        var start_small: Float =
+        val start_small: Float =
             CREP.timeRule.getStartSmallIndex(time_in_course.startBig) + time_in_course.startOffsetSmall
         var current_place = (LayoutConstants.HeightPerSmall * start_small).toInt()
-        var layout: ScrollView = requireActivity().findViewById(R.id.main_scroll)
+        val layout: ScrollView = requireActivity().findViewById(R.id.main_scroll)
         if(current_place >= 200) {
             current_place -= 200
         }

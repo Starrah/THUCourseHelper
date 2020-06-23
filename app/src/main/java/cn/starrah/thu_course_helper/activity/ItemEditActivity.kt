@@ -1,41 +1,30 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package cn.starrah.thu_course_helper.activity
 
-//import butterknife.Bind
-//import butterknife.ButterKnife
 import android.app.Activity
-import cn.starrah.thu_course_helper.R
 import android.content.DialogInterface
-import android.graphics.Color
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
-import com.bigkoo.pickerview.builder.OptionsPickerBuilder
-import com.bigkoo.pickerview.listener.OnOptionsSelectListener
-import com.bigkoo.pickerview.view.OptionsPickerView
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.*
 
 
 /**
@@ -44,32 +33,20 @@ import java.util.*
 class ItemEditActivity : AppCompatActivity(){
 
     //当前的元素
-    private var currentItem: CalendarItemDataWithTimes? = null;
+    private var currentItem: CalendarItemDataWithTimes? = null
 
     //当前元素的id，如果没有就-1
-    private var currentID:Int = -1;
+    private var currentID:Int = -1
 
     private var mRecyclerView: RecyclerView? = null
     private var mAdapter: ItemEditAdapter? = null
-
-    //各种edittext的监听器
-    //name监听器
-    public lateinit var nameChanger:TextWatcher
-    //teacher监听器
-    public lateinit var teacherChanger:TextWatcher
-    //courseid监听器
-    public lateinit var courseIDChanger:TextWatcher
-    //association监听器
-    public lateinit var associationChanger:TextWatcher
-    //comment监听器
-    public lateinit var detailChanger:TextWatcher
 
 
     companion object {
         /**
          * 描述：将时间转换成 08:00 这种形式
          */
-        public fun getTimeString(time:LocalTime):String {
+        fun getTimeString(time:LocalTime):String {
             var hour = "" + time.hour
             var minute = "" + time.minute
             if(hour.length != 2) {
@@ -89,17 +66,17 @@ class ItemEditActivity : AppCompatActivity(){
          */
         fun getWeeksString(week_list:MutableList<Int>):String {
             //先map映射，去重+排序
-            var week_map:MutableMap<Int, Boolean> = mutableMapOf()
+            val week_map:MutableMap<Int, Boolean> = mutableMapOf()
             for(item in week_list) {
                 week_map[item] = true
             }
-            var total_weeks = CREP.term.totalWeekCount
-            var normal_weeks = CREP.term.normalWeekCount
+            val total_weeks = CREP.term.totalWeekCount
+            val normal_weeks = CREP.term.normalWeekCount
 
             //一个filter，用于筛选全周，前八周，后八周，单，双周，考试周
             //有考试周--非考试周的全false，有正常周的，考试周false
             var i = 1
-            var week_list:MutableList<Int> = mutableListOf()
+            val week_list2:MutableList<Int> = mutableListOf()
             var whether_really_full = true
             var whether_full = true
             var whether_first_eight = true
@@ -108,7 +85,7 @@ class ItemEditActivity : AppCompatActivity(){
             var whether_double = true
             var whether_exam = true
             while(i <= total_weeks) {
-                var result:Boolean? = week_map[i]
+                val result:Boolean? = week_map[i]
 
                 if(result == true) {
                     if(i <= normal_weeks) {
@@ -133,7 +110,7 @@ class ItemEditActivity : AppCompatActivity(){
                         whether_single = false
                         whether_double = false
                     }
-                    week_list.add(i)
+                    week_list2.add(i)
                 }
                 else {
                     whether_really_full = false
@@ -160,7 +137,7 @@ class ItemEditActivity : AppCompatActivity(){
             }
 
             //判断是否是几种特殊情况
-            var result:String = ""
+            var result: String
             if(whether_really_full) {
                 result = "全学期（含考试周）"
             }
@@ -182,14 +159,14 @@ class ItemEditActivity : AppCompatActivity(){
             else if(whether_exam) {
                 result = "考试周"
             }
-            else if(week_list.size <= 0) {
+            else if(week_list2.size <= 0) {
                 result = "空"
             }
             else {
                 result = "第"
-                for(i in week_list.indices) {
-                    result = result + week_list[i]
-                    if(i != week_list.size - 1) {
+                for(i in week_list2.indices) {
+                    result = result + week_list2[i]
+                    if(i != week_list2.size - 1) {
                         result = result + ","
                     }
                 }
@@ -204,7 +181,7 @@ class ItemEditActivity : AppCompatActivity(){
          *返回：无
          */
         fun HideItem(item:LinearLayout) {
-            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0);
+            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0)
             item.layoutParams = params
         }
 
@@ -215,7 +192,7 @@ class ItemEditActivity : AppCompatActivity(){
          */
         fun ShowItem(item:LinearLayout) {
             //和style一致
-            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 120);
+            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 120)
             item.layoutParams = params
         }
 
@@ -227,7 +204,7 @@ class ItemEditActivity : AppCompatActivity(){
          */
         fun ShowEdit(item:LinearLayout) {
             //和style一致
-            var params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT);
+            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
             item.layoutParams = params
         }
 
@@ -237,8 +214,8 @@ class ItemEditActivity : AppCompatActivity(){
          * 返回：中文字符串
          */
         fun getAheadTimeString(time: Duration) :String {
-            var remind_minutes = time.toMinutes().toInt()
-            var remind_string:String = ""
+            val remind_minutes = time.toMinutes().toInt()
+            var remind_string: String
             if(remind_minutes >= 1440) {
                 remind_string = "一天"
             }
@@ -246,8 +223,8 @@ class ItemEditActivity : AppCompatActivity(){
                 remind_string = "" + remind_minutes + "分钟"
             }
             else {
-                var remind_hour = remind_minutes / 60
-                var remind_minute:Int = remind_minutes % 60
+                val remind_hour = remind_minutes / 60
+                val remind_minute:Int = remind_minutes % 60
                 remind_string = "" + remind_hour + "小时"
                 if(remind_minute != 0) {
                     remind_string = remind_string + "" + remind_minute + "分钟"
@@ -302,18 +279,18 @@ class ItemEditActivity : AppCompatActivity(){
      * 返回：无
      */
     suspend fun getData() {
-        var list: List<Int> = listOf(currentID)
-        var the_item = CREP.findItemsByIds(list)
-        var size = the_item.getNotNullValue().size
+        val list: List<Int> = listOf(currentID)
+        val the_item = CREP.findItemsByIds(list)
+        val size = the_item.getNotNullValue().size
         if(size <= 0 || size > 1) {
             Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
-            setResult(Activity.RESULT_CANCELED);
+            setResult(Activity.RESULT_CANCELED)
             finish()
         }
         currentItem = the_item.getNotNullValue()[0]
         if(currentItem == null) {
             Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
-            setResult(Activity.RESULT_CANCELED);
+            setResult(Activity.RESULT_CANCELED)
             finish()
         }
     }
@@ -332,7 +309,7 @@ class ItemEditActivity : AppCompatActivity(){
             Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             return false
         }
-        if(currentItem!!.times == null || currentItem!!.times.size < 1) {
+        if(currentItem?.times == null || currentItem!!.times.size < 1) {
             Toast.makeText(this, "当前日程没有任何时间段!", Toast.LENGTH_LONG).show()
             return false
         }
@@ -375,12 +352,12 @@ class ItemEditActivity : AppCompatActivity(){
             .setTitle("返回详情")
             .setMessage("您的编辑未保存，确定要不保存直接退出吗？")
             .setCancelable(true)
-            .setPositiveButton("确定",
-                DialogInterface.OnClickListener { dialog, which ->
-                    setResult(Activity.RESULT_CANCELED);
-                    finish() })
-            .setNegativeButton("取消",
-                DialogInterface.OnClickListener { dialog, which ->  })
+            .setPositiveButton("确定"
+            ) { _, _ ->
+                setResult(Activity.RESULT_CANCELED)
+                finish() }
+            .setNegativeButton("取消"
+            ) { _, _ ->  }
         dialog.show()
     }
 
@@ -407,11 +384,11 @@ class ItemEditActivity : AppCompatActivity(){
             .setMessage("确定要保存日程吗")
             .setCancelable(true)
             .setPositiveButton("确定",
-                DialogInterface.OnClickListener { dialog, which ->
+                { _, _ ->
                     lifecycleScope.launch{
                         try {
                             saveItem()
-                            setResult(Activity.RESULT_OK);
+                            setResult(Activity.RESULT_OK)
                             finish()
                         }
                         catch (e: Exception) {
@@ -420,7 +397,7 @@ class ItemEditActivity : AppCompatActivity(){
                     }
                 })
             .setNegativeButton("取消",
-                DialogInterface.OnClickListener { dialog, which ->  })
+                DialogInterface.OnClickListener { _, _ ->  })
         dialog.show()
     }
 

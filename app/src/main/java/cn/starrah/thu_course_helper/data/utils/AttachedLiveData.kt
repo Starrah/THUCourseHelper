@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package cn.starrah.thu_course_helper.data.utils
 
 import androidx.lifecycle.LiveData

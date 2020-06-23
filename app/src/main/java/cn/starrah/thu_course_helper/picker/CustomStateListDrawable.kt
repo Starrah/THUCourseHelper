@@ -1,14 +1,13 @@
 package cn.starrah.thu_course_helper.picker
 
-import cn.starrah.thu_course_helper.R
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import androidx.annotation.ColorInt
 import androidx.annotation.NonNull
-import androidx.core.content.ContextCompat
 import androidx.appcompat.content.res.AppCompatResources
-import cn.starrah.thu_course_helper.picker.CommonUtils
+import androidx.core.content.ContextCompat
+import cn.starrah.thu_course_helper.R
 
 /**
  * A custom implementation of StateListDrawable to properly apply
@@ -22,7 +21,7 @@ class CustomStateListDrawable(@param:NonNull private val context: Context) :
     }
 
     private val normalGradientDrawable: GradientDrawable
-        private get() {
+        get() {
             val gradientDrawable = AppCompatResources.getDrawable(
                 context,
                 R.drawable.shape_circle_holo
@@ -35,7 +34,7 @@ class CustomStateListDrawable(@param:NonNull private val context: Context) :
         }
 
     private val selectedGradientDrawable: GradientDrawable
-        private get() {
+        get() {
             val gradientDrawable = AppCompatResources.getDrawable(
                 context,
                 R.drawable.shape_circle_filled
@@ -45,7 +44,7 @@ class CustomStateListDrawable(@param:NonNull private val context: Context) :
         }
 
     private val pressedGradientDrawable: GradientDrawable
-        private get() {
+        get() {
             val gradientDrawable = AppCompatResources.getDrawable(
                 context,
                 R.drawable.shape_circle_filled_light
@@ -56,14 +55,14 @@ class CustomStateListDrawable(@param:NonNull private val context: Context) :
 
     @get:ColorInt
     private val colorAccent: Int
-        private get() = ContextCompat.getColor(
+        get() = ContextCompat.getColor(
             context,
             CommonUtils.resolveResource(context, R.attr.colorAccent)
         )
 
     @get:ColorInt
     private val colorHighlight: Int
-        private get() = ContextCompat.getColor(
+        get() = ContextCompat.getColor(
             context,
             CommonUtils.resolveResource(context, R.attr.colorControlHighlight)
         )

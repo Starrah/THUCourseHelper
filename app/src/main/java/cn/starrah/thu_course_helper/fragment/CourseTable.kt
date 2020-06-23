@@ -1,7 +1,6 @@
 package cn.starrah.thu_course_helper.fragment
 
 import android.annotation.SuppressLint
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -33,7 +32,7 @@ class CourseTable : TableFragment() {
     ): View {
         theActivity = requireActivity()
         initSettings()
-        var view:View? = null
+        var view: View?
         if(showType == showTypeCourse) {
             view = inflater.inflate(R.layout.table_class, container, false)
         }
@@ -158,7 +157,6 @@ class CourseTable : TableFragment() {
     返回：无
     */
     override fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem) {
-        var v:View? = null;
         //只显示能大节显示的课程
         if(theItem.calendarItem.type != CalendarItemType.COURSE) {
             return
@@ -168,16 +166,16 @@ class CourseTable : TableFragment() {
                 var time: TimeInCourseSchedule = theItem.timeInHour!!.toTimeInCourseSchedule()
                 theItem.timeInCourseSchedule = time
                 if (theItem.timeInCourseSchedule!!.startBig in 1..CREP.timeRule.bigsCount)
-                    v = showOneCourse(theWeekDay, theItem)
+                    showOneCourse(theWeekDay, theItem)
             }
             else
             {
-                v = showOneCourse(theWeekDay, theItem)
+                showOneCourse(theWeekDay, theItem)
             }
         }
         else
         {
-            v = showOneHour(theWeekDay, theItem)
+            showOneHour(theWeekDay, theItem)
         }
 
     }

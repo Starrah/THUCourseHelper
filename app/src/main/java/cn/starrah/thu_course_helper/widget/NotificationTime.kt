@@ -42,13 +42,12 @@ class NotificationTime : BroadcastReceiver() {
      * 操作：切换当前显示的元素
      */
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent == null) return
         val action = intent.action
         if(action == UPDATE_WIDGET) {
             GlobalScope.launch {
                 CREP.initializeDefaultTermIfUninitialized(context, true)
                 updateData(context)
-                var remoteViews = shiftShow(context)
+                val remoteViews = shiftShow(context)
                 updateNotification(remoteViews, context)
             }
         }
@@ -60,7 +59,7 @@ class NotificationTime : BroadcastReceiver() {
             if(showItem < 0) {
                 showItem = 0
             }
-            var remoteViews = shiftShow(context)
+            val remoteViews = shiftShow(context)
             updateNotification(remoteViews, context)
         }
         else if(action == BUTTON_DOWN) {
@@ -68,7 +67,7 @@ class NotificationTime : BroadcastReceiver() {
             if(showItem >= timeList.size) {
                 showItem = timeList.size - 1
             }
-            var remoteViews = shiftShow(context)
+            val remoteViews = shiftShow(context)
             updateNotification(remoteViews, context)
         }
     }
@@ -84,7 +83,7 @@ class NotificationTime : BroadcastReceiver() {
         val remoteViews = RemoteViews(context.packageName, R.layout.app_widget_layout)
         //没有日程
         if (timeList.isEmpty() || showItem < 0 || showItem >= timeList.size) {
-            var name: String = "今日无日程"
+            val name: String = "今日无日程"
             remoteViews.setTextViewText(R.id.time_show_name, name)
             remoteViews.setViewVisibility(R.id.time_show_time_place, View.INVISIBLE)
             remoteViews.setViewVisibility(R.id.time_show_place_place, View.INVISIBLE)
@@ -96,14 +95,14 @@ class NotificationTime : BroadcastReceiver() {
             remoteViews.setViewVisibility(R.id.time_show_time_place, View.VISIBLE)
             remoteViews.setViewVisibility(R.id.time_show_place_place, View.VISIBLE)
 
-            var the_item: CalendarTimeDataWithItem = timeList.get(showItem)
+            val the_item: CalendarTimeDataWithItem = timeList.get(showItem)
             if (the_item.timeInHour == null) {
                 the_item.timeInHour = the_item.timeInCourseSchedule!!.toTimeInHour()
             }
 
             //名称
             var name: String = the_item.calendarItem.name  + "：" +  the_item.name
-            var current_time: LocalTime = LocalTime.now()
+            val current_time: LocalTime = LocalTime.now()
             var description: String = ""
             if (current_time.isAfter(the_item.timeInHour!!.endTime)) {
                 description = "（已结束）"
@@ -117,8 +116,8 @@ class NotificationTime : BroadcastReceiver() {
             name = name + description
 
             //时间
-            var start_time: String = ItemEditActivity.getTimeString(the_item.timeInHour!!.startTime)
-            var end_time: String = ItemEditActivity.getTimeString(the_item.timeInHour!!.endTime)
+            val start_time: String = ItemEditActivity.getTimeString(the_item.timeInHour!!.startTime)
+            val end_time: String = ItemEditActivity.getTimeString(the_item.timeInHour!!.endTime)
             var time: String = start_time + "-" + end_time
             if (the_item.type == CalendarTimeType.POINT) {
                 time = start_time
@@ -165,7 +164,7 @@ class NotificationTime : BroadcastReceiver() {
      */
     private fun updateNotification(remoteViews: RemoteViews, context: Context) {
         // 更新通知栏
-        var notificationManager =
+        val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val mChannel = NotificationChannel(
             CHANNEL_ID,
@@ -192,7 +191,7 @@ class NotificationTime : BroadcastReceiver() {
             .setOngoing(true)
             .setSmallIcon(R.drawable.logo)
             .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-        var notify: Notification = mBuilder.build()
+        val notify: Notification = mBuilder.build()
         notify.flags = Notification.FLAG_ONGOING_EVENT;
         notificationManager.notify(NOTIFY_ID, notify);
     }
@@ -203,7 +202,7 @@ class NotificationTime : BroadcastReceiver() {
      * 返回：无
      */
     private fun deleteNotification(context: Context) {
-        var notificationManager =
+        val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFY_ID);
     }
@@ -214,7 +213,7 @@ class NotificationTime : BroadcastReceiver() {
      * 返回：无
      */
     private suspend fun updateData(context: Context) {
-        var raw_list = CREP.widgetShowData(false)
+        val raw_list = CREP.widgetShowData(false)
         timeList.clear()
         timeList.addAll(raw_list.first)
         showItem = raw_list.second

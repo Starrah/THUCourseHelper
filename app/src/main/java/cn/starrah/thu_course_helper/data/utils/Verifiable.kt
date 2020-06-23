@@ -1,7 +1,6 @@
 package cn.starrah.thu_course_helper.data.utils
 
 import com.alibaba.fastjson.annotation.JSONField
-import java.lang.Exception
 
 interface Verifiable {
     fun assertValid()

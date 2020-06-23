@@ -1,8 +1,5 @@
 package cn.starrah.thu_course_helper.data.utils
 
-import java.lang.AssertionError
-import java.lang.RuntimeException
-
 open class DataInvalidException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause)
 
 /**

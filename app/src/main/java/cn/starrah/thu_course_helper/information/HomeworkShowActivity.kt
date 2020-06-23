@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package cn.starrah.thu_course_helper.information
 
 import android.os.Bundle
@@ -10,19 +12,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.activity.ItemEditActivity
-import cn.starrah.thu_course_helper.activity.ItemShowActivity
 import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindType
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
-import cn.starrah.thu_course_helper.data.utils.chineseName
-import kotlinx.android.synthetic.main.calendar_time_edit.*
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 class HomeworkShowActivity: AppCompatActivity() {
     private var showItem: ArrayList<CalendarItemDataWithTimes> = arrayListOf()

@@ -37,7 +37,6 @@ class AppWidgetTime : AppWidgetProvider() {
      */
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent == null) return
         val action = intent.action
         if(action == UPDATE_WIDGET) {
             GlobalScope.launch {
@@ -67,7 +66,7 @@ class AppWidgetTime : AppWidgetProvider() {
         super.onEnabled(context)
         GlobalScope.launch {
             updateData(context!!)
-            shiftShow(context!!)
+            shiftShow(context)
         }
     }
 
@@ -100,7 +99,7 @@ class AppWidgetTime : AppWidgetProvider() {
         val remoteViews = RemoteViews(context.packageName, R.layout.app_widget_layout)
         //没有日程
         if(timeList.isEmpty() || showItem < 0 || showItem >= timeList.size) {
-            var name:String = "今日无日程"
+            val name:String = "今日无日程"
             remoteViews.setTextViewText(R.id.time_show_name, name)
             remoteViews.setViewVisibility(R.id.time_show_time_place, View.INVISIBLE)
             remoteViews.setViewVisibility(R.id.time_show_place_place, View.INVISIBLE)
@@ -112,14 +111,14 @@ class AppWidgetTime : AppWidgetProvider() {
             remoteViews.setViewVisibility(R.id.time_show_time_place, View.VISIBLE)
             remoteViews.setViewVisibility(R.id.time_show_place_place, View.VISIBLE)
 
-            var the_item: CalendarTimeDataWithItem = timeList.get(showItem)
+            val the_item: CalendarTimeDataWithItem = timeList.get(showItem)
             if(the_item.timeInHour == null) {
                 the_item.timeInHour = the_item.timeInCourseSchedule!!.toTimeInHour()
             }
 
             //名称
             var name:String = the_item.calendarItem.name  + "：" +  the_item.name
-            var current_time:LocalTime = LocalTime.now()
+            val current_time:LocalTime = LocalTime.now()
             var description:String = ""
             if(current_time.isAfter(the_item.timeInHour!!.endTime)) {
                 description = "（已结束）"
@@ -133,8 +132,8 @@ class AppWidgetTime : AppWidgetProvider() {
             name = name + description
 
             //时间
-            var start_time:String = ItemEditActivity.getTimeString(the_item.timeInHour!!.startTime)
-            var end_time:String = ItemEditActivity.getTimeString(the_item.timeInHour!!.endTime)
+            val start_time:String = ItemEditActivity.getTimeString(the_item.timeInHour!!.startTime)
+            val end_time:String = ItemEditActivity.getTimeString(the_item.timeInHour!!.endTime)
             var time:String = start_time + "-" + end_time
             if(the_item.type == CalendarTimeType.POINT) {
                 time = start_time
@@ -184,7 +183,7 @@ class AppWidgetTime : AppWidgetProvider() {
      * 返回：无
      */
     private suspend fun updateData(context: Context) {
-        var raw_list = CREP.widgetShowData(false)
+        val raw_list = CREP.widgetShowData(false)
         timeList.clear()
         timeList.addAll(raw_list.first)
         showItem = raw_list.second

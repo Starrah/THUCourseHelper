@@ -1,17 +1,14 @@
+@file:Suppress("DEPRECATION", "UNUSED_ANONYMOUS_PARAMETER")
+
 package cn.starrah.thu_course_helper.activity
 
 import android.app.Dialog
-import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.Window
+import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
@@ -35,88 +32,85 @@ import com.bigkoo.pickerview.view.TimePickerView
 import java.time.*
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-import kotlin.time.minutes
 
 
 class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEditActivity) :
     RecyclerView.Adapter<ItemEditAdapter.ItemEditHolder>() {
     private var mCurrentItem: CalendarItemDataWithTimes = currentItem
     private var theActivity = activity
-    public var colorGrey: Int = activity.resources.getColor(R.color.colorGreyBG)
-    public var colorWhite: Int = activity.resources.getColor(R.color.colorWhite)
+    var colorGrey: Int = activity.resources.getColor(R.color.colorGreyBG)
+    var colorWhite: Int = activity.resources.getColor(R.color.colorWhite)
 
 
-    public class ItemEditHolder(
+    class ItemEditHolder(
         view: View,
         adapter: cn.starrah.thu_course_helper.activity.ItemEditAdapter
     ) :
         RecyclerView.ViewHolder(view), View.OnClickListener {
-        public var theView: View = view
+        var theView: View = view
 
-        public var itemName: EditText = view.findViewById<EditText>(R.id.item_edit_name)
-        public var itemType: TextView = view.findViewById<TextView>(R.id.item_edit_type)
-        public var itemTeacher: EditText = view.findViewById<EditText>(R.id.item_edit_teacher)
-        public var itemCourseID: EditText = view.findViewById<EditText>(R.id.item_edit_course_id)
-        public var itemAssociation: EditText = view.findViewById<EditText>(R.id.item_edit_association)
+        var itemName: EditText = view.findViewById<EditText>(R.id.item_edit_name)
+        var itemType: TextView = view.findViewById<TextView>(R.id.item_edit_type)
+        var itemTeacher: EditText = view.findViewById<EditText>(R.id.item_edit_teacher)
+        var itemCourseID: EditText = view.findViewById<EditText>(R.id.item_edit_course_id)
+        var itemAssociation: EditText = view.findViewById<EditText>(R.id.item_edit_association)
 
-        public var timeName: EditText = view.findViewById<EditText>(R.id.time_edit_name)
-        public var timePlace: EditText = view.findViewById<EditText>(R.id.time_edit_place)
-        public var timeType: TextView = view.findViewById<TextView>(R.id.time_edit_time_type)
-        public var timeWeek: TextView = view.findViewById<TextView>(R.id.time_edit_week)
-        public var timeDayWeek: TextView = view.findViewById<TextView>(R.id.time_edit_day)
-        public var timeDate: TextView = view.findViewById<TextView>(R.id.time_edit_date)
-        public var timeStartCourse: TextView = view.findViewById<TextView>(R.id.time_edit_start_course)
-        public var timeStartHour: TextView = view.findViewById<TextView>(R.id.time_edit_start_hour)
-        public var timeEndHour: TextView = view.findViewById<TextView>(R.id.time_edit_end_hour)
-        public var timePoint: TextView = view.findViewById<TextView>(R.id.time_edit_point)
-        public var timeComment: EditText = view.findViewById<EditText>(R.id.time_edit_comment)
+        var timeName: EditText = view.findViewById<EditText>(R.id.time_edit_name)
+        var timePlace: EditText = view.findViewById<EditText>(R.id.time_edit_place)
+        var timeType: TextView = view.findViewById<TextView>(R.id.time_edit_time_type)
+        var timeWeek: TextView = view.findViewById<TextView>(R.id.time_edit_week)
+        var timeDayWeek: TextView = view.findViewById<TextView>(R.id.time_edit_day)
+        var timeDate: TextView = view.findViewById<TextView>(R.id.time_edit_date)
+        var timeStartCourse: TextView = view.findViewById<TextView>(R.id.time_edit_start_course)
+        var timeStartHour: TextView = view.findViewById<TextView>(R.id.time_edit_start_hour)
+        var timeEndHour: TextView = view.findViewById<TextView>(R.id.time_edit_end_hour)
+        var timePoint: TextView = view.findViewById<TextView>(R.id.time_edit_point)
+        var timeComment: EditText = view.findViewById<EditText>(R.id.time_edit_comment)
 
-        public var timeRemindRepeat: TextView = view.findViewById<TextView>(R.id.time_edit_remind_repeat)
-        public var timeRemindType: TextView = view.findViewById<TextView>(R.id.time_edit_remind_type)
+        var timeRemindRepeat: TextView = view.findViewById<TextView>(R.id.time_edit_remind_repeat)
+        var timeRemindType: TextView = view.findViewById<TextView>(R.id.time_edit_remind_type)
 
-        public var itemNamePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_name_place)
-        public var itemTypePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_type_place)
-        public var itemTeacherPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_teacher_place)
-        public var itemCourseIDPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_course_id_place)
-        public var itemAssociationPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_association_place)
+        var itemNamePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_name_place)
+        var itemTypePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_type_place)
+        var itemTeacherPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_teacher_place)
+        var itemCourseIDPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_course_id_place)
+        var itemAssociationPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.item_edit_association_place)
 
 
-        public var timeNamePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_name_place)
-        public var timePlacePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_place_place)
-        public var timeTypePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_type_place)
-        public var timeWeekPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_week_place)
-        public var timeDayWeekPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_day_place)
-        public var timeDatePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_date_place)
-        public var timeStartCoursePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_start_course_place)
-        public var timeStartHourPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_start_hour_place)
-        public var timeEndHourPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_end_hour_place)
-        public var timePointPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_point_place)
-        public var timeCommentPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_comment_place)
-        public var timeDeleteButtonPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.delete_time_place)
+        var timeNamePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_name_place)
+        var timePlacePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_place_place)
+        var timeTypePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_type_place)
+        var timeWeekPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_week_place)
+        var timeDayWeekPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_day_place)
+        var timeDatePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_date_place)
+        var timeStartCoursePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_start_course_place)
+        var timeStartHourPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_start_hour_place)
+        var timeEndHourPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_end_hour_place)
+        var timePointPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_point_place)
+        var timeCommentPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_comment_place)
+        var timeDeleteButtonPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.delete_time_place)
 
-        public var timeRemindRepeatPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_remind_repeat_place)
-        public var timeRemindTypePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_remind_type_place)
+        var timeRemindRepeatPlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_remind_repeat_place)
+        var timeRemindTypePlace: LinearLayout = view.findViewById<LinearLayout>(R.id.time_edit_remind_type_place)
 
         var mAdapter: cn.starrah.thu_course_helper.activity.ItemEditAdapter = adapter
 
-        public var timeDeleteButton:ImageButton = view.findViewById(R.id.delete_time)
+        var timeDeleteButton:ImageButton = view.findViewById(R.id.delete_time)
 
 
 
         //大节选择，用于选择开始时间
-        public val bigCourseChoices = ArrayList<String>()
+        val bigCourseChoices = ArrayList<String>()
         //大节对应的小节选择，用于选择开始时间
-        public val smallCourseChoices = ArrayList<ArrayList<String>>()
+        val smallCourseChoices = ArrayList<ArrayList<String>>()
 
-        public val lengthCourseChoices = ArrayList<ArrayList<ArrayList<String>>>()
+        val lengthCourseChoices = ArrayList<ArrayList<ArrayList<String>>>()
 
         //时间选择器（滚轮），用来选择时间
-        public lateinit var pvTime: TimePickerView
+        lateinit var pvTime: TimePickerView
 
         //日期选择器
-        public lateinit var pvDate: TimePickerView
+        lateinit var pvDate: TimePickerView
 
         //星期选择，用于选择对应的星期
         private val weekDayChoices:ArrayList<String>  = arrayListOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
@@ -129,13 +123,13 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         //星期选择器
         lateinit var pvWeekDayOptions: OptionsPickerView<Any>
         //时间类别选择器
-        public lateinit var pvTimeTypeOptions: OptionsPickerView<Any>
+        lateinit var pvTimeTypeOptions: OptionsPickerView<Any>
         //大节-小节选择器
-        public lateinit var pvCourseOptions: OptionsPickerView<Any>
+        lateinit var pvCourseOptions: OptionsPickerView<Any>
         //周选择器
-        public lateinit var pvWeekOptions: PickerDialog.Builder
+        lateinit var pvWeekOptions: PickerDialog.Builder
         //日程类别选择器
-        public lateinit var pvItemTypeOptions: OptionsPickerView<Any>
+        lateinit var pvItemTypeOptions: OptionsPickerView<Any>
 
         //提醒重复选择(用于重复活动）
         private val remindRepeatChoicesRegular: ArrayList<String> = arrayListOf("无", "仅这一次", "每次")
@@ -149,26 +143,26 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         private var remindTimeChoicesByTime: ArrayList<Int> = arrayListOf()
 
         //提醒重复选择器
-        public lateinit var pvRemindRepeatRegular: OptionsPickerView<Any>
-        public lateinit var pvRemindRepeatSingle: OptionsPickerView<Any>
+        lateinit var pvRemindRepeatRegular: OptionsPickerView<Any>
+        lateinit var pvRemindRepeatSingle: OptionsPickerView<Any>
 
         //提醒类别选择器
-        public lateinit var pvRemindType: OptionsPickerView<Any>
+        lateinit var pvRemindType: OptionsPickerView<Any>
 
         //日程name监听器
-        public lateinit var itemNameChanger:TextWatcher
+        lateinit var itemNameChanger:TextWatcher
         //日程teacher监听器
-        public lateinit var itemTeacherChanger:TextWatcher
+        lateinit var itemTeacherChanger:TextWatcher
         //日程courseid监听器
-        public lateinit var itemCourseIDChanger:TextWatcher
+        lateinit var itemCourseIDChanger:TextWatcher
         //日程association监听器
-        public lateinit var itemAssociationChanger:TextWatcher
+        lateinit var itemAssociationChanger:TextWatcher
         //时间段name监听器
-        public lateinit var timeNameChanger:TextWatcher
+        lateinit var timeNameChanger:TextWatcher
         //时间段place监听器
-        public lateinit var timePlaceChanger:TextWatcher
+        lateinit var timePlaceChanger:TextWatcher
         //时间段comment监听器
-        public lateinit var timeDetailChanger:TextWatcher
+        lateinit var timeDetailChanger:TextWatcher
 
         init {
             getCourseOptionData()
@@ -343,7 +337,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
          * 参数：无
          * 返回：无
          */
-        public fun initTimeNameChanger() {
+        fun initTimeNameChanger() {
             timeNameChanger = (object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence,
@@ -364,7 +358,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 override fun afterTextChanged(editable: Editable) {
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         time.name = editable.toString()
                     }
                 }
@@ -375,7 +369,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
          * 参数：无
          * 返回：无
          */
-        public fun initTimePlaceChanger() {
+        fun initTimePlaceChanger() {
             timePlaceChanger = (object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence,
@@ -396,7 +390,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 override fun afterTextChanged(editable: Editable) {
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         time.place = editable.toString()
                     }
                 }
@@ -407,7 +401,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
          * 参数：无
          * 返回：无
          */
-        public fun initTimeDetailChanger() {
+        fun initTimeDetailChanger() {
             timeDetailChanger = (object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence,
@@ -428,7 +422,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 override fun afterTextChanged(editable: Editable) {
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         time.comment = editable.toString()
                     }
                     else if(position == 0) {
@@ -445,20 +439,19 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
          * 参数：无
          * 返回：无
          */
-        public fun initTimePicker() { //Dialog 模式下，在底部弹出
+        fun initTimePicker() { //Dialog 模式下，在底部弹出
             pvTime = TimePickerBuilder(mAdapter.theActivity, object : OnTimeSelectListener {
                 override fun onTimeSelect(date: Date?, v: View?) {
                     val instant: Instant = date!!.toInstant()
                     val zone: ZoneId = ZoneId.systemDefault()
                     val localDateTime: LocalDateTime = LocalDateTime.ofInstant(instant, zone)
                     val localTime: LocalTime = localDateTime.toLocalTime()
-                    val string = ItemEditActivity.getTimeString(localTime)
 
                     val position: Int = getAdapterPosition()
 
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
-                        var tag_int = v!!.tag as Int
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val tag_int = v!!.tag as Int
                         if (tag_int == 1) {
                             time.timeInHour!!.startTime = localTime
                         }
@@ -493,21 +486,19 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 .isAlphaGradient(true)
                 .build()
             val mDialog: Dialog = pvTime.getDialog()
-            if (mDialog != null) {
-                val params = FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    Gravity.BOTTOM
-                )
-                params.leftMargin = 0
-                params.rightMargin = 0
-                pvTime.getDialogContainerLayout().setLayoutParams(params)
-                val dialogWindow: Window? = mDialog.getWindow()
-                if (dialogWindow != null) {
-                    dialogWindow.setWindowAnimations(com.bigkoo.pickerview.R.style.picker_view_slide_anim) //修改动画样式
-                    dialogWindow.setGravity(Gravity.BOTTOM) //改成Bottom,底部显示
-                    dialogWindow.setDimAmount(0.3f)
-                }
+            val params = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM
+            )
+            params.leftMargin = 0
+            params.rightMargin = 0
+            pvTime.getDialogContainerLayout().setLayoutParams(params)
+            val dialogWindow: Window? = mDialog.getWindow()
+            if (dialogWindow != null) {
+                dialogWindow.setWindowAnimations(com.bigkoo.pickerview.R.style.picker_view_slide_anim) //修改动画样式
+                dialogWindow.setGravity(Gravity.BOTTOM) //改成Bottom,底部显示
+                dialogWindow.setDimAmount(0.3f)
             }
         }
 
@@ -517,7 +508,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
          * 参数：无
          * 返回：无
          */
-        public fun initDatePicker() { //Dialog 模式下，在底部弹出
+        fun initDatePicker() { //Dialog 模式下，在底部弹出
             pvDate = TimePickerBuilder(mAdapter.theActivity, object : OnTimeSelectListener {
                 override fun onTimeSelect(date: Date?, v: View?) {
 
@@ -528,7 +519,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
 
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         if (time.timeInCourseSchedule != null) {
                             time.timeInCourseSchedule!!.date = localDate
                             time.timeInCourseSchedule!!.dayOfWeek = localDate.dayOfWeek
@@ -560,21 +551,19 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 .isAlphaGradient(true)
                 .build()
             val mDialog: Dialog = pvDate.getDialog()
-            if (mDialog != null) {
-                val params = FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    Gravity.BOTTOM
-                )
-                params.leftMargin = 0
-                params.rightMargin = 0
-                pvDate.getDialogContainerLayout().setLayoutParams(params)
-                val dialogWindow: Window? = mDialog.getWindow()
-                if (dialogWindow != null) {
-                    dialogWindow.setWindowAnimations(com.bigkoo.pickerview.R.style.picker_view_slide_anim) //修改动画样式
-                    dialogWindow.setGravity(Gravity.BOTTOM) //改成Bottom,底部显示
-                    dialogWindow.setDimAmount(0.3f)
-                }
+            val params = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM
+            )
+            params.leftMargin = 0
+            params.rightMargin = 0
+            pvDate.getDialogContainerLayout().setLayoutParams(params)
+            val dialogWindow: Window? = mDialog.getWindow()
+            if (dialogWindow != null) {
+                dialogWindow.setWindowAnimations(com.bigkoo.pickerview.R.style.picker_view_slide_anim) //修改动画样式
+                dialogWindow.setGravity(Gravity.BOTTOM) //改成Bottom,底部显示
+                dialogWindow.setDimAmount(0.3f)
             }
         }
 
@@ -584,12 +573,13 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
          * 参数：无
          * 返回：无
          */
+        @Suppress("UNCHECKED_CAST")
         private fun initCourseOptionPicker() {
             pvCourseOptions = OptionsPickerBuilder(mAdapter.theActivity,
                 OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         time.timeInCourseSchedule!!.startBig = options1 + 1
                         time.timeInCourseSchedule!!.startOffsetSmall = options2.toFloat()
                         time.timeInCourseSchedule!!.lengthSmall = (options3 + 1).toFloat()
@@ -634,8 +624,8 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             bigCourseChoices.add("第五大节")
             bigCourseChoices.add("第六大节")
 
-            var smallCourseTwo:ArrayList<String> = arrayListOf("第一小节", "第二小节")
-            var smallCourseThree:ArrayList<String> = arrayListOf("第一小节", "第二小节","第三小节")
+            val smallCourseTwo:ArrayList<String> = arrayListOf("第一小节", "第二小节")
+            val smallCourseThree:ArrayList<String> = arrayListOf("第一小节", "第二小节","第三小节")
             smallCourseChoices.add(smallCourseTwo)
             smallCourseChoices.add(smallCourseThree)
             smallCourseChoices.add(smallCourseTwo)
@@ -643,10 +633,10 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             smallCourseChoices.add(smallCourseTwo)
             smallCourseChoices.add(smallCourseThree)
 
-            var length_choices_2:ArrayList<ArrayList<String>> = arrayListOf()
+            val length_choices_2:ArrayList<ArrayList<String>> = arrayListOf()
             length_choices_2.add(lengthChoices)
             length_choices_2.add(lengthChoices)
-            var length_choices_3:ArrayList<ArrayList<String>> = arrayListOf()
+            val length_choices_3:ArrayList<ArrayList<String>> = arrayListOf()
             length_choices_3.add(lengthChoices)
             length_choices_3.add(lengthChoices)
             length_choices_3.add(lengthChoices)
@@ -671,7 +661,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
 
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         if (time.timeInCourseSchedule != null) {
                             time.timeInCourseSchedule!!.dayOfWeek = DayOfWeek.of(options1 + 1)
                         }
@@ -712,7 +702,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         handleTimeTypeChange(time, options1)
                         mAdapter.notifyDataSetChanged()
                     }
@@ -802,14 +792,14 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 .setMessage("确定要删除此时间段吗？")
                 .setCancelable(true)
                 .setPositiveButton("确定",
-                    DialogInterface.OnClickListener { dialog, which ->
+                    { _, which ->
                         val position: Int = getAdapterPosition()
                         if(position > 0) {
                             mAdapter.mCurrentItem.times.removeAt(position - 1)
                             mAdapter.notifyDataSetChanged()
                         }})
                 .setNegativeButton("取消",
-                    DialogInterface.OnClickListener { dialog, which ->  })
+                    { _, which ->  })
             dialog.show()
         }
 
@@ -819,7 +809,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
          * 返回：无
          */
         private fun initWeekPickerDialog() {
-            var selected:ArrayList<Int> = arrayListOf()
+            val selected:ArrayList<Int> = arrayListOf()
             pvWeekOptions = PickerDialog.Builder(mAdapter.theActivity)
                 .setWeeks(CREP.term.normalWeekCount, CREP.term.examWeekCount)
                 .setInitialSelectedWeeks(selected)
@@ -830,7 +820,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                     ) {
                         val position: Int = getAdapterPosition()
                         if(position > 0) {
-                            var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                            val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                             time.repeatWeeks.clear()
                             if (selectedWeeks != null) {
                                 for (item in selectedWeeks) {
@@ -856,7 +846,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         var the_type: CalendarRemindType = CalendarRemindType.NONE
                         for(type in CalendarRemindType.values()) {
                             if(type.ordinal == options1) {
@@ -897,7 +887,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         var the_type: CalendarRemindType = CalendarRemindType.NONE
                         for(type in CalendarRemindType.values()) {
                             if(type.ordinal == options1) {
@@ -939,7 +929,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                     val position: Int = getAdapterPosition()
                     if(position > 0) {
                         //更新类别
-                        var time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
+                        val time: CalendarTimeData = mAdapter.mCurrentItem.times.get(position - 1)
                         var the_type: CalendarRemindMethodType = CalendarRemindMethodType.ALARM
                         for(type in CalendarRemindMethodType.values()) {
                             if(type.ordinal == options1) {
@@ -950,7 +940,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                         time.remindData.method = the_type
 
                         //更新提前时间
-                        var minute:Int = remindTimeChoicesByTime.get(options2)
+                        val minute:Int = remindTimeChoicesByTime.get(options2)
                         time.remindData.aheadTime = java.time.Duration.ofMinutes(minute.toLong())
                         mAdapter.notifyDataSetChanged()
                     }
@@ -980,7 +970,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
          * 返回：无
          */
         private fun getRemindOptionData() {
-            var remind_time_choices:ArrayList<String> = arrayListOf("提前5分钟", "提前10分钟", "提前15分钟", "提前20分钟", "提前半小时", "提前40分钟"
+            val remind_time_choices:ArrayList<String> = arrayListOf("提前5分钟", "提前10分钟", "提前15分钟", "提前20分钟", "提前半小时", "提前40分钟"
             , "提前1小时", "提前1.5小时", "提前2小时", "提前3小时", "提前4小时", "提前8小时", "提前12小时", "提前16小时", "提前一天")
             remindTimeChoices.add(remind_time_choices)
             remindTimeChoices.add(remind_time_choices)
@@ -1004,11 +994,11 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             mAdapter.mCurrentItem.type = the_type
 
             if(the_type == CalendarItemType.COURSE) {
-                var the_teacher = mAdapter.mCurrentItem.detail.get(CalendarItemLegalDetailKey.TEACHER)
+                val the_teacher = mAdapter.mCurrentItem.detail.get(CalendarItemLegalDetailKey.TEACHER)
                 if(the_teacher == null) {
                     mAdapter.mCurrentItem.detail.replace(CalendarItemLegalDetailKey.TEACHER, "")
                 }
-                var the_course_id = mAdapter.mCurrentItem.detail.get(CalendarItemLegalDetailKey.COURSEID)
+                val the_course_id = mAdapter.mCurrentItem.detail.get(CalendarItemLegalDetailKey.COURSEID)
                 if(the_course_id == null) {
                     mAdapter.mCurrentItem.detail.replace(CalendarItemLegalDetailKey.COURSEID, "")
                 }
@@ -1019,7 +1009,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 //修改数据
                 mAdapter.mCurrentItem.detail.remove(CalendarItemLegalDetailKey.TEACHER)
                 mAdapter.mCurrentItem.detail.remove(CalendarItemLegalDetailKey.COURSEID)
-                var the_org_id = mAdapter.mCurrentItem.detail.get(CalendarItemLegalDetailKey.ORGANIZATION)
+                val the_org_id = mAdapter.mCurrentItem.detail.get(CalendarItemLegalDetailKey.ORGANIZATION)
                 if(the_org_id == null) {
                     mAdapter.mCurrentItem.detail.replace(CalendarItemLegalDetailKey.ORGANIZATION, "")
                 }
@@ -1152,18 +1142,16 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         holder.theView.setBackgroundColor(colorWhite)
 
         //名称
-        var item_name:String = mCurrentItem.name
+        val item_name:String = mCurrentItem.name
         holder.itemName.setText(item_name)
         holder.itemName.addTextChangedListener(holder.itemNameChanger)
 
         //类别
-        var item_type: CalendarItemType = mCurrentItem.type
-        var item_type_string: String = item_type.chineseName
+        val item_type: CalendarItemType = mCurrentItem.type
+        val item_type_string: String = item_type.chineseName
         holder.itemType.setText(item_type_string)
         holder.itemType.setOnClickListener(View.OnClickListener() {
-            if (holder.pvItemTypeOptions != null) {
-                holder.pvItemTypeOptions.show(holder.itemType);
-            }
+            holder.pvItemTypeOptions.show(holder.itemType)
         })
 
 
@@ -1200,7 +1188,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
 
 
             //设置组织初值
-            var item_association: String? = mCurrentItem!!.detail[CalendarItemLegalDetailKey.ORGANIZATION]
+            var item_association: String? = mCurrentItem.detail[CalendarItemLegalDetailKey.ORGANIZATION]
             if (item_association == null) {
                 item_association = ""
             }
@@ -1215,7 +1203,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         }
 
         //详情
-        var item_comment:String? = mCurrentItem!!.detail[CalendarItemLegalDetailKey.COMMENT]
+        var item_comment:String? = mCurrentItem.detail[CalendarItemLegalDetailKey.COMMENT]
         if(item_comment == null) {
             item_comment = ""
         }
@@ -1264,9 +1252,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         //类别
         holder.timeType.setText(time.type.chineseName)
         holder.timeType.setOnClickListener(View.OnClickListener() {
-            if (holder.pvTimeTypeOptions != null) {
-                holder.pvTimeTypeOptions.show(holder.timeType);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-            }
+            holder.pvTimeTypeOptions.show(holder.timeType)
         })
 
         //日期等
@@ -1277,17 +1263,15 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             ItemEditActivity.HideItem(holder.timeDatePlace)
 
             //设置周，星期初值
-            var week_show: String = ItemEditActivity.getWeeksString(time.repeatWeeks)
+            val week_show: String = ItemEditActivity.getWeeksString(time.repeatWeeks)
             holder.timeWeek.setText(week_show)
             holder.timeWeek.setOnClickListener(View.OnClickListener() {
-                if (holder.pvWeekOptions != null) {
-                    var selected:ArrayList<Int> = arrayListOf()
-                    for(item in time.repeatWeeks) {
-                        selected.add(item)
-                    }
-                    holder.pvWeekOptions.initialSelectedWeeks = selected
-                    holder.pvWeekOptions.show();//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
+                val selected:ArrayList<Int> = arrayListOf()
+                for(item in time.repeatWeeks) {
+                    selected.add(item)
                 }
+                holder.pvWeekOptions.initialSelectedWeeks = selected
+                holder.pvWeekOptions.show();//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
             })
 
             var day_in_week:String = ""
@@ -1300,9 +1284,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
 
             holder.timeDayWeek.setText(day_in_week)
             holder.timeDayWeek.setOnClickListener(View.OnClickListener() {
-                if (holder.pvWeekDayOptions != null) {
-                    holder.pvWeekDayOptions.show(holder.timeDayWeek);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-                }
+                holder.pvWeekDayOptions.show(holder.timeDayWeek)
             })
 
         }
@@ -1320,7 +1302,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             else if(time.timeInHour != null){
                 date = time.timeInHour!!.date!!
             }
-            var date_string = date.toString()
+            val date_string = date.toString()
             holder.timeDate.setText(date_string)
             //绑定选择器
             holder.timeDate.setOnClickListener(View.OnClickListener() {
@@ -1341,18 +1323,16 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             ItemEditActivity.HideItem(holder.timePointPlace)
 
             //设置初值
-            var start_big = time.timeInCourseSchedule!!.startBig
-            var start_small = time.timeInCourseSchedule!!.startOffsetSmall.toInt()
+            val start_big = time.timeInCourseSchedule!!.startBig
+            val start_small = time.timeInCourseSchedule!!.startOffsetSmall.toInt()
             var start_string = "第" + start_big + "大节"
             if(start_small != 0) {
                 start_string = start_string +"第" + (start_small + 1) + "小节"
             }
-            var class_string = start_string + "开始，持续" + time.timeInCourseSchedule!!.lengthSmall.toInt() + "小节"
+            val class_string = start_string + "开始，持续" + time.timeInCourseSchedule!!.lengthSmall.toInt() + "小节"
             holder.timeStartCourse.setText(class_string)
             holder.timeStartCourse.setOnClickListener(View.OnClickListener() {
-                if (holder.pvCourseOptions != null) {
-                    holder.pvCourseOptions.show(holder.timeStartCourse);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-                }
+                holder.pvCourseOptions.show(holder.timeStartCourse)
             })
 
         }
@@ -1363,7 +1343,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             ItemEditActivity.ShowItem(holder.timeEndHourPlace)
             ItemEditActivity.HideItem(holder.timePointPlace)
 
-            var start_string:String = ItemEditActivity.getTimeString(time.timeInHour!!.startTime)
+            val start_string:String = ItemEditActivity.getTimeString(time.timeInHour!!.startTime)
 
             holder.timeStartHour.setText(start_string)
             holder.timeStartHour.setTag(1)
@@ -1376,15 +1356,13 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
                 }
             })
 
-            var end_string:String = ItemEditActivity.getTimeString(time.timeInHour!!.endTime)
+            val end_string:String = ItemEditActivity.getTimeString(time.timeInHour!!.endTime)
             holder.timeEndHour.setText(end_string)
             holder.timeEndHour.setTag(2)
             //绑定选择器
             holder.timeEndHour.setOnClickListener(View.OnClickListener() {
-                if (holder.pvTime != null) {
-                    holder.pvTime.setDate(Calendar.getInstance());
-                    holder.pvTime.show(holder.timeEndHour);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-                }
+                holder.pvTime.setDate(Calendar.getInstance());
+                holder.pvTime.show(holder.timeEndHour);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
             })
         }
         else {
@@ -1394,15 +1372,13 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             ItemEditActivity.HideItem(holder.timeEndHourPlace)
             ItemEditActivity.ShowItem(holder.timePointPlace)
 
-            var time_string:String = ItemEditActivity.getTimeString(time.timeInHour!!.startTime)
+            val time_string:String = ItemEditActivity.getTimeString(time.timeInHour!!.startTime)
             holder.timePoint.setText(time_string)
             holder.timePoint.setTag(3)
             //绑定选择器
             holder.timePoint.setOnClickListener(View.OnClickListener() {
-                if (holder.pvTime != null) {
-                    holder.pvTime.setDate(Calendar.getInstance());
-                    holder.pvTime.show(holder.timePoint);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-                }
+                holder.pvTime.setDate(Calendar.getInstance());
+                holder.pvTime.show(holder.timePoint);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
             })
         }
 
@@ -1414,9 +1390,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         if(time.type == CalendarTimeType.REPEAT_COURSE || time.type == CalendarTimeType.REPEAT_HOUR) {
             holder.timeRemindRepeat.setText(time.remindData.type.chineseName)
             holder.timeRemindRepeat.setOnClickListener(View.OnClickListener() {
-                if (holder.pvRemindRepeatRegular != null) {
-                    holder.pvRemindRepeatRegular.show(holder.timeRemindRepeat);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-                }
+                holder.pvRemindRepeatRegular.show(holder.timeRemindRepeat)
             })
         }
         else {
@@ -1425,9 +1399,7 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
             }
             holder.timeRemindRepeat.setText(time.remindData.type.chineseName)
             holder.timeRemindRepeat.setOnClickListener(View.OnClickListener() {
-                if (holder.pvRemindRepeatSingle != null) {
-                    holder.pvRemindRepeatSingle.show(holder.timeRemindRepeat);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-                }
+                holder.pvRemindRepeatSingle.show(holder.timeRemindRepeat)
             })
         }
 
@@ -1435,14 +1407,12 @@ class ItemEditAdapter(currentItem: CalendarItemDataWithTimes, activity: ItemEdit
         if(time.remindData.type != CalendarRemindType.NONE) {
             ItemEditActivity.ShowEdit(holder.timeRemindTypePlace)
             
-            var remind_method:String = time.remindData.method.chineseName
-            var remind_time:String = ItemEditActivity.getAheadTimeString(time.remindData.aheadTime)
-            var remind_string = remind_method + "，提前" + remind_time
+            val remind_method:String = time.remindData.method.chineseName
+            val remind_time:String = ItemEditActivity.getAheadTimeString(time.remindData.aheadTime)
+            val remind_string = remind_method + "，提前" + remind_time
             holder.timeRemindType.setText(remind_string)
             holder.timeRemindType.setOnClickListener(View.OnClickListener() {
-                    if (holder.pvRemindType != null) {
-                        holder.pvRemindType.show(holder.timeRemindType);//弹出时间选择器，传递参数过去，回调的时候则可以绑定此view
-                    }
+                holder.pvRemindType.show(holder.timeRemindType)
                 })
         }
         else {

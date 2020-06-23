@@ -1,7 +1,7 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package cn.starrah.thu_course_helper.information
 
-import android.app.Activity
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,32 +9,14 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.*
-import androidx.appcompat.app.AlertDialog
+import android.widget.Button
+import android.widget.EditText
+import android.widget.GridLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import cn.starrah.thu_course_helper.R
-import cn.starrah.thu_course_helper.TableFragment
-import cn.starrah.thu_course_helper.activity.ItemEditActivity
-import cn.starrah.thu_course_helper.data.database.CREP
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemData
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
-import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeDataWithItem
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemType
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarRemindType
-import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
-import cn.starrah.thu_course_helper.data.utils.chineseName
-import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import cn.starrah.thu_course_helper.fragment.Information
-import kotlinx.coroutines.launch
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
-import java.lang.Exception
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class ClassroomShowActivity : AppCompatActivity(){
 
