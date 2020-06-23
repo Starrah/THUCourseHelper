@@ -1176,9 +1176,9 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 }
                 else {
                     listOf(
-                        detRawList.subList(0, ZhouIndex).joinToString { "；" },
+                        detRawList.subList(0, ZhouIndex).joinToString("；"),
                         detRawList[ZhouIndex],
-                        detRawList.subList(ZhouIndex + 1, detRawList.size) .joinToString { "；" }
+                        detRawList.subList(ZhouIndex + 1, detRawList.size) .joinToString("；")
                     )
                 }
             }

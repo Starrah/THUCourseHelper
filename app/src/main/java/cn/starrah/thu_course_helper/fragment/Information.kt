@@ -20,6 +20,7 @@ import cn.starrah.thu_course_helper.information.HomeworkShowActivity
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPIInfo
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
@@ -32,6 +33,7 @@ class Information : Fragment() {
         public final var INTENT_JSON = "intent_json"
         private var jsonItem: List<JSONObject>? = null
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,33 +44,33 @@ class Information : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        var loading_bar:LinearLayout? = null
+        var loading_bar: LinearLayout? = null
         lifecycleScope.launch {
             try {
                 buttonPlace = requireActivity().findViewById(R.id.information_place)
                 buttonPlace.removeAllViews()
                 loading_bar = requireActivity().findViewById<LinearLayout>(R.id.login_bar_place)
                 loadFromBackend()
+                loadOriginalButtons()
             }
-            catch(e:Exception) {
-                try {
+            catch (e: CancellationException) {}
+            catch (e: Exception) {
+                runCatching {
                     Toast.makeText(
                         requireActivity() as FragmentActivity,
                         e.message,
                         Toast.LENGTH_LONG
-                    )
-                        .show()
-                }
-                catch(e:Exception) {
-
+                    ).show()
+                    loadOriginalButtons()
                 }
             }
             finally {
-                if(loading_bar != null) {
-                    ItemEditActivity.HideItem(loading_bar!!)
+                runCatching {
+                    if (loading_bar != null) {
+                        ItemEditActivity.HideItem(loading_bar!!)
+                    }
                 }
             }
-            loadOriginalButtons()
         }
 
     }
@@ -79,17 +81,17 @@ class Information : Fragment() {
      */
     suspend fun loadFromBackend() {
         var string_classroom = requireActivity().getString(R.string.show_classroom)
-        if(jsonItem == null) {
+        if (jsonItem == null) {
             jsonItem = BackendAPIInfo()
         }
-        for(item in jsonItem!!) {
-            if((string_classroom.equals(item["name"] as? String)) && (item["children"] as? JSONArray != null)) {
+        for (item in jsonItem!!) {
+            if ((string_classroom.equals(item["name"] as? String)) && (item["children"] as? JSONArray != null)) {
                 classroomJSONItem = item["children"] as JSONArray
             }
             else {
-                var name:String? = item["name"] as? String
-                var url:String? = item["url"] as? String
-                if(name != null && url != null) {
+                var name: String? = item["name"] as? String
+                var url: String? = item["url"] as? String
+                if (name != null && url != null) {
                     addOneButton(name, url)
                 }
             }
@@ -101,10 +103,11 @@ class Information : Fragment() {
      * 参数：名称，url
      * 返回：无
      */
-    fun addOneButton(name:String, url:String) {
+    fun addOneButton(name: String, url: String) {
         //显示空教室
-        var button_place: View = LayoutInflater.from(requireActivity()).inflate(R.layout.information_button, null)
-        var button:Button = button_place.findViewById(R.id.button_this)
+        var button_place: View =
+            LayoutInflater.from(requireActivity()).inflate(R.layout.information_button, null)
+        var button: Button = button_place.findViewById(R.id.button_this)
         button.setText("查看" + name)
         button.setOnClickListener(View.OnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
@@ -123,19 +126,24 @@ class Information : Fragment() {
      */
     fun loadOriginalButtons() {
         //显示空教室
-        var button_classroom_place: View = LayoutInflater.from(requireActivity()).inflate(R.layout.information_button, null)
-        var button_classroom:Button = button_classroom_place.findViewById(R.id.button_this)
+        var button_classroom_place: View =
+            LayoutInflater.from(requireActivity()).inflate(R.layout.information_button, null)
+        var button_classroom: Button = button_classroom_place.findViewById(R.id.button_this)
         var string_classroom = requireActivity().getString(R.string.show_classroom)
         button_classroom.setText("查看" + string_classroom)
         button_classroom.setOnClickListener(View.OnClickListener {
-            if(classroomJSONItem != null) {
+            if (classroomJSONItem != null) {
                 var json_string: String = classroomJSONItem.toString()
                 var intent = Intent(requireActivity(), ClassroomShowActivity::class.java)
                 intent.putExtra(INTENT_JSON, json_string)
                 requireActivity().startActivity(intent)
             }
             else {
-                Toast.makeText(requireActivity() as FragmentActivity, "网络异常，加载空教室失败！", Toast.LENGTH_LONG)
+                Toast.makeText(
+                    requireActivity() as FragmentActivity,
+                    "网络异常，加载空教室失败！",
+                    Toast.LENGTH_LONG
+                )
                     .show()
             }
         })
@@ -143,8 +151,9 @@ class Information : Fragment() {
 
 
         //显示作业
-        var button_homework_place: View = LayoutInflater.from(requireActivity()).inflate(R.layout.information_button, null)
-        var button_homework:Button = button_homework_place.findViewById(R.id.button_this)
+        var button_homework_place: View =
+            LayoutInflater.from(requireActivity()).inflate(R.layout.information_button, null)
+        var button_homework: Button = button_homework_place.findViewById(R.id.button_this)
         var string_homework = requireActivity().getString(R.string.show_homework)
         button_homework.setText(string_homework)
         button_homework.setOnClickListener(View.OnClickListener {
@@ -154,8 +163,9 @@ class Information : Fragment() {
         buttonPlace.addView(button_homework_place)
 
         //显示考试
-        var button_exam_place: View = LayoutInflater.from(requireActivity()).inflate(R.layout.information_button, null)
-        var button_exam:Button = button_exam_place.findViewById(R.id.button_this)
+        var button_exam_place: View =
+            LayoutInflater.from(requireActivity()).inflate(R.layout.information_button, null)
+        var button_exam: Button = button_exam_place.findViewById(R.id.button_this)
         var string_exam = requireActivity().getString(R.string.show_exam)
         button_exam.setText(string_exam)
         button_exam.setOnClickListener(View.OnClickListener {
