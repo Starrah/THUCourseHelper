@@ -40,6 +40,10 @@ data class SchoolTimeRule(
         @JSONField(serialize = false)
         get() = bigs.size
 
+    val totalSmallsCount: Int
+        @JSONField(serialize = false)
+        get() = bigs.fold(0) {acc, it -> acc + it.smallsCount}
+
     data class BigClass(
         /** 一个大节中的所有小节 */
         val smalls: List<SmallClass>

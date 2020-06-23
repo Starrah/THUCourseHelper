@@ -45,6 +45,7 @@ import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
 import kotlin.coroutines.resume
+import kotlin.math.floor
 import kotlin.math.roundToInt
 
 object THUCourseDataSouce : AbstractCourseDataSource() {
@@ -620,7 +621,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             }
         }
     }
-    
+
     class HomeWorkData(
         val courseNames: List<_ID_Name>,
         val homeworks: Map<String, List<JSONObject>>
@@ -675,7 +676,10 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 super.onPageFinished(view, url)
                 if (!loadFirstSuccess) {
                     loadFirstSuccess = true
-                    webView.evaluateJavascript("getHomework(\"$username\", \"$password\", \"$semesterId\")", null)
+                    webView.evaluateJavascript(
+                        "getHomework(\"$username\", \"$password\", \"$semesterId\")",
+                        null
+                    )
                 }
             }
         }
@@ -686,6 +690,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 fun homeworkData(data: String) {
                     continuation.resume(data)
                 }
+
                 @JavascriptInterface
                 fun log(data: String) {
                     println(data)
@@ -1074,7 +1079,15 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                         val finalTime = toArrange.single().first
                         finalTime.timeInCourseSchedule!!.startBig = toArrange.single().second[0]
                         finalTime.timeInCourseSchedule!!.startOffsetSmall = 0f
-                        finalTime.timeInCourseSchedule!!.lengthSmall = smallPerWeek.toFloat()
+                        val actualStartSmall = CREP.timeRule.getStartSmallIndex(finalTime.timeInCourseSchedule!!.startBig) + finalTime.timeInCourseSchedule!!.startOffsetSmall
+                        var actualSmallPerWeek = smallPerWeek.coerceAtLeast(2)
+
+                        // 防止节数过大、溢出当天晚上最后一节
+                        if (CREP.timeRule.totalSmallsCount - actualStartSmall < actualSmallPerWeek) {
+                            actualSmallPerWeek = floor(CREP.timeRule.totalSmallsCount - actualStartSmall).toInt()
+                        }
+
+                        finalTime.timeInCourseSchedule!!.lengthSmall = actualSmallPerWeek.toFloat()
                         res.add(finalTime)
                         normalDealed = true
                     }
@@ -1151,7 +1164,25 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         val detMatcher = PAT_C2_DET.matcher(detStr)
         if (detMatcher.find()) {
             val groupName = detMatcher.group(1)!!
-            val detList = detMatcher.group(2)!!.split("；")
+            // 正确识别字符串
+            // 寻找周字所在的位置
+            // 周前面的全视为地点
+            // 周后面的全视为具体时间
+            val detList = run {
+                val detRawList = detMatcher.group(2)!!.split("；")
+                val ZhouIndex = detRawList.indexOfLast { "周" in it }
+                if (!(detRawList.size >= 3 && ZhouIndex >= 1 && ZhouIndex <= detRawList.size - 2)) {
+                    detRawList
+                }
+                else {
+                    listOf(
+                        detRawList.subList(0, ZhouIndex).joinToString { "；" },
+                        detRawList[ZhouIndex],
+                        detRawList.subList(ZhouIndex + 1, detRawList.size) .joinToString { "；" }
+                    )
+                }
+            }
+
             time.name = groupName
             if (detList.isNotEmpty()) time.place = detList[0]
             if (detList.size >= 2) time.repeatWeeks = dealWithWeekStr(detList[1])
