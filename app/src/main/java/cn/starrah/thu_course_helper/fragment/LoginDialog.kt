@@ -168,7 +168,7 @@ class LoginDialog(context: Context) : Dialog(context){
 
                                 Toast.makeText(theContext!!, e.message, Toast.LENGTH_SHORT)
                                     .show()
-                                dismiss()
+                                // dismiss() // 登录发生异常不关闭窗口
                             }
                         }
                     }
