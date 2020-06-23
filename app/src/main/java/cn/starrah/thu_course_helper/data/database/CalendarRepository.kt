@@ -2,6 +2,8 @@ package cn.starrah.thu_course_helper.data.database
 
 import android.app.Activity
 import android.content.Context
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -24,16 +26,22 @@ import cn.starrah.thu_course_helper.onlinedata.backend.BACKEND_SITE
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPICheckVersion
 import cn.starrah.thu_course_helper.onlinedata.backend.BackendAPITermData
 import cn.starrah.thu_course_helper.onlinedata.backend.TermDescription
-import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
 import cn.starrah.thu_course_helper.remind.setRemindTimerService
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.security.KeyStore
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.IvParameterSpec
 
 /**
  * 本类是获取各类数据的接口。通过设置学期[initializeTerm]，自动打开对应的数据库；
@@ -576,11 +584,79 @@ object CalendarRepository {
         return matchTimesSpecifiedNameAndItemType("期末考试", CalendarItemType.COURSE).getNotNullValue()
     }
 
+    private suspend fun generateNewKey(): SecretKey {
+        return withContext(Dispatchers.IO) {
+            val keyStore = KeyStore.getInstance("AndroidKeyStore")
+            val generator =
+                KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            keyStore.load(null)
+            val purpose = KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT
+            val builder = KeyGenParameterSpec.Builder("userPass", purpose)
+            builder.setBlockModes(KeyProperties.BLOCK_MODE_CBC);
+            builder.setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
+            generator.init(builder.build());
+            generator.generateKey();
+        }
+    }
+
     suspend fun getUserPassword(context: Context): String {
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
-        if (sp.getInt("login_status", 0) != 2) throw DataInvalidException(context.getString(R.string.error_password_not_save))
-        return PreferenceManager.getDefaultSharedPreferences(context).getString("login_pass", null)
+        if (sp.getInt(
+                "login_status",
+                0
+            ) != 2) throw DataInvalidException(context.getString(R.string.error_password_not_save))
+
+        val encryptedPasswordB64 = sp.getString("encrypted_pass", null)
             ?: throw DataInvalidException(context.getString(R.string.error_password_not_save))
+        val encryptedBytes = Base64.getDecoder().decode(encryptedPasswordB64)
+        val IVBytes = sp.getString("encrypted_IV", null)
+            ?.let { Base64.getDecoder().decode(it) }
+            ?: throw DataInvalidException(context.getString(R.string.error_password_not_save))
+
+        return withContext(Dispatchers.IO) {
+            val keyStore = KeyStore.getInstance("AndroidKeyStore")
+            keyStore.load(null)
+            val secretKey = runCatching {
+                keyStore.getKey("userPass", null) as SecretKey
+            }.getOrNull() ?: generateNewKey()
+            try {
+                val cipher =
+                    Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/" + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+                cipher.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(IVBytes))
+                cipher.doFinal(encryptedBytes).toString(Charsets.UTF_8)
+            }catch (e: Exception) {
+                e.printStackTrace()
+                throw e
+            }
+        }
+    }
+
+    suspend fun setUserPassword(context: Context, password: String) {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        if (password.isEmpty()) {
+            sp.edit {
+                remove("encrypted_pass")
+            }
+            return
+        }
+
+        val (encryptedBytes, IVBytes) = withContext(Dispatchers.IO) {
+            val keyStore = KeyStore.getInstance("AndroidKeyStore")
+            keyStore.load(null)
+            val secretKey = runCatching {
+                keyStore.getKey("userPass", null) as SecretKey
+            }.getOrNull() ?: generateNewKey()
+            val cipher =
+                Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/" + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+            Pair(cipher.doFinal(password.toByteArray()), cipher.iv)
+        }
+
+        val encryptedPasswordB64 = Base64.getEncoder().encodeToString(encryptedBytes)
+        sp.edit {
+            putString("encrypted_pass", encryptedPasswordB64)
+            putString("encrypted_IV", Base64.getEncoder().encodeToString(IVBytes))
+        }
     }
 
     /**

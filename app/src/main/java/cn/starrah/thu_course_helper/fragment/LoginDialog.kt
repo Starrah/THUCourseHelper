@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -33,12 +34,12 @@ class LoginDialog(context: Context) : Dialog(context){
     private lateinit var savePassCheck:CheckBox
 
 
-    private fun initDialog(context: Context) {
+    suspend fun initDialog(context: Context) {
         theContext = context
         buildDialog()
     }
 
-    private fun buildDialog(){
+    private suspend fun buildDialog(){
         val layout = LayoutInflater.from(theContext!!).inflate(R.layout.login, null)
 
         idPlace = layout.findViewById(R.id.login_id)
@@ -58,7 +59,7 @@ class LoginDialog(context: Context) : Dialog(context){
 
             //如果登录状态为2,3，加载密码
             if (it.getInt("login_status", 0) >= 2) {
-                it.getString("login_pass", "")?.let {
+                runCatching { CREP.getUserPassword(context) }.getOrNull()?.let {
                     if(it != null&& it.isEmpty() == false) {
                         //设置保存密码选项为true
                         savePassCheck.isChecked = true
@@ -136,7 +137,7 @@ class LoginDialog(context: Context) : Dialog(context){
                                 PreferenceManager.getDefaultSharedPreferences(theContext).edit {
                                     putInt("login_status", login_status)
                                     putString("login_name", login_id)
-                                    putString("login_pass", saved_password)
+                                    GlobalScope.launch { CREP.setUserPassword(theContext!!, saved_password) }
                                     putInt(
                                         "login_force_update",
                                         (System.currentTimeMillis() / 1000).toInt()
@@ -198,8 +199,5 @@ class LoginDialog(context: Context) : Dialog(context){
         setContentView(layout)
     }
 
-    init {
-        initDialog(context)
-    }
 }
 

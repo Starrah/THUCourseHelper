@@ -127,8 +127,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         pf_login = findPreference<Preference>("login_status")!!
         pf_login.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             val the_dialog = LoginDialog(requireActivity())
-            the_dialog.show()
-
+            lifecycleScope.launch {
+                the_dialog.initDialog(requireActivity())
+                the_dialog.show()
+            }
             true
         }
 

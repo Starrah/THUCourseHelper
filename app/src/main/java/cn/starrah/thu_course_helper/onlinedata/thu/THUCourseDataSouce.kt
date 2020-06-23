@@ -1227,6 +1227,12 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         else if (str == "后八周") {
             res = (9..16).toMutableList()
         }
+        else if (str == "单周") {
+            res = (1..16 step 2).toMutableList()
+        }
+        else if (str == "双周") {
+            res = (2..16 step 2).toMutableList()
+        }
         else {
             //先尝试第a-b周的形式
             val matcher = PAT_C1_WEEKDES.matcher(str)
