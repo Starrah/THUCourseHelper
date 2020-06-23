@@ -16,7 +16,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
+import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class LoginDialog(context: Context) : Dialog(context){
