@@ -720,7 +720,7 @@ abstract class TableFragment : Fragment(){
         var theTextView = v.findViewById<TextView>(R.id.text_view);
         var sub_name:String = theCourse.name
         var main_name:String = theCourse.calendarItem.name
-        theTextView.setText(main_name + sub_name); //显示课程名        dayView.addView(v);
+        theTextView.setText(main_name + "：" + sub_name); //显示课程名        dayView.addView(v);
 
         //设置v的颜色
         var hash_value = theCourse.calendarItem.id % itemColors.size
@@ -794,7 +794,7 @@ abstract class TableFragment : Fragment(){
         var theTextView = v.findViewById<TextView>(R.id.text_view);
         var sub_name:String = theItem.name
         var main_name:String = theItem.calendarItem.name
-        theTextView.setText(main_name + sub_name); //显示课程名
+        theTextView.setText(main_name + "：" + sub_name); //显示课程名
 
         //设置v的颜色
         var hash_value = theItem.calendarItem.id % itemColors.size

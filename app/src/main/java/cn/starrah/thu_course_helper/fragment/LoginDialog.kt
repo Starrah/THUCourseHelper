@@ -3,8 +3,6 @@ package cn.starrah.thu_course_helper.fragment
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.os.Looper
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.view.LayoutInflater
@@ -18,9 +16,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
-import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.onlinedata.thu.THUCourseDataSouce
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class LoginDialog(context: Context) : Dialog(context){
@@ -50,6 +46,8 @@ class LoginDialog(context: Context) : Dialog(context){
         loginBarPlace = layout.findViewById(R.id.login_bar_place)
         savePassCheck = layout.findViewById(R.id.login_save_pass)
 
+
+
         PreferenceManager.getDefaultSharedPreferences(theContext).let {
             //加载账号
 
@@ -75,6 +73,24 @@ class LoginDialog(context: Context) : Dialog(context){
         loginBarPlace.setLayoutParams(params_hide)
         loginBar.isVisible = false
 
+
+        //点击验证码图片重新生成验证码
+        captchaView.setOnClickListener({
+            (theContext as FragmentActivity).lifecycleScope.launch {
+                try {
+                    val map_captcha = mapOf<String, Any>("requireCaptcha" to true)
+                    val captcha_bitmap: Bitmap? = THUCourseDataSouce.login("", "", map_captcha)
+                    captchaView.setImageBitmap(captcha_bitmap!!)
+                }
+                catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(theContext!! as FragmentActivity, e.message, Toast.LENGTH_LONG)
+                        .show()
+                    dismiss()
+                }
+            }
+        })
+
         //加载验证码
         (theContext as FragmentActivity).lifecycleScope.launch {
             try {
@@ -90,15 +106,16 @@ class LoginDialog(context: Context) : Dialog(context){
             }
         }
 
+
+
         layout.findViewById<Button>(R.id.login_ok)
             .setOnClickListener(object : View.OnClickListener {
                 override fun onClick(view: View?) {
                     (theContext as FragmentActivity).lifecycleScope.launch {
 
-
                         var login_id: String = idPlace.text.toString()
                         var login_pass: String = passPlace.text.toString()
-                        var login_captcha: String = captchaPlace.text.toString()
+                        var login_captcha: String = captchaPlace.text.toString().toUpperCase()
                         if (login_id.isEmpty()) {
                             Toast.makeText(theContext!!, "账号不能为空！", Toast.LENGTH_SHORT).show()
                         }

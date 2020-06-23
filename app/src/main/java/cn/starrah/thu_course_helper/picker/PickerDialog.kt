@@ -17,6 +17,7 @@ import java.util.*
 
 /**
  * Created by ramiz on 1/31/18.
+ * Modified by Charles Shen on 6/3/2020
  */
 class PickerDialog(builder: Builder) :
     AlertDialog(builder.context, builder.themeResId),
