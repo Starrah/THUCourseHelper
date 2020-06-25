@@ -226,16 +226,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
             lifecycleScope.launch {
                 // 需要先访问后端获取数据
                 val resp = BackendAPICheckVersion()
-                sp.edit {
+                sp.edit (commit = true) {
                     putString("latest_version", resp.versionName)
                     putString("latest_version_url", resp.url)
                 }
                 if (resp.versionName != currentVersion) {
                     // 发现新版本，就设置提醒文字，同时开启下载
-                    pf_check_version.summary = "${cvsum1}${latestVersion}${cvsum2}"
+                    pf_check_version.summary = "${cvsum1}${resp.versionName}${cvsum2}"
                     startDownloadIntent(
                         requireActivity(),
-                        Uri.parse(sp.getString("latest_version_url", null))
+                        Uri.parse(resp.url)
                     )
                 }
                 else {
