@@ -2,6 +2,12 @@
 ==================
 一款真正懂清华学生的android课程管理APP
 
+**国内CDN高速下载链接**
+
+https://cos.starrah.cn/THUCourseHelper.apk  
+
+此链接会始终保持为最新版本（即Github代码库的最近一次Release的版本）。如您有需要获取老版本，请到Github代码库的Release列表中自行获取。
+
 **github地址**
 
 前端：https://github.com/Starrah/THUCourseHelper
