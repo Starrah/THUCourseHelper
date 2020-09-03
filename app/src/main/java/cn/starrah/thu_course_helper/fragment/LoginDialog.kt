@@ -76,9 +76,7 @@ class LoginDialog(context: Context) : Dialog(context){
         loginBarPlace.setLayoutParams(params_hide)
         loginBar.isVisible = false
 
-
-        //点击验证码图片重新生成验证码
-        captchaView.setOnClickListener({
+        val funUpdateCaptcha = {
             (theContext as FragmentActivity).lifecycleScope.launch {
                 try {
                     val map_captcha = mapOf<String, Any>("requireCaptcha" to true)
@@ -92,7 +90,10 @@ class LoginDialog(context: Context) : Dialog(context){
                     dismiss()
                 }
             }
-        })
+        }
+
+        //点击验证码图片重新生成验证码
+        captchaView.setOnClickListener { funUpdateCaptcha() }
 
         //加载验证码
         (theContext as FragmentActivity).lifecycleScope.launch {
@@ -188,6 +189,7 @@ class LoginDialog(context: Context) : Dialog(context){
 
                                 Toast.makeText(theContext!!, e.message, Toast.LENGTH_SHORT)
                                     .show()
+                                funUpdateCaptcha()
                                 // dismiss() // 登录发生异常不关闭窗口
                             }
                         }

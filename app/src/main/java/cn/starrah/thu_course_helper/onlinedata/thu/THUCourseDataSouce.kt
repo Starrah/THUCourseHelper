@@ -909,38 +909,35 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                         curStatus = 2
                     }
                 }
-                else if (curStatus == 2) { //识别教师
+                else if (curStatus in 2..5) { //识别教师、课程属性、周安排、地点
                     val matcher = PAT_C1_DATA.matcher(line)
                     if (matcher.find()) {
-                        val teacher = matcher.group(1)!!
-                        item.detail[CalendarItemLegalDetailKey.TEACHER] = teacher
-                        curStatus = 3
+                        when (curStatus) {
+                            2 -> { //识别教师
+                                val teacher = matcher.group(1)!!
+                                item.detail[CalendarItemLegalDetailKey.TEACHER] = teacher
+                            }
+                            3 -> { //识别课程属性
+                                val str = matcher.group(1)!!
+                                if (str !in XKTYPE_LIST) lineIterator.previous()
+                            }
+                            4 -> { //识别周安排
+                                val weekRawStr = matcher.group(1)!!
+                                val repeatWeek = dealWithWeekStr(weekRawStr)
+                                time.repeatWeeks = repeatWeek
+                                time.type =
+                                    if (repeatWeek.size > 1) CalendarTimeType.REPEAT_COURSE else CalendarTimeType.SINGLE_COURSE
+                            }
+                            5 -> { //识别地点
+                                val place = matcher.group(1)!!
+                                time.place = place
+                            }
+                        }
+                        curStatus++
                     }
-                }
-                else if (curStatus == 3) { //识别课程属性
-                    val matcher = PAT_C1_DATA.matcher(line)
-                    if (matcher.find()) {
-                        val str = matcher.group(1)!!
-                        if (str !in XKTYPE_LIST) lineIterator.previous()
-                        curStatus = 4
-                    }
-                }
-                else if (curStatus == 4) { //识别周安排
-                    val matcher = PAT_C1_DATA.matcher(line)
-                    if (matcher.find()) {
-                        val weekRawStr = matcher.group(1)!!
-                        val repeatWeek = dealWithWeekStr(weekRawStr)
-                        time.repeatWeeks = repeatWeek
-                        time.type =
-                            if (repeatWeek.size > 1) CalendarTimeType.REPEAT_COURSE else CalendarTimeType.SINGLE_COURSE
-                        curStatus = 5
-                    }
-                }
-                else if (curStatus == 5) { //识别地点
-                    val matcher = PAT_C1_DATA.matcher(line)
-                    if (matcher.find()) {
-                        val place = matcher.group(1)!!
-                        time.place = place
+                    else if (PAT_C1_WEEKBIG.matcher(line).find()){
+                        // 发现出现了上课大节信息，则回退本行并状态直接置6。
+                        lineIterator.previous()
                         curStatus = 6
                     }
                 }
@@ -1079,12 +1076,14 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                         val finalTime = toArrange.single().first
                         finalTime.timeInCourseSchedule!!.startBig = toArrange.single().second[0]
                         finalTime.timeInCourseSchedule!!.startOffsetSmall = 0f
-                        val actualStartSmall = CREP.timeRule.getStartSmallIndex(finalTime.timeInCourseSchedule!!.startBig) + finalTime.timeInCourseSchedule!!.startOffsetSmall
+                        val actualStartSmall =
+                            CREP.timeRule.getStartSmallIndex(finalTime.timeInCourseSchedule!!.startBig) + finalTime.timeInCourseSchedule!!.startOffsetSmall
                         var actualSmallPerWeek = smallPerWeek.coerceAtLeast(2)
 
                         // 防止节数过大、溢出当天晚上最后一节
                         if (CREP.timeRule.totalSmallsCount - actualStartSmall < actualSmallPerWeek) {
-                            actualSmallPerWeek = floor(CREP.timeRule.totalSmallsCount - actualStartSmall).toInt()
+                            actualSmallPerWeek =
+                                floor(CREP.timeRule.totalSmallsCount - actualStartSmall).toInt()
                         }
 
                         finalTime.timeInCourseSchedule!!.lengthSmall = actualSmallPerWeek.toFloat()
@@ -1101,20 +1100,20 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                             })
                         }
                         val arrangeSmallResult = when (smallPerWeek) {
-                            3 -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
-                            4 -> listOf(2, 2)
-                            5 -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
-                            6 -> {
+                            3    -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
+                            4    -> listOf(2, 2)
+                            5    -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
+                            6    -> {
                                 if (ttsms[0] < 3) listOf(2, 4)
                                 else if (ttsms[1] < 3) listOf(4, 2)
                                 else listOf(3, 3)
                             }
-                            7 -> {
+                            7    -> {
                                 if (ttsms[0] >= 3 && ttsms[0] < ttsms[1]) listOf(3, 4)
                                 else if (ttsms[1] >= 3 && ttsms[0] > ttsms[1]) listOf(4, 3)
                                 else null
                             }
-                            8 -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
+                            8    -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
                             else -> null
                         }
 
@@ -1178,7 +1177,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                     listOf(
                         detRawList.subList(0, ZhouIndex).joinToString("；"),
                         detRawList[ZhouIndex],
-                        detRawList.subList(ZhouIndex + 1, detRawList.size) .joinToString("；")
+                        detRawList.subList(ZhouIndex + 1, detRawList.size).joinToString("；")
                     )
                 }
             }
