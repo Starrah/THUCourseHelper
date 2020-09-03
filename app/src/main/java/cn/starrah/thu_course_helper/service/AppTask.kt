@@ -11,8 +11,9 @@ import cn.starrah.thu_course_helper.R
 import cn.starrah.thu_course_helper.remind.setRemindTimerServiceForAll
 import cn.starrah.thu_course_helper.utils.trySyncExam
 import cn.starrah.thu_course_helper.utils.trySyncHomework
+import java.lang.Exception
 
-suspend fun allAppTask(context: Context) {
+suspend fun allAppTask(context: Context, fromMainActivity: Boolean = false) {
     configNotificationChannel(context)
     // APP任务，APP每次唤醒（主动唤醒、被动唤醒）都应该执行。
     // 被动唤醒暂时指1h唤醒一次。
@@ -22,7 +23,12 @@ suspend fun allAppTask(context: Context) {
     setRemindTimerServiceForAll(context, shouldCancel = false)
 
     // 尝试拉取推送信息
-    pullMessage(context)
+    try {
+        pullMessage(context, fromMainActivity)
+    }
+    catch (e: Exception) {
+        e.printStackTrace()
+    }
 
     // 刷新作业
     if (!trySyncHomework(context)) {

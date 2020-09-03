@@ -211,7 +211,7 @@ class MainActivity : FragmentActivity() {
 
         lifecycleScope.launch {
             try {
-                allAppTask(this@MainActivity)
+                allAppTask(this@MainActivity, true)
                 val onlineSource = CREP.onlineCourseDataSource
                 if (onlineSource is THUCourseDataSouce) {
                     onlineSource.tryShouldFixDataFromBackendLaterAfterWrittenToDB(this@MainActivity)

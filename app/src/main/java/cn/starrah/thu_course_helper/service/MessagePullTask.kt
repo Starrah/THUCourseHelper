@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter
 /**
  * @return null表示此刻不应发起网络请求拉取消息；非null的字符串表示应当在拉取消息的接口中传入的type参数。
  */
-fun shouldPullMessageType(context: Context): String? {
+fun shouldPullMessageType(context: Context, force: Boolean = false): String? {
     val PULL_MESSAGE_INTERVAL_NOHMEX = 60 * 24 // 1天刷新一次
     val sp = PreferenceManager.getDefaultSharedPreferences(context)
     val sync_hmex_open = // 是否该用户可以自动刷新作业和考试。此种情况下刷新频率为每次apptask必刷新(2h)，否则刷新频率暂定为1天。
@@ -34,7 +34,7 @@ fun shouldPullMessageType(context: Context): String? {
     val lastPullMessagePassed = lastPullMessageTime?.let {
         Duration.between(it, LocalDateTime.now()).toMinutes().toInt()
     } ?: 100000
-    if (sync_hmex_open || (lastPullMessagePassed >= PULL_MESSAGE_INTERVAL_NOHMEX)) {
+    if (force || sync_hmex_open || (lastPullMessagePassed >= PULL_MESSAGE_INTERVAL_NOHMEX)) {
         return sp.getString("pull_message_type", "")
     }
     else return null
@@ -43,9 +43,9 @@ fun shouldPullMessageType(context: Context): String? {
 val timedPullMessageAction = "timedPullMessageAction"
 val EXTRA_timedPullMessageAction_objStr = "EXTRA_timedPullMessageAction_objStr"
 
-suspend fun pullMessage(context: Context) {
+suspend fun pullMessage(context: Context, force: Boolean = false) {
     val sp = PreferenceManager.getDefaultSharedPreferences(context)
-    val pullTypeStr = shouldPullMessageType(context)
+    val pullTypeStr = shouldPullMessageType(context, force)
     if (pullTypeStr != null) {
         val remindedList = sp.getStringSet("remindedList", setOf())!!
         val rawRes = withContext(Dispatchers.IO) {
@@ -55,19 +55,19 @@ suspend fun pullMessage(context: Context) {
             )
         }
         val res = rawRes.filter { it.id !in remindedList }
-        val nowRemind = res.filter { it.time == null }
-        // 有time字段、且time字段指定的时间不早于当前时间、不晚于当前时间后7天的，就将被设置alarm。
-        val laterRemindToSetAlarm = res.filter {
+        // 有time字段、且time字段指定的时间晚于当前时间的，就将被设置alarm。
+        val laterRemind = res.filter {
             it.time != null && ZonedDateTime.parse(it.time, DateTimeFormatter.ISO_DATE_TIME)
-                .toLocalDateTime() in LocalDateTime.now().let { it..it + Duration.ofDays(7) }
+                .toLocalDateTime() - Duration.ofMinutes(1) > LocalDateTime.now()
         }
+        val nowRemind = res - laterRemind
         // 立即提醒
         for (r in nowRemind) {
             showPulledMessageNotification(context, r)
         }
         // 延期提醒，设置alarm
         val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        for (r in laterRemindToSetAlarm) {
+        for (r in laterRemind) {
             val toRemindTime = ZonedDateTime.parse(r.time, DateTimeFormatter.ISO_DATE_TIME)
             val seriStr = JSON.toJSONString(r)
             val alarmIntent = Intent(context, TimedPullMessageReceiver::class.java).apply {

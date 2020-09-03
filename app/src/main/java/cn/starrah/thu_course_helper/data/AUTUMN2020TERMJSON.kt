@@ -1,47 +1,14 @@
 package cn.starrah.thu_course_helper.data
 
-val SPRING2019TERMJSON = """
+val AUTUMN2020TERMJSON = """
     {
       "schoolName": "清华大学",
-      "beginYear": 2019,
-      "type": "SPRING",
-      "startDate": "2020-02-17",
+      "beginYear": 2020,
+      "type": "AUTUMN",
+      "startDate": "2020-09-14",
       "normalWeekCount": 16,
       "examWeekCount": 2,
       "holidays": [
-        {
-          "date": "2020-04-06"
-        },
-        {
-          "date": "2020-04-25"
-        },
-        {
-          "date": "2020-04-26"
-        },
-        {
-          "date": "2020-04-30"
-        },
-        {
-          "date": "2020-05-01"
-        },
-        {
-          "date": "2020-05-02",
-          "to": "2020-05-04"
-        },
-        {
-          "date": "2020-05-03",
-          "to": "2020-05-05"
-        },
-        {
-          "date": "2020-05-04",
-          "to": "2020-05-09"
-        },
-        {
-          "date": "2020-05-05"
-        },
-        {
-          "date": "2020-05-09"
-        }
       ],
       "timeRule": {
         "bigs": [

@@ -9,7 +9,7 @@ import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.preference.PreferenceManager
 import cn.starrah.thu_course_helper.R
-import cn.starrah.thu_course_helper.data.SPRING2019TERMJSON
+import cn.starrah.thu_course_helper.data.AUTUMN2020TERMJSON
 import cn.starrah.thu_course_helper.data.database.CalendarRepository.initializeTerm
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.*
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarItemLegalDetailKey
@@ -67,7 +67,6 @@ object CalendarRepository {
 
     lateinit var term: SchoolTerm
         get
-        private set
 
     var onlineCourseDataSource: AbstractCourseDataSource? = null
         get
@@ -141,7 +140,7 @@ object CalendarRepository {
                 sp.edit {
                     putString("available_terms", JSON.toJSONString(listOf<TermDescription>()))
                 }
-                currentTerm = JSON.parseObject(SPRING2019TERMJSON, SchoolTerm::class.java)!!
+                currentTerm = JSON.parseObject(AUTUMN2020TERMJSON, SchoolTerm::class.java)!!
             }
             else if (needRequestOnlineData > 0) {
                 try {
