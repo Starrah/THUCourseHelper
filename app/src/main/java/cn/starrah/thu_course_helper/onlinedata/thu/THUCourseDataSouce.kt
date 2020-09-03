@@ -935,7 +935,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                         }
                         curStatus++
                     }
-                    else if (PAT_C1_WEEKBIG.matcher(line).find()){
+                    else if (PAT_C1_WEEKBIG.matcher(line).find()) {
                         // 发现出现了上课大节信息，则回退本行并状态直接置6。
                         lineIterator.previous()
                         curStatus = 6
@@ -1069,26 +1069,32 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                 if (credit != null && term.type in autumnspring && toArrange.size <= 2) {
                     // 获取得到学分，是正常课；不是夏季学期；一周至多上两次，才适用学分处理逻辑。
                     // 要根据平均周学时等因素判断。
-                    val smallPerWeek =
-                        (credit * 16f / toArrange[0].first.repeatWeeks.size).roundToInt()
+                    val smallPerWeek = (credit * 16f / toArrange[0].first.repeatWeeks.size)
+                        .roundToInt().coerceAtLeast(2)
 
                     if (toArrange.size == 1) {
                         val finalTime = toArrange.single().first
                         finalTime.timeInCourseSchedule!!.startBig = toArrange.single().second[0]
                         finalTime.timeInCourseSchedule!!.startOffsetSmall = 0f
+
                         val actualStartSmall =
                             CREP.timeRule.getStartSmallIndex(finalTime.timeInCourseSchedule!!.startBig) + finalTime.timeInCourseSchedule!!.startOffsetSmall
-                        var actualSmallPerWeek = smallPerWeek.coerceAtLeast(2)
+                        var length = smallPerWeek
 
                         // 防止节数过大、溢出当天晚上最后一节
-                        if (CREP.timeRule.totalSmallsCount - actualStartSmall < actualSmallPerWeek) {
-                            actualSmallPerWeek =
+                        if (CREP.timeRule.totalSmallsCount < actualStartSmall + length) {
+                            length =
                                 floor(CREP.timeRule.totalSmallsCount - actualStartSmall).toInt()
                         }
+                        finalTime.timeInCourseSchedule!!.lengthSmall = length.toFloat()
 
-                        finalTime.timeInCourseSchedule!!.lengthSmall = actualSmallPerWeek.toFloat()
-                        res.add(finalTime)
-                        normalDealed = true
+                        // 由于横跨大节信息是已知的，那么判断一下按上面规则自动推导出的小节数量
+                        // 是否与已知的大节数不匹配了。如果不匹配的话就不要normalDeal。只有匹配才normalDeal。
+                        val endBig = finalTime.timeInCourseSchedule!!.endBig
+                        if (endBig == toArrange.single().second.last()) {
+                            res.add(finalTime)
+                            normalDealed = true
+                        }
                     }
                     else if (toArrange.size == 2) {
                         val ttsms = mutableListOf<Int>() //每个待分配时间段、可用的最大小节数
@@ -1100,20 +1106,21 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                             })
                         }
                         val arrangeSmallResult = when (smallPerWeek) {
-                            3    -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
-                            4    -> listOf(2, 2)
-                            5    -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
-                            6    -> {
+                            2 -> listOf(2, 2)
+                            3 -> if (ttsms[0] == 2 && ttsms[1] == 2) listOf(2, 2) else null
+                            4 -> listOf(2, 2)
+                            5 -> if (ttsms[0] < 3) listOf(2, 3) else listOf(3, 2)
+                            6 -> {
                                 if (ttsms[0] < 3) listOf(2, 4)
                                 else if (ttsms[1] < 3) listOf(4, 2)
                                 else listOf(3, 3)
                             }
-                            7    -> {
+                            7 -> {
                                 if (ttsms[0] >= 3 && ttsms[0] < ttsms[1]) listOf(3, 4)
                                 else if (ttsms[1] >= 3 && ttsms[0] > ttsms[1]) listOf(4, 3)
                                 else null
                             }
-                            8    -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
+                            8 -> if (ttsms[0] >= 4 && ttsms[1] >= 4) listOf(4, 4) else null
                             else -> null
                         }
 
@@ -1131,6 +1138,8 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
                     //获取不到学分，很可能是实验课，一连一上午或一下午的那种。
                     //夏季学期，也大多数是实验课、一连上一上午或一下午的那种。
                     //上述两种情况，就直接让lengthSmall占据所有大节即可。
+                    //还有一种情况是按照标准规则无法推出（需要安排的不连续广义时间段个数大于3，
+                    //或者是按照既定规则进行推断得到的小节数填入后发现与横跨的大节数量不符）
                     //而对于一周上课次数大于等于三次的情况，十分罕见、也不知道怎么做学分分配，因此也不处理了。
                     //总之凡是无法完成按学分分配学时的情况，则全部填充lengthSmall为占据所有大节。
                     for ((finalTime, crossList) in toArrange) {
