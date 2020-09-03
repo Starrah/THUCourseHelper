@@ -25,8 +25,9 @@ fun showRemindNotification(context: Context, time: CalendarTimeDataWithItem) {
         .setContentTitle("${context.getString(R.string.notification_remind_prefix)}${item.name}${time.name}")
         .setContentText(line1)
         .setVibrate(longArrayOf(0, 1000))
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-    NotificationManagerCompat.from(context).notify(((System.currentTimeMillis().toInt() % 1000000) + 1000000), builder.build())
+        .setPriority(NotificationCompat.PRIORITY_MAX)
+    NotificationManagerCompat.from(context)
+        .notify(System.currentTimeMillis().toInt(), builder.build())
 }
 
 

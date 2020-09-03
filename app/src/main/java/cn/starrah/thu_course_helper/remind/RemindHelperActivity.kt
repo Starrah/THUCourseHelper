@@ -26,6 +26,7 @@ class RemindHelperActivity() : Activity() {
         setContentView(R.layout.remind_helper)
         val fromIntent = this.intent
 
+        // 这个全屏Intent对应的Activity，只做一件事：设置闹钟
         val intent = Intent(AlarmClock.ACTION_SET_ALARM).apply {
             putExtra(AlarmClock.EXTRA_HOUR, fromIntent.getIntExtra(AlarmClock.EXTRA_HOUR, 0))
             putExtra(AlarmClock.EXTRA_MINUTES, fromIntent.getIntExtra(AlarmClock.EXTRA_MINUTES, 0))
@@ -41,6 +42,8 @@ class RemindHelperActivity() : Activity() {
             throw Exception(getString(R.string.error_alarm_not_supported))
         }
         startActivity(intent)
+
+        // 100ms后自动销毁
         GlobalScope.launch {
             delay(100)
             finish()
@@ -64,7 +67,34 @@ class ReminderHelperService() : Service() {
         super.onCreate()
         val context = this
 
+        // 通过发起前台服务（产生运行中的通知），实现进程唤醒
+        // 构造全屏Intent，其作用是渲染RemindHelperActivity出来
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0,
+            Intent(context, RemindHelperActivity::class.java).apply {
+                putExtra(AlarmClock.EXTRA_HOUR, alarmTime!!.hour)
+                putExtra(AlarmClock.EXTRA_MINUTES, alarmTime!!.minute)
+                putExtra(AlarmClock.EXTRA_MESSAGE, message)
+                putExtra(AlarmClock.EXTRA_SKIP_UI, true)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        // 构造全屏通知，指定其全屏Intent为上面的PendingIntent
+        // 这样，当这个通知被发出时上面的PendingIntent会自动触发，引起RemindHelperActivity的调用
+        val builder = NotificationCompat.Builder(context, "remind")
+            .setWhen(System.currentTimeMillis())
+            .setSmallIcon(R.drawable.logo)
+            .setContentTitle("用于唤醒应用")
+            .setContentText("请您忽略")
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setNotificationSilent()
+            .setFullScreenIntent(pendingIntent, true)
+        iid = System.currentTimeMillis().toInt()
+        startForeground(iid!!, builder.build())
 
+        // 这个service里面也设置闹钟一下。虽然不一定有用。
         val anotherintent = Intent(AlarmClock.ACTION_SET_ALARM).apply {
             putExtra(AlarmClock.EXTRA_HOUR, alarmTime!!.hour)
             putExtra(AlarmClock.EXTRA_MINUTES, alarmTime!!.minute)
@@ -78,30 +108,7 @@ class ReminderHelperService() : Service() {
         }
         startActivity(anotherintent)
 
-        val pendingIntent = PendingIntent.getActivity(
-            context, 12345,
-            Intent(context, RemindHelperActivity::class.java).apply {
-                putExtra(AlarmClock.EXTRA_HOUR, alarmTime!!.hour)
-                putExtra(AlarmClock.EXTRA_MINUTES, alarmTime!!.minute)
-                putExtra(AlarmClock.EXTRA_MESSAGE, message)
-                putExtra(AlarmClock.EXTRA_SKIP_UI, true)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val builder = NotificationCompat.Builder(context, "remind")
-            .setWhen(System.currentTimeMillis())
-            .setSmallIcon(R.drawable.logo)
-            .setContentTitle("用于唤醒应用")
-            .setContentText("请您忽略")
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setNotificationSilent()
-            .setFullScreenIntent(pendingIntent, true)
-        iid = (System.currentTimeMillis().toInt() % 1000000) + 1000000
-
-        startForeground(iid!!, builder.build())
-
+        // 1000ms后前台服务自动结束
         GlobalScope.launch {
             delay(1000)
             stopSelf()
@@ -110,10 +117,11 @@ class ReminderHelperService() : Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        // 结束时关闭通知
         val mManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        mManager.cancel(iid!!);
+        mManager.cancel(iid!!)
+        super.onDestroy()
     }
 
 
@@ -134,6 +142,6 @@ class RemindAlarmBackupNoticeReceiver() : BroadcastReceiver() {
             .setContentText(line1)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         NotificationManagerCompat.from(context)
-            .notify(((System.currentTimeMillis().toInt() % 20000) + 7000000), builder.build())
+            .notify(System.currentTimeMillis().toInt(), builder.build())
     }
 }

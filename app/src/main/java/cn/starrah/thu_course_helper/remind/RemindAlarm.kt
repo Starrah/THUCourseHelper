@@ -16,6 +16,8 @@ import java.time.LocalTime
 val MAKE_ALARM_BEFORE_MINUTE = 2
 
 fun makeRemindSystemAlarm(context: Context, time: CalendarTimeDataWithItem) {
+    // 设置闹钟在2分钟之后响铃
+    // 这部分代码在Android10以上很可能是无效的
     val item = time.calendarItem
     val alarmTime = LocalTime.now() + Duration.ofMinutes(MAKE_ALARM_BEFORE_MINUTE.toLong())
     val line1 = "${time.place.run { if (isNotEmpty()) plus("/") else "" }}${time.timeStr}"
@@ -31,9 +33,9 @@ fun makeRemindSystemAlarm(context: Context, time: CalendarTimeDataWithItem) {
         Toast.makeText(context, R.string.error_alarm_not_supported, Toast.LENGTH_LONG).show()
         throw Exception(context.getString(R.string.error_alarm_not_supported))
     }
-
     context.startActivity(intent)
 
+    // 设置备用纯通知，与alarm一同出现。
     val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     val alarmNoticeIntent = Intent(context, RemindAlarmBackupNoticeReceiver::class.java).apply {
         action = ACTION_RemindAlarmBackupNotice
@@ -49,6 +51,7 @@ fun makeRemindSystemAlarm(context: Context, time: CalendarTimeDataWithItem) {
         alarmNoticeIntent
     )
 
+    // 核心：开启前台服务
     ReminderHelperService.alarmTime = alarmTime
     ReminderHelperService.message = message
     context.startService(Intent(context, ReminderHelperService::class.java))

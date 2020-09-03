@@ -10,6 +10,9 @@ import cn.starrah.thu_course_helper.widget.updateWidgetsAndNotification
 import cn.starrah.thu_course_helper.widget.updateWidgetsIntentAction
 import cn.starrah.thu_course_helper.widget.updateWidgetsIntentInterval
 
+/**
+ * 这里面会设置两个循环的定时任务，一个用于定时执行AppTask（每1h），一个用于定时更新小部件（每5min）
+ */
 suspend fun initializeAllTimelyIntents(context: Context, immediatelyRun: Boolean = true) {
     run {
         // 设置定时更新allAppTask
@@ -18,8 +21,7 @@ suspend fun initializeAllTimelyIntents(context: Context, immediatelyRun: Boolean
             context,
             AppTaskReceiver::class.java
         ).apply {
-            action =
-                executeAppTaskIntentAction
+            action = executeAppTaskIntentAction
         }.let { PendingIntent.getBroadcast(context, 0, it, 0) }
         val timeStamp = SystemClock.elapsedRealtime() + executeAppTaskIntentInterval
         alarmMgr.setRepeating(

@@ -101,13 +101,13 @@ suspend fun BackendAPIDownloadMyData(context: Context, authentication: Any?) {
                     if (key in UPLOAD_PREFERENCE_KEY_LIST) {
                         @Suppress("UNCHECKED_CAST")
                         when (value) {
-                            is String  -> putString(key, value)
-                            is Int     -> putInt(key, value)
+                            is String -> putString(key, value)
+                            is Int -> putInt(key, value)
                             is Boolean -> putBoolean(key, value)
-                            is Long    -> putLong(key, value)
-                            is Float   -> putFloat(key, value)
-                            is Set<*>  -> putStringSet(key, value as Set<String>)
-                            null       -> remove(key)
+                            is Long -> putLong(key, value)
+                            is Float -> putFloat(key, value)
+                            is Set<*> -> putStringSet(key, value as Set<String>)
+                            null -> remove(key)
                         }
                     }
                 }
@@ -177,4 +177,22 @@ suspend fun BackendAPIFeedback(message: String, contact: String?) {
 suspend fun BackendAPIInfo(): List<JSONObject> {
     val s = CookiedFuel.get("$BACKEND_SITE/infoList").awaitString()
     return JSON.parseArray(s).map { it as JSONObject }
+}
+
+data class PullMessageAPIRespItem(
+    val id: String,
+    val title: String,
+    val body: String?,
+    val time: String?,
+    val intentUri: String?
+)
+
+suspend fun BackendAPIPullMessage(type: String, version: String): List<PullMessageAPIRespItem> {
+    val s = CookiedFuel.get(
+        "$BACKEND_SITE/pullMessage", listOf(
+            "type" to type,
+            "version" to version
+        )
+    ).awaitString()
+    return JSON.parseArray(s, PullMessageAPIRespItem::class.java)
 }

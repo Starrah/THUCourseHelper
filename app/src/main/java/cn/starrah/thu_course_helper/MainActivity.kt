@@ -32,7 +32,7 @@ class MainActivity : FragmentActivity() {
 
     //字符串和背景图片，虚线颜色的对应关系
     companion object {
-        var bgSettings:Drawable? = null
+        var bgSettings: Drawable? = null
         var mapBackground: MutableMap<String, Drawable> = mutableMapOf()
         var mapBackgroundLine: MutableMap<String, String> = mutableMapOf()
 
@@ -146,7 +146,7 @@ class MainActivity : FragmentActivity() {
         catch (e: Exception) {
             background = null
         }
-        if(background == null) {
+        if (background == null) {
             background = resources.getDrawable(R.color.colorWhite)
         }
 
@@ -210,12 +210,16 @@ class MainActivity : FragmentActivity() {
             Toast.makeText(this, intent.getStringExtra("SHOW_TOAST")!!, Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch {
-            allAppTask(this@MainActivity)
-            val onlineSource = CREP.onlineCourseDataSource
-            if (onlineSource is THUCourseDataSouce) {
-                onlineSource.tryShouldFixDataFromBackendLaterAfterWrittenToDB(this@MainActivity)
+            try {
+                allAppTask(this@MainActivity)
+                val onlineSource = CREP.onlineCourseDataSource
+                if (onlineSource is THUCourseDataSouce) {
+                    onlineSource.tryShouldFixDataFromBackendLaterAfterWrittenToDB(this@MainActivity)
+                }
             }
-
+            catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

@@ -8,8 +8,10 @@ import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
@@ -40,7 +42,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var pf_feedback: Preference
     lateinit var pf_backup: ListPreference
     lateinit var pf_stay_notice: ListPreference
-    lateinit var pf_background:ListPreference
+    lateinit var pf_background: ListPreference
     val spListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
         if (key == "login_status" || key == "login_force_update") {
             val login_status = sp.getInt("login_status", 0)
@@ -48,9 +50,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 if (login_status == 0) resources.getString(R.string.status_not_login)
                 else sp.getString("login_name", "")
             pf_login.summary = when (login_status) {
-                1    -> resources.getString(R.string.status_login)
-                2    -> resources.getString(R.string.status_login_save)
-                4    -> resources.getString(R.string.status_login_session_expire)
+                1 -> resources.getString(R.string.status_login)
+                2 -> resources.getString(R.string.status_login_save)
+                4 -> resources.getString(R.string.status_login_session_expire)
                 else -> ""
             }
 
@@ -144,7 +146,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     )
                     onlineData?.let { CREP.onlineCourseDataSource?.applyLoadedCourses(onlineData) }
                     Toast.makeText(activity, R.string.sync_XK_success, Toast.LENGTH_SHORT).show()
-                }catch (e: Exception) {
+                }
+                catch (e: Exception) {
                     e.printStackTrace()
                     Toast.makeText(activity, e.message, Toast.LENGTH_LONG).show()
                 }
@@ -226,7 +229,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             lifecycleScope.launch {
                 // 需要先访问后端获取数据
                 val resp = BackendAPICheckVersion()
-                sp.edit (commit = true) {
+                sp.edit(commit = true) {
                     putString("latest_version", resp.versionName)
                     putString("latest_version_url", resp.url)
                 }
@@ -250,15 +253,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
         pf_feedback = findPreference("dull_feedback")!!
         pf_feedback.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             val view = requireActivity().layoutInflater.inflate(R.layout.feedback, null)
+            view.findViewById<TextView>(R.id.github_text)
+                .setMovementMethod(LinkMovementMethod.getInstance());
             AlertDialog.Builder(context).setView(view)
                 // Add action buttons
-                .setPositiveButton(R.string.submit
+                .setPositiveButton(
+                    R.string.submit
                 ) { dialog, id ->
                     val mainView = view.findViewById<EditText>(R.id.main)
                     val contactView = view.findViewById<EditText>(R.id.contact)
                     val mainStr = mainView.text.toString().ifBlank { null }
                     val contactStr = contactView.text.toString().ifBlank { null }
-                    if (mainStr == null) Toast.makeText(context, "反馈内容不能为空！", Toast.LENGTH_SHORT).show()
+                    if (mainStr == null) Toast.makeText(context, "反馈内容不能为空！", Toast.LENGTH_SHORT)
+                        .show()
                     else {
                         lifecycleScope.launch {
                             try {
@@ -266,7 +273,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
                                 Toast.makeText(context, "提交反馈成功", Toast.LENGTH_SHORT).show()
                             }
                             catch (e: Exception) {
-                                Toast.makeText(context, "提交反馈失败：${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "提交反馈失败：${e.message}", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                             dialog.dismiss()
                         }
@@ -458,7 +466,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         catch (e: java.lang.Exception) {
             background = null
         }
-        if(background == null) {
+        if (background == null) {
             background = resources.getDrawable(R.color.colorWhite)
         }
 

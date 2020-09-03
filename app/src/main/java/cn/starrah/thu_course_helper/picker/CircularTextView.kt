@@ -27,14 +27,14 @@ class CircularTextView : AppCompatTextView, View.OnClickListener {
      */
     var isAutoSelectEnabled = true
 
-    constructor(context: Context?) : super(context) {
+    constructor(context: Context?) : super(context!!) {
         init()
     }
 
     constructor(
         context: Context?,
         @Nullable attrs: AttributeSet?
-    ) : super(context, attrs) {
+    ) : super(context!!, attrs) {
         init()
     }
 
@@ -42,7 +42,7 @@ class CircularTextView : AppCompatTextView, View.OnClickListener {
         context: Context?,
         @Nullable attrs: AttributeSet?,
         defStyleAttr: Int
-    ) : super(context, attrs, defStyleAttr) {
+    ) : super(context!!, attrs, defStyleAttr) {
         init()
     }
 
@@ -53,7 +53,8 @@ class CircularTextView : AppCompatTextView, View.OnClickListener {
             //We can't access theme attributes in @DrawableRes below Android Lollipop
             //so to properly support theme colors let's use a custom StateListDrawable
             setBackgroundDrawable(CustomStateListDrawable(getContext()))
-        } else {
+        }
+        else {
             setBackgroundDrawable(
                 AppCompatResources.getDrawable(
                     getContext(),

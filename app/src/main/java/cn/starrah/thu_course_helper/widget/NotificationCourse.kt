@@ -27,14 +27,15 @@ class NotificationCourse : BroadcastReceiver() {
     private val BUTTON_DOWN = "button_down"
     private val UPDATE_WIDGET = "update_action"
     private val DELETE_WIDGET = "delete_action"
-    private val CHANNEL_ID = "notify_course_silent"
+    private val CHANNEL_ID = "stay_notify"
     private val NOTIFY_ID = 0
+
     //当前时间段数组
     companion object {
         private var timeList: MutableList<CalendarTimeDataWithItem> = mutableListOf()
 
         //当前显示的元素
-        private var showItem:Int = -1
+        private var showItem: Int = -1
     }
 
     /**
@@ -44,7 +45,7 @@ class NotificationCourse : BroadcastReceiver() {
      */
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
-        if(action == UPDATE_WIDGET) {
+        if (action == UPDATE_WIDGET) {
             GlobalScope.launch {
                 CREP.initializeDefaultTermIfUninitialized(context, true)
                 updateData(context)
@@ -52,20 +53,20 @@ class NotificationCourse : BroadcastReceiver() {
                 updateNotification(remoteViews, context)
             }
         }
-        else if(action == DELETE_WIDGET) {
+        else if (action == DELETE_WIDGET) {
             deleteNotification(context)
         }
         else if (action == BUTTON_UP) {
             showItem -= 1
-            if(showItem < 0) {
+            if (showItem < 0) {
                 showItem = 0
             }
             val remoteViews = shiftShow(context)
             updateNotification(remoteViews, context)
         }
-        else if(action == BUTTON_DOWN) {
-            showItem ++
-            if(showItem >= timeList.size) {
+        else if (action == BUTTON_DOWN) {
+            showItem++
+            if (showItem >= timeList.size) {
                 showItem = timeList.size - 1
             }
             val remoteViews = shiftShow(context)
@@ -79,7 +80,7 @@ class NotificationCourse : BroadcastReceiver() {
      * 参数：context
      * 返回：得到的remote view
      */
-    private fun shiftShow(context: Context) :RemoteViews {
+    private fun shiftShow(context: Context): RemoteViews {
         // 小部件在Launcher桌面的布局
         val remoteViews = RemoteViews(context.packageName, R.layout.app_widget_layout)
         //没有日程
@@ -102,7 +103,7 @@ class NotificationCourse : BroadcastReceiver() {
             }
 
             //名称
-            var name: String = the_item.calendarItem.name  + "：" +  the_item.name
+            var name: String = the_item.calendarItem.name + "：" + the_item.name
             val current_time: LocalTime = LocalTime.now()
             var description: String = ""
             if (current_time.isAfter(the_item.timeInHour!!.endTime)) {
@@ -167,18 +168,6 @@ class NotificationCourse : BroadcastReceiver() {
         // 更新通知栏
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val mChannel = NotificationChannel(
-            CHANNEL_ID,
-            "今日课程",
-            NotificationManager.IMPORTANCE_MIN
-        )
-        mChannel.description = "今日课程显示"
-        mChannel.enableLights(false)
-        mChannel.lightColor = Color.BLUE
-        mChannel.setSound(null, null)
-        mChannel.enableVibration(false)
-        notificationManager.createNotificationChannel(mChannel)
-
 
         val mBuilder: NotificationCompat.Builder = NotificationCompat.Builder(context, CHANNEL_ID)
         val intent = Intent(context, MainActivity::class.java)
@@ -192,7 +181,7 @@ class NotificationCourse : BroadcastReceiver() {
             .setOngoing(true)
             .setSmallIcon(R.drawable.logo)
             .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-        val notify:Notification = mBuilder.build()
+        val notify: Notification = mBuilder.build()
         notify.flags = Notification.FLAG_ONGOING_EVENT;
         notificationManager.notify(NOTIFY_ID, notify);
     }
@@ -218,7 +207,7 @@ class NotificationCourse : BroadcastReceiver() {
         timeList.clear()
         timeList.addAll(raw_list.first)
         showItem = raw_list.second
-        if(!timeList.isEmpty() && showItem >= timeList.size) {
+        if (!timeList.isEmpty() && showItem >= timeList.size) {
             showItem = timeList.size - 1
         }
     }
