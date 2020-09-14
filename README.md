@@ -54,7 +54,11 @@ https://cos.starrah.cn/THUCourseHelper.apk
 7. 为了方便您获取本软件，我们为您提供基于CDN内容分发的下载服务。**但您不得恶意使用这一服务，不得因正常获取使用本软件以外的原因请求这一服务，不得在一段时间内多次反复使用这一服务下载本软件，不得使用任何脚本请求这一服务**。如果因该服务被滥用造成维护者财务支出过大，我们有权随时终止这一服务。
 
 ## 开源协议
-MIT License 
+MIT License
+
+## 鸣谢
+本项目中获取网络学堂课程作业部分，使用了[thu-learn-lib](https://github.com/Harry-Chen/thu-learn-lib)。
+拉取课程数据部分，感谢@RikaSugisawa 提供的帮助。
 
 ## 基本信息
 
