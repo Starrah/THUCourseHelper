@@ -222,6 +222,11 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
     }
 
     /**
+     * 当前加载course过程，正在处理的学期。该变量在parseRawZTKB的过程中设置、可能被其他函数引用。
+     */
+    var currentParsingTerm: SchoolTerm? = null
+
+    /**
      * 读取全部课程数据（但不处理）。
      *
      * 一般而言，调用本函数后，需要把本函数的返回值作为参数调用[applyLoadedCourses].才能把获取到的课表同步到本地数据中。
@@ -856,6 +861,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         val lineIterator = lines.listIterator()
 
         val foundCourseDict = mutableMapOf<String, CalendarItemDataWithTimes>()
+        currentParsingTerm = term
 
         outer@ while (true) {
             var tempCourseNumber: String? = null
@@ -1256,15 +1262,16 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
 
 
     private fun dealWithWeekStr(str: String): MutableList<Int> {
+        val maxWeek = currentParsingTerm?.normalWeekCount ?: 16
         val res: MutableList<Int>
         if (str == "全周") {
-            res = (1..16).toMutableList()
+            res = (1..maxWeek).toMutableList()
         }
         else if (str == "前八周") {
             res = (1..8).toMutableList()
         }
         else if (str == "后八周") {
-            res = (9..16).toMutableList()
+            res = (9..maxWeek).toMutableList()
         }
         else if (str == "单周") {
             res = (1..16 step 2).toMutableList()
