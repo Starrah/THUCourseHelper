@@ -839,14 +839,14 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
     }
 
     private val PAT_C1_LINK =
-        Pattern.compile("strHTML \\+= \"<a class='mainHref' href='.*?;(\\d{8})'.*?>\"")
+        Pattern.compile("strHTML \\+= \"<a class='mainHref' href='.*?;([0-9A-Z]{8})'.*?>\"")
     private val PAT_C1_TITLE = Pattern.compile("strHTML \\+= \"<b>(.*)</b>\"")
     private val PAT_C1_DATA = Pattern.compile("strHTML1 \\+= ?\"；(.*)\"")
     private val PAT_C1_WEEKBIG =
         Pattern.compile("getElementById\\('a(\\d)_(\\d)'\\).innerHTML \\+= strHTML")
-    private val PAT_C1_WEEKDES = Pattern.compile("(\\d+)-(\\d+)")
+    private val PAT_C1_WEEK_RANGE = Pattern.compile("(\\d+)-(\\d+)")
     private val PAT_C2 =
-        Pattern.compile("strHTML = \"<a class='blue_red_none' href='.*?p_id=(\\d+)'.*?><b><font color='blue'>(.*?)</font></b></a><font color='blue'>(.*?)</font>\";")
+        Pattern.compile("strHTML = \"<a class='blue_red_none' href='.*?p_id=([0-9A-Z]+)'.*?><b><font color='blue'>(.*?)</font></b></a><font color='blue'>(.*?)</font>\";")
     private val PAT_NUMBER = Pattern.compile("\\d+")
     private val PAT_C2_DET = Pattern.compile("(.*?)\\((.*)\\)")
     private val PAT_C2_TIMESTR = Pattern.compile("时间：(\\d+):(\\d+)-(\\d+):(\\d+)")
@@ -1281,7 +1281,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
         }
         else {
             //先尝试第a-b周的形式
-            val matcher = PAT_C1_WEEKDES.matcher(str)
+            val matcher = PAT_C1_WEEK_RANGE.matcher(str)
             if (matcher.find()) {
                 val weekStart = matcher.group(1)!!.toInt()
                 val weekEnd = matcher.group(2)!!.toInt()
