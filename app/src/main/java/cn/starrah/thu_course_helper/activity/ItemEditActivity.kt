@@ -19,6 +19,7 @@ import cn.starrah.thu_course_helper.data.database.CREP
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarItemDataWithTimes
 import cn.starrah.thu_course_helper.data.declares.calendarEntity.CalendarTimeData
 import cn.starrah.thu_course_helper.data.declares.calendarEnum.CalendarTimeType
+import cn.starrah.thu_course_helper.data.declares.school.SchoolTermType
 import cn.starrah.thu_course_helper.data.declares.time.TimeInCourseSchedule
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import kotlinx.coroutines.launch
@@ -30,13 +31,13 @@ import java.time.LocalTime
 /**
  * 描述：编辑/新建日程活动
  */
-class ItemEditActivity : AppCompatActivity(){
+class ItemEditActivity : AppCompatActivity() {
 
     //当前的元素
     private var currentItem: CalendarItemDataWithTimes? = null
 
     //当前元素的id，如果没有就-1
-    private var currentID:Int = -1
+    private var currentID: Int = -1
 
     private var mRecyclerView: RecyclerView? = null
     private var mAdapter: ItemEditAdapter? = null
@@ -46,13 +47,13 @@ class ItemEditActivity : AppCompatActivity(){
         /**
          * 描述：将时间转换成 08:00 这种形式
          */
-        fun getTimeString(time:LocalTime):String {
+        fun getTimeString(time: LocalTime): String {
             var hour = "" + time.hour
             var minute = "" + time.minute
-            if(hour.length != 2) {
+            if (hour.length != 2) {
                 hour = "0" + hour
             }
-            if(minute.length != 2) {
+            if (minute.length != 2) {
                 minute = "0" + minute
             }
             return hour + ":" + minute
@@ -64,113 +65,52 @@ class ItemEditActivity : AppCompatActivity(){
          * @return ：显示的字符串
          * @see ：全周，前半学期，后半学期，单周，双周，考试周，第1,2,3,4,6周，etc
          */
-        fun getWeeksString(week_list:MutableList<Int>):String {
-            //先map映射，去重+排序
-            val week_map:MutableMap<Int, Boolean> = mutableMapOf()
-            for(item in week_list) {
-                week_map[item] = true
-            }
+        fun getWeeksString(week_list: MutableList<Int>): String {
             val total_weeks = CREP.term.totalWeekCount
             val normal_weeks = CREP.term.normalWeekCount
+            val isAutumnSpring =
+                CREP.term.type in listOf(SchoolTermType.AUTUMN, SchoolTermType.SPRING)
+            if (total_weeks !in 1..62) throw Exception("学期的总周数配置不合法！")
+            // 产生所有重复周的位表示。LSB表示第一周，越高位周数越大
+            val bitOfWeek = week_list.fold(0L) { acc, n -> acc or (1L shl (n - 1)) }
+            // 产生各种套路的位表示掩码
+            val maskTotalWeek = (1L shl total_weeks) - 1
+            val maskNormalWeek = (1L shl normal_weeks) - 1
+            val maskExamWeek = maskNormalWeek xor maskTotalWeek
+            val maskFirst8Week = if (isAutumnSpring) (1L shl 8) - 1 else null
+            val maskSecond8Week = maskFirst8Week?.let { maskNormalWeek xor maskFirst8Week }
+            val maskOddWeek = maskNormalWeek and 0x5555555555555555L
+            val maskEvenWeek = maskNormalWeek xor maskOddWeek
 
-            //一个filter，用于筛选全周，前八周，后八周，单，双周，考试周
-            //有考试周--非考试周的全false，有正常周的，考试周false
-            var i = 1
-            val week_list2:MutableList<Int> = mutableListOf()
-            var whether_really_full = true
-            var whether_full = true
-            var whether_first_eight = true
-            var whether_last_eight = true
-            var whether_single = true
-            var whether_double = true
-            var whether_exam = true
-            while(i <= total_weeks) {
-                val result:Boolean? = week_map[i]
+            var result = when (bitOfWeek) {
+                0L -> "空"
+                maskTotalWeek -> "全学期（含考试周）"
+                maskNormalWeek -> "全周"
+                maskExamWeek -> "考试周"
+                maskFirst8Week -> "前八周"
+                maskSecond8Week -> "后八周"
+                maskOddWeek -> "单周"
+                maskEvenWeek -> "双周"
+                else -> null
+            }
 
-                if(result == true) {
-                    if(i <= normal_weeks) {
-                        whether_exam = false
-                        if(i <= normal_weeks / 2) {
-                            whether_last_eight = false
-                        }
-                        else {
-                            whether_first_eight = false
-                        }
-                        if(i % 2 == 1) {
-                            whether_double = false
-                        }
-                        else {
-                            whether_single = false
-                        }
-                    }
+            if (result == null) {
+                val allRanges = mutableListOf<IntProgression>()
+                var hereBegin: Int? = null
+                var hereEnd: Int = -10
+                for (w in week_list.sorted()) {
+                    if (w == hereEnd + 1) hereEnd = w
                     else {
-                        whether_full = false
-                        whether_first_eight = false
-                        whether_last_eight = false
-                        whether_single = false
-                        whether_double = false
-                    }
-                    week_list2.add(i)
-                }
-                else {
-                    whether_really_full = false
-                    if(i <= normal_weeks) {
-                        whether_full = false
-                    }
-                    if(i <= normal_weeks && i <= normal_weeks / 2) {
-                        whether_first_eight = false
-                    }
-                    if(i <= normal_weeks && i > normal_weeks / 2) {
-                        whether_last_eight = false
-                    }
-                    if(i <= normal_weeks && i % 2 == 1) {
-                        whether_single = false
-                    }
-                    if(i <= normal_weeks && i % 2 == 0) {
-                        whether_double = false
-                    }
-                    if(i > normal_weeks) {
-                        whether_exam = false
+                        if (hereBegin != null) allRanges.add(hereBegin..hereEnd)
+                        hereBegin = w
+                        hereEnd = w
                     }
                 }
-                i ++
-            }
-
-            //判断是否是几种特殊情况
-            var result: String
-            if(whether_really_full) {
-                result = "全学期（含考试周）"
-            }
-            else if(whether_full) {
-                result = "全学期（不含考试周）"
-            }
-            else if(whether_first_eight) {
-                result = "前半学期"
-            }
-            else if(whether_last_eight) {
-                result = "后半学期"
-            }
-            else if(whether_single) {
-                result = "单周"
-            }
-            else if(whether_double) {
-                result = "双周"
-            }
-            else if(whether_exam) {
-                result = "考试周"
-            }
-            else if(week_list2.size <= 0) {
-                result = "空"
-            }
-            else {
-                result = "第"
-                for(i in week_list2.indices) {
-                    result = result + week_list2[i]
-                    if(i != week_list2.size - 1) {
-                        result = result + ","
-                    }
+                if (hereBegin != null) allRanges.add(hereBegin..hereEnd)
+                val contentStr = allRanges.joinToString {
+                    if (it.count() <= 2) it.joinToString() else "${it.first}-${it.last}"
                 }
-                result = result + "周"
+                result = "第${contentStr}周"
             }
             return result
         }
@@ -180,8 +120,9 @@ class ItemEditActivity : AppCompatActivity(){
          *参数：自己
          *返回：无
          */
-        fun HideItem(item:LinearLayout) {
-            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 0)
+        fun HideItem(item: LinearLayout) {
+            val params: LinearLayout.LayoutParams =
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
             item.layoutParams = params
         }
 
@@ -190,9 +131,10 @@ class ItemEditActivity : AppCompatActivity(){
          *参数：自己
          *返回：无
          */
-        fun ShowItem(item:LinearLayout) {
+        fun ShowItem(item: LinearLayout) {
             //和style一致
-            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 120)
+            val params: LinearLayout.LayoutParams =
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 120)
             item.layoutParams = params
         }
 
@@ -202,9 +144,12 @@ class ItemEditActivity : AppCompatActivity(){
          *参数：自己
          *返回：无
          */
-        fun ShowEdit(item:LinearLayout) {
+        fun ShowEdit(item: LinearLayout) {
             //和style一致
-            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT)
+            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
             item.layoutParams = params
         }
 
@@ -213,20 +158,20 @@ class ItemEditActivity : AppCompatActivity(){
          * 参数：时间
          * 返回：中文字符串
          */
-        fun getAheadTimeString(time: Duration) :String {
+        fun getAheadTimeString(time: Duration): String {
             val remind_minutes = time.toMinutes().toInt()
             var remind_string: String
-            if(remind_minutes >= 1440) {
+            if (remind_minutes >= 1440) {
                 remind_string = "一天"
             }
-            else if(remind_minutes < 60) {
+            else if (remind_minutes < 60) {
                 remind_string = "" + remind_minutes + "分钟"
             }
             else {
                 val remind_hour = remind_minutes / 60
-                val remind_minute:Int = remind_minutes % 60
+                val remind_minute: Int = remind_minutes % 60
                 remind_string = "" + remind_hour + "小时"
-                if(remind_minute != 0) {
+                if (remind_minute != 0) {
                     remind_string = remind_string + "" + remind_minute + "分钟"
                 }
             }
@@ -249,7 +194,7 @@ class ItemEditActivity : AppCompatActivity(){
 
         lifecycleScope.launch {
             //数据获取
-            if(currentID < 0) {
+            if (currentID < 0) {
                 getInitData()
             }
             else {
@@ -282,13 +227,13 @@ class ItemEditActivity : AppCompatActivity(){
         val list: List<Int> = listOf(currentID)
         val the_item = CREP.findItemsByIds(list)
         val size = the_item.getNotNullValue().size
-        if(size <= 0 || size > 1) {
+        if (size <= 0 || size > 1) {
             Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             setResult(Activity.RESULT_CANCELED)
             finish()
         }
         currentItem = the_item.getNotNullValue()[0]
-        if(currentItem == null) {
+        if (currentItem == null) {
             Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             setResult(Activity.RESULT_CANCELED)
             finish()
@@ -296,20 +241,17 @@ class ItemEditActivity : AppCompatActivity(){
     }
 
 
-
-
-
     /**
      * 描述：用于保存时，用于判断当前currentItem是否符合要求
      * 参数：无
      * 返回：符合true，不符合false,并且报错
      */
-    fun integrityCheck() :Boolean{
-        if(currentItem == null) {
+    fun integrityCheck(): Boolean {
+        if (currentItem == null) {
             Toast.makeText(this, "未找到数据!", Toast.LENGTH_LONG).show()
             return false
         }
-        if(currentItem?.times == null || currentItem!!.times.size < 1) {
+        if (currentItem?.times == null || currentItem!!.times.size < 1) {
             Toast.makeText(this, "当前日程没有任何时间段!", Toast.LENGTH_LONG).show()
             return false
         }
@@ -322,7 +264,7 @@ class ItemEditActivity : AppCompatActivity(){
      * 返回：无
      */
     suspend fun saveItem() {
-        if(currentID < 0) {
+        if (currentID < 0) {
             currentItem!!.id = 0
         }
         CREP.updateItemAndTimes(currentItem!!)
@@ -352,12 +294,15 @@ class ItemEditActivity : AppCompatActivity(){
             .setTitle("返回详情")
             .setMessage("您的编辑未保存，确定要不保存直接退出吗？")
             .setCancelable(true)
-            .setPositiveButton("确定"
+            .setPositiveButton(
+                "确定"
             ) { _, _ ->
                 setResult(Activity.RESULT_CANCELED)
-                finish() }
-            .setNegativeButton("取消"
-            ) { _, _ ->  }
+                finish()
+            }
+            .setNegativeButton(
+                "取消"
+            ) { _, _ -> }
         dialog.show()
     }
 
@@ -385,19 +330,20 @@ class ItemEditActivity : AppCompatActivity(){
             .setCancelable(true)
             .setPositiveButton("确定",
                 { _, _ ->
-                    lifecycleScope.launch{
+                    lifecycleScope.launch {
                         try {
                             saveItem()
                             setResult(Activity.RESULT_OK)
                             finish()
                         }
                         catch (e: Exception) {
-                            Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@ItemEditActivity, e.message, Toast.LENGTH_LONG)
+                                .show()
                         }
                     }
                 })
             .setNegativeButton("取消",
-                DialogInterface.OnClickListener { _, _ ->  })
+                DialogInterface.OnClickListener { _, _ -> })
         dialog.show()
     }
 
@@ -417,8 +363,17 @@ class ItemEditActivity : AppCompatActivity(){
      * 返回：无
      */
     fun handleAdd(view: View) {
-        val new_time_data:TimeInCourseSchedule = TimeInCourseSchedule(dayOfWeek = LocalDate.now().dayOfWeek, date = LocalDate.now(), startBig = 1)
-        val newTime:CalendarTimeData = CalendarTimeData(item_id = currentItem!!.id, type = CalendarTimeType.SINGLE_COURSE, timeInCourseSchedule = new_time_data, timeInHour = null)
+        val new_time_data: TimeInCourseSchedule = TimeInCourseSchedule(
+            dayOfWeek = LocalDate.now().dayOfWeek,
+            date = LocalDate.now(),
+            startBig = 1
+        )
+        val newTime: CalendarTimeData = CalendarTimeData(
+            item_id = currentItem!!.id,
+            type = CalendarTimeType.SINGLE_COURSE,
+            timeInCourseSchedule = new_time_data,
+            timeInHour = null
+        )
         currentItem!!.times.add(newTime)
         mAdapter!!.notifyDataSetChanged()
         mRecyclerView!!.scrollToPosition(mAdapter!!.itemCount - 1)
@@ -431,12 +386,11 @@ class ItemEditActivity : AppCompatActivity(){
      */
     fun handleSave(view: View) {
         //判断是否合法
-        if(integrityCheck()) {
+        if (integrityCheck()) {
             //对话框，保存
             showDialogSave()
         }
     }
-
 
 
 }
