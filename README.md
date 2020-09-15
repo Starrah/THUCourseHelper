@@ -57,7 +57,7 @@ https://cos.starrah.cn/THUCourseHelper.apk
 MIT License
 
 ## 鸣谢
-本项目中获取网络学堂课程作业部分，使用了[thu-learn-lib](https://github.com/Harry-Chen/thu-learn-lib)。
+本项目中获取网络学堂课程作业部分，使用了[thu-learn-lib](https://github.com/Harry-Chen/thu-learn-lib)。  
 拉取课程数据部分，感谢@RikaSugisawa 提供的帮助。
 
 ## 基本信息
