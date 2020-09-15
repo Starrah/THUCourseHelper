@@ -242,7 +242,7 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             assertDataSystem(schoolName == term.schoolName, "学校名称错误！")
             val termStrInXK = calculateTermStrInXK(term)
                 ?: return@withContext listOf<CalendarItemDataWithTimes>()
-            val rawStr =
+            var rawStr =
                 CookiedFuel.get("$XK_BASE_URL/syxk.vsyxkKcapb.do?m=ztkbSearch&p_xnxq=$termStrInXK&pathContent=整体课表")
                     .awaitString(Charset.forName("GBK"))
 
@@ -254,11 +254,21 @@ object THUCourseDataSouce : AbstractCourseDataSource() {
             }
             if ("该学年学期的选课或退课不在选课进度表中" in rawStr) throw DataInvalidException("当前学期的课程无法从教务系统的数据库中获得。可能是所选学期是将来的学期，或过于久远的过去学期。")
 
-            val itemList = parseRawZTKB(rawStr, term)
-
-            tryFixDataFromBackend(extra["context"] as Context, itemList)
-
-            itemList
+            if ("本科生选课系统" in rawStr) {
+                val itemList = parseRawZTKB(rawStr, term)
+                tryFixDataFromBackend(extra["context"] as Context, itemList)
+                itemList
+            }
+            else{
+                rawStr =
+                    CookiedFuel.get("$XK_BASE_URL/portal3rd.do?url=/portal3rd.do&m=yjs_kbSearch")
+                        .awaitString(Charset.forName("GBK"))
+                // TODO 研究生课表
+                throw DataInvalidException("研究生课表获取功能尚未但是即将实现，敬请期待！")
+//                val itemList = parseRawZTKB(rawStr, term)
+//                tryFixDataFromBackend(extra["context"] as Context, itemList)
+//                itemList
+            }
         }
     }
 
