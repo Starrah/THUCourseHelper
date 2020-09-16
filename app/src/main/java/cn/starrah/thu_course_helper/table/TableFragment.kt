@@ -8,9 +8,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.util.DisplayMetrics
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.ScrollView
@@ -29,7 +27,6 @@ import cn.starrah.thu_course_helper.data.declares.school.SchoolTimeRule
 import cn.starrah.thu_course_helper.data.declares.time.TimeInHour
 import cn.starrah.thu_course_helper.data.utils.getNotNullValue
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder
-import com.bigkoo.pickerview.listener.OnOptionsSelectListener
 import com.bigkoo.pickerview.view.OptionsPickerView
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -274,16 +271,13 @@ abstract class TableFragment : Fragment() {
         //setWeekToday()
 
         colorGrey = theActivity!!.resources.getColor(R.color.colorGreyBG)
-        getWeekOptionData()
         initWeekOptionPicker()
         loadColors()
         updateAllDates()
         showAllDates()
         clearOriginalCourses()
         drawStrokes()
-        if (theActivity == null) {
-            return
-        }
+        if (theActivity == null) return
         initializeLayout()
         setOriginalPlace()
 
@@ -396,40 +390,16 @@ abstract class TableFragment : Fragment() {
     }
 
     /**
-     * 描述：根据本周情况，获取本周的年月情况
+     * 描述：根据本周情况，获取本周的月情况
      * 参数：周号
-     * 返回：2020年6月 这种格式
+     * 返回：6月 这种格式
      */
     fun getWeekInfo(week: Int): String {
         val day_list = CREP.term.datesInAWeek(week, false)
-        val year_list: ArrayList<Int> = ArrayList()
         val month_list: ArrayList<Int> = ArrayList()
-        val current_year: Int
         val current_month: Int
         for (i in day_list.indices) {
-            year_list.add(day_list.get(i).year)
             month_list.add(day_list.get(i).monthValue)
-        }
-
-        //更新年份信息
-        val start_year: Int = year_list.get(0)
-        val end_year: Int = year_list.get(6)
-        if (start_year == end_year) {
-            current_year = start_year
-        }
-        else {
-            var start_num: Int = 0
-            for (item in year_list) {
-                if (item == start_year) {
-                    start_num++
-                }
-            }
-            if (start_num >= 4) {
-                current_year = start_year
-            }
-            else {
-                current_year = end_year
-            }
         }
 
         //更新月份信息
@@ -452,8 +422,7 @@ abstract class TableFragment : Fragment() {
                 current_month = end_month
             }
         }
-        val return_string = "" + current_year + "年" + current_month + "月"
-        return return_string
+        return "${current_month}月"
     }
 
 
@@ -469,21 +438,39 @@ abstract class TableFragment : Fragment() {
         val term_item: TextView = theActivity!!.findViewById<TextView>(termInfoShowPlace)
         val term_text: String = CREP.term.chineseShortName + " 第" + currentWeek + "周"
         term_item.setText(term_text)
-        term_item.setOnClickListener(View.OnClickListener() {
-            pvWeekOptions.show(term_item)
-        })
+
         val change_week: TextView = theActivity!!.findViewById<TextView>(R.id.change_week)
-        change_week.setOnClickListener(View.OnClickListener() {
-            pvWeekOptions.show(term_item)
-        })
+        //如果是当前周，显示的文字为“点击切换周数”，否则为“双击返回本周”
+        change_week.text = resources.getString(
+            if (currentWeek == CREP.term.dateToWeekNumber(LocalDate.now())) R.string.change_week
+            else R.string.back_to_current_week
+        )
 
         //年月期显示位置
         val date_item: TextView = theActivity!!.findViewById<TextView>(dateInfoShowPlace)
         val date_text: String = "" + currentYear + "年" + currentMonth + "月"
         date_item.setText(date_text)
-        date_item.setOnClickListener(View.OnClickListener() {
-            pvWeekOptions.show(date_item)
-        })
+
+        val topGestureDetector =
+            GestureDetector(requireActivity(), object : GestureDetector.SimpleOnGestureListener() {
+                override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                    pvWeekOptions.show(term_item)
+                    return super.onSingleTapConfirmed(e)
+                }
+
+                override fun onDoubleTap(e: MotionEvent?): Boolean {
+                    updateWeek(CREP.term.dateToWeekNumber(LocalDate.now()))
+                    return super.onDoubleTap(e)
+                }
+            })
+
+        // 同时监听单击和双击事件
+        theActivity!!.findViewById<LinearLayout>(R.id.top).apply {
+            setOnTouchListener { _, event ->
+                topGestureDetector.onTouchEvent(event)
+                true
+            }
+        }
 
         //更新日显示
         for (week_day in DayOfWeek.values()) {
@@ -516,9 +503,7 @@ abstract class TableFragment : Fragment() {
      * 返回：无
      */
     public suspend fun showAllCourses() {
-        if (theActivity == null) {
-            return
-        }
+        if (theActivity == null) return
         for (day in DayOfWeek.values()) {
             for (course in timeList[day]!!.getNotNullValue()) {
                 showOneItem(day, course)
@@ -833,14 +818,25 @@ abstract class TableFragment : Fragment() {
         return place
     }
 
-    //周选择
-    private var weekChoices: ArrayList<String> = arrayListOf()
-
     //周选择器
     private lateinit var pvWeekOptions: OptionsPickerView<Any>
 
 
     protected abstract fun changeCurrentWeek(week: Int)
+
+    private fun updateWeek(weekNumber: Int) {
+        changeCurrentWeek(weekNumber)
+        updateAllDates()
+        showAllDates()
+        clearOriginalCourses()
+        drawStrokes()
+        setOriginalPlace()
+        //initializeLayout()
+        lifecycleScope.launch {
+            getValidTimes()
+            showAllCourses()
+        }
+    }
 
     /**
      * 描述：加载周选择器，之前必须调用getCourseOptionData
@@ -848,21 +844,9 @@ abstract class TableFragment : Fragment() {
      * 返回：无
      */
     private fun initWeekOptionPicker() {
-        pvWeekOptions = OptionsPickerBuilder(theActivity,
-            OnOptionsSelectListener { options1, options2, options3, v -> //返回的分别是三个级别的选中位置
-                changeCurrentWeek(options1 + 1)
-                updateAllDates()
-                showAllDates()
-                clearOriginalCourses()
-                drawStrokes()
-                setOriginalPlace()
-                //initializeLayout()
-                lifecycleScope.launch {
-                    getValidTimes()
-                    showAllCourses()
-                }
-
-            })
+        pvWeekOptions = OptionsPickerBuilder(theActivity) { options1, _, _, _ -> //返回的分别是三个级别的选中位置
+            updateWeek(options1 + 1)
+        }
             .setTitleText("周选择")
             .setContentTextSize(20) //设置滚轮文字大小
             .setDividerColor(Color.DKGRAY) //设置分割线的颜色
@@ -876,36 +860,24 @@ abstract class TableFragment : Fragment() {
             .isRestoreItem(true) //切换时是否还原，设置默认选中第一项。
             .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
             .setOutSideColor(0x00000000) //设置外部遮罩颜色
-            .setOptionsSelectChangeListener { options1, options2, options3 ->
-
-            }
+//            .setOptionsSelectChangeListener { options1, options2, options3 -> }
             .build<Any>()
 
         pvWeekOptions.setPicker(weekChoices as List<Any>?) //一级选择器
     }
 
     /**
-     * 描述：初始化周选项数据
-     * 参数：无
-     * 返回：无
+     * 上方选择器的周选项列表
      */
-    private fun getWeekOptionData() {
-        weekChoices.clear()
-        val normal_count: Int = CREP.term.normalWeekCount
-        val exam_count: Int = CREP.term.examWeekCount
-        for (i in 1..normal_count) {
-            val string_week: String = "第" + i + "周"
-            val string_date: String = getWeekInfo(i)
-            val string = string_week + ", " + string_date
-            weekChoices.add(string)
+    private val weekChoices: List<String>
+        get() {
+            val normal_count: Int = CREP.term.normalWeekCount
+            val total_count: Int = CREP.term.totalWeekCount
+            return (1..total_count).map {
+                val weekAndMonth = "第${it}周(${getWeekInfo(it)}"
+                if (it !in 1..normal_count) "${weekAndMonth},考试周)" else "${weekAndMonth})"
+            }
         }
-        for (i in 1..exam_count) {
-            val string_week: String = "第" + (i + normal_count) + "周（考试周）"
-            val string_date: String = getWeekInfo(i + normal_count)
-            val string = string_week + ", " + string_date
-            weekChoices.add(string)
-        }
-    }
 
     /**
      * 描述：对于小时显示的情况，设置初始位置

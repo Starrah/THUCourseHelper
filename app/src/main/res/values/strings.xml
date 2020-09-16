@@ -169,5 +169,8 @@
     <string name="bg_orange">阳光橙</string>
     <string name="bg_yellow_purple">黄紫渐变</string>
 
+    <string name="change_week">点击切换周数</string>
+    <string name="back_to_current_week">双击返回本周</string>
+
     <string name="feedback_github_remind">通过下面的输入框提交的反馈内容将被保存到后台，运维者将不定期查看，因此您通过此方式提交的反馈可能解决较慢。我们更建议您考虑下面的两种方式：<a href="https://github.com/Starrah/THUCourseHelper/issues">通过Github Issues提交反馈</a>，或发送邮件到<a href="starrah@foxmail.com">starrah@foxmail.com</a>。</string>
 </resources>

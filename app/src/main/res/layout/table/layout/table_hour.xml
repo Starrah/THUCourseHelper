@@ -38,7 +38,7 @@
             android:gravity="center"
             android:textColor="@color/colorWhite"
             android:textSize="7dp"
-            android:text="点击切换当前周"/>
+            android:text="@string/change_week"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
