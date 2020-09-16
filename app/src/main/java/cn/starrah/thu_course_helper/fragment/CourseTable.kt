@@ -24,7 +24,6 @@ import java.time.DayOfWeek
 class CourseTable : TableFragment() {
 
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,10 +32,10 @@ class CourseTable : TableFragment() {
         theActivity = requireActivity()
         initSettings()
         var view: View?
-        if(showType == showTypeCourse) {
+        if (showType == showTypeCourse) {
             view = inflater.inflate(R.layout.table_class, container, false)
         }
-        else{
+        else {
             view = inflater.inflate(R.layout.table_hour, container, false)
         }
         return view
@@ -56,11 +55,11 @@ class CourseTable : TableFragment() {
         showTypeCourse = resources.getString(R.string.settings_course_show_type_course).toString();
         showTypeHour = resources.getString(R.string.settings_course_show_type_hour).toString();
 
-        var prefs:SharedPreferences = PreferenceManager.getDefaultSharedPreferences(theActivity)
+        var prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(theActivity)
 
         showType = prefs.getString("course_show_type", showTypeCourse).toString()
         var showDaysString = prefs.getString("course_show_days", showDayFive).toString()
-        if(showDaysString.equals(showDayFive)) {
+        if (showDaysString.equals(showDayFive)) {
             showDays = 5
         }
         else {
@@ -75,11 +74,21 @@ class CourseTable : TableFragment() {
      * @sample "第一\n大节\n08:00-\n09:35"
      */
     private fun initalizeClassText() {
-        val show_class_text_id = arrayOf<Int>(0, R.id.class_1_text, R.id.class_2_text,
-            R.id.class_3_text, R.id.class_4_text, R.id.class_5_text, R.id.class_6_text)
-        val show_string_list = arrayOf<String>("", "第一\n大节\n", "第二\n大节\n", "第三\n大节\n", "第四\n大节\n", "第五\n大节\n", "第六\n大节\n")
+        val show_class_text_id = arrayOf<Int>(
+            0, R.id.class_1_text, R.id.class_2_text,
+            R.id.class_3_text, R.id.class_4_text, R.id.class_5_text, R.id.class_6_text
+        )
+        val show_string_list = arrayOf<String>(
+            "",
+            "第一\n大节\n",
+            "第二\n大节\n",
+            "第三\n大节\n",
+            "第四\n大节\n",
+            "第五\n大节\n",
+            "第六\n大节\n"
+        )
         var i = 1;
-        while(i <= 6) {
+        while (i <= 6) {
             var show_place = theActivity!!.findViewById<TextView?>(show_class_text_id[i])
             var text_start_hour = CREP.timeRule.getBigByNumber(i).startTime.hour.toString()
             if (text_start_hour.length < 2) {
@@ -97,34 +106,34 @@ class CourseTable : TableFragment() {
             if (text_end_minute.length < 2) {
                 text_end_minute = "0" + text_end_minute
             }
-            var text_final:String = show_string_list[i] + text_start_hour + ":" + text_start_minute + "-\n" + text_end_hour + ":" + text_end_minute
+            var text_final: String =
+                show_string_list[i] + text_start_hour + ":" + text_start_minute + "-\n" + text_end_hour + ":" + text_end_minute
             show_place!!.setText(text_final)
-            i ++
+            i++
         }
     }
 
     /**
-    *描述：按照设置初始化视图
-    *参数：无
-    *返回：无
-    */
+     *描述：按照设置初始化视图
+     *参数：无
+     *返回：无
+     */
     override fun initializeLayout() {
-        if(theActivity == null)
-        {
+        if (theActivity == null) {
             return
         }
         initializeBaseLayout()
-        if(showType == showTypeCourse) {
+        if (showType == showTypeCourse) {
             initializeLeftCourse()
             initalizeClassText()
         }
-        else
-        {
+        else {
             initializeLeftHour()
         }
         initializeListWidth()
 
-        var add_button: FloatingActionButton = theActivity!!.findViewById<FloatingActionButton>(R.id.add_item)
+        var add_button: FloatingActionButton =
+            theActivity!!.findViewById<FloatingActionButton>(R.id.add_item)
         add_button.setVisibility(View.VISIBLE)
         add_button.setOnClickListener(View.OnClickListener {
             var intent = Intent(theActivity!!, ItemEditActivity::class.java)
@@ -140,13 +149,12 @@ class CourseTable : TableFragment() {
      * 返回：无
      */
     override fun drawStrokes() {
-        var color:String = setStrokesColor()
+        var color: String = setStrokesColor()
         drawVerticalStrokes(color)
-        if(showType == showTypeCourse) {
+        if (showType == showTypeCourse) {
             drawStrokesCourse(color)
         }
-        else
-        {
+        else {
             drawStrokesHour(color)
         }
     }
@@ -155,10 +163,10 @@ class CourseTable : TableFragment() {
     描述：显示某个日程时间段
     参数：这个时间段在周几，这个时间段的信息
     返回：无
-    */
+     */
     override fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem) {
         //只显示能大节显示的课程
-        if(theItem.calendarItem.type != CalendarItemType.COURSE) {
+        if (theItem.calendarItem.type != CalendarItemType.COURSE) {
             return
         }
         if (showType == showTypeCourse) {
@@ -168,13 +176,11 @@ class CourseTable : TableFragment() {
                 if (theItem.timeInCourseSchedule!!.startBig in 1..CREP.timeRule.bigsCount)
                     showOneCourse(theWeekDay, theItem)
             }
-            else
-            {
+            else {
                 showOneCourse(theWeekDay, theItem)
             }
         }
-        else
-        {
+        else {
             showOneHour(theWeekDay, theItem)
         }
 
@@ -187,7 +193,7 @@ class CourseTable : TableFragment() {
      */
     protected override fun changeCurrentWeek(week: Int) {
         val sp = PreferenceManager.getDefaultSharedPreferences(theActivity!!)
-        if(week <= 0 || week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
+        if (week <= 0 || week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
             setWeekToday()
         }
         else {
@@ -201,7 +207,7 @@ class CourseTable : TableFragment() {
     override fun onStart() {
         val sp = PreferenceManager.getDefaultSharedPreferences(theActivity!!)
         var current_week = sp.getInt("currentWeekCourseTable", 0)
-        if(current_week <= 0 || current_week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
+        if (current_week <= 0 || current_week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
             setWeekToday()
         }
         else {
@@ -218,11 +224,10 @@ class CourseTable : TableFragment() {
      * 返回：无
      */
     override fun setOriginalPlace() {
-        if(showType == showTypeCourse) {
+        if (showType == showTypeCourse) {
             setOriginalPlaceCourse()
         }
-        else
-        {
+        else {
             setOriginalPlaceHour()
         }
     }

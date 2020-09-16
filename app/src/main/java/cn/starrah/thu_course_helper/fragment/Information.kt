@@ -51,7 +51,8 @@ class Information : Fragment() {
                 loadFromBackend()
                 loadOriginalButtons()
             }
-            catch (e: CancellationException) {}
+            catch (e: CancellationException) {
+            }
             catch (e: Exception) {
                 runCatching {
                     Toast.makeText(

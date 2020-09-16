@@ -26,7 +26,7 @@ class TimeTable : TableFragment() {
     ): View {
         theActivity = requireActivity()
         initSettings()
-        var view:View = inflater.inflate(R.layout.table_hour, container, false)
+        var view: View = inflater.inflate(R.layout.table_hour, container, false)
 
         return view
     }
@@ -49,7 +49,7 @@ class TimeTable : TableFragment() {
 
         showType = showTypeHour
         var showDaysString = prefs.getString("time_show_days", showDayFive).toString()
-        if(showDaysString.equals(showDayFive)) {
+        if (showDaysString.equals(showDayFive)) {
             showDays = 5
         }
         else {
@@ -61,16 +61,16 @@ class TimeTable : TableFragment() {
     描述：按照设置初始化视图
     参数：无
     返回：无
-    */
+     */
     override fun initializeLayout() {
-        if(theActivity == null)
-        {
+        if (theActivity == null) {
             return
         }
         initializeBaseLayout()
         initializeLeftHour()
         initializeListWidth()
-        var add_button: FloatingActionButton = theActivity!!.findViewById<FloatingActionButton>(R.id.add_item)
+        var add_button: FloatingActionButton =
+            theActivity!!.findViewById<FloatingActionButton>(R.id.add_item)
         add_button.setVisibility(View.VISIBLE)
         add_button.setOnClickListener(View.OnClickListener {
             var intent = Intent(theActivity!!, ItemEditActivity::class.java)
@@ -84,7 +84,7 @@ class TimeTable : TableFragment() {
     描述：显示某个日程时间段
     参数：这个时间段在周几，这个时间段的信息
     返回：无
-    */
+     */
     override fun showOneItem(theWeekDay: DayOfWeek, theItem: CalendarTimeDataWithItem) {
         showOneHour(theWeekDay, theItem)
     }
@@ -95,7 +95,7 @@ class TimeTable : TableFragment() {
      * 返回：无
      */
     override fun drawStrokes() {
-        var color:String = setStrokesColor()
+        var color: String = setStrokesColor()
         drawVerticalStrokes(color)
         drawStrokesHour(color)
     }
@@ -108,7 +108,7 @@ class TimeTable : TableFragment() {
      */
     protected override fun changeCurrentWeek(week: Int) {
         val sp = PreferenceManager.getDefaultSharedPreferences(theActivity!!)
-        if(week <= 0 || week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
+        if (week <= 0 || week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
             setWeekToday()
         }
         else {
@@ -123,7 +123,7 @@ class TimeTable : TableFragment() {
     override fun onStart() {
         val sp = PreferenceManager.getDefaultSharedPreferences(theActivity!!)
         var current_week = sp.getInt("currentWeekTimeTable", 0)
-        if(current_week <= 0 || current_week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
+        if (current_week <= 0 || current_week > CREP.term.normalWeekCount + CREP.term.examWeekCount) {
             setWeekToday()
         }
         else {
